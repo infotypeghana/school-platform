@@ -1,0 +1,35 @@
+[Unit]
+Description=SchoolMS Ghana — Laravel Horizon Queue Worker
+Documentation=https://laravel.com/docs/horizon
+After=network.target
+
+[Service]
+# Run as the web server user — NEVER root
+User=www-data
+Group=www-data
+
+WorkingDirectory=/var/www/schoolms
+
+# The command Horizon recommends for production
+ExecStart=/usr/bin/php artisan horizon
+
+# Graceful shutdown: send SIGTERM so Horizon drains in-progress jobs first.
+# Match this to your longest job timeout (exports supervisor is 300 s).
+TimeoutStopSec=360
+KillSignal=SIGTERM
+KillMode=mixed
+
+# Restart automatically on crash (not on clean stop)
+Restart=on-failure
+RestartSec=5
+
+# Write output to journald (view with: journalctl -u schoolms-horizon -f)
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=schoolms-horizon
+
+# Resource limits — Horizon manages up to 3 supervisors with ~10 workers each
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,648 @@
+openapi: 3.1.0
+
+info:
+  title: SchoolMS Ghana REST API
+  version: "1.0"
+  description: |
+    REST API for the SchoolMS Ghana multi-tenant school management platform.
+
+    **Authentication**
+    - Login with `POST /api/v1/auth/login` supplying your school slug, email, and password.
+    - All subsequent requests require `Authorization: Bearer {token}` header.
+    - Tokens expire after **30 days**. Re-login to obtain a fresh token.
+
+    **Tenant Isolation**
+    - Every authenticated request is automatically scoped to your school.
+    - Attempting to access another school's data returns `404 Not Found`.
+
+    **Base URL**
+    - Production: `https://schoolms.com.gh`
+    - Replace path `/api/v1/` with the appropriate endpoint.
+
+  contact:
+    name: SchoolMS Ghana Support
+    email: support@schoolms.com.gh
+
+servers:
+  - url: https://schoolms.com.gh/api/v1
+    description: Production
+  - url: http://localhost:8000/api/v1
+    description: Local development
+
+tags:
+  - name: auth
+    description: Authentication — login, logout, current user
+  - name: dashboard
+    description: Summary statistics for the mobile home screen
+  - name: students
+    description: Student records
+  - name: classes
+    description: School classes with students and subjects
+  - name: attendance
+    description: Daily attendance — view and record
+  - name: announcements
+    description: Active school announcements
+  - name: timetable
+    description: Class timetable grouped by day
+  - name: assessments
+    description: Student scores and grades
+
+# ── Security ────────────────────────────────────────────────────────────────────
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum personal access token
+
+  # ── Reusable schemas ──────────────────────────────────────────────────────────
+  schemas:
+
+    UserInfo:
+      type: object
+      properties:
+        id:    { type: integer, example: 1 }
+        name:  { type: string,  example: "Kwame Asante" }
+        email: { type: string,  format: email, example: "admin@accraacademy.edu.gh" }
+        role:  { type: string,  enum: [school_admin, super_admin] }
+        two_factor_enabled: { type: boolean }
+
+    SchoolInfo:
+      type: object
+      properties:
+        id:     { type: integer, example: 3 }
+        slug:   { type: string,  example: "accraacademy" }
+        name:   { type: string,  example: "Accra Academy" }
+        email:  { type: string,  format: email }
+        status: { type: string,  enum: [trial, active, grace, locked, suspended] }
+
+    ClassRef:
+      type: object
+      properties:
+        id:   { type: integer }
+        name: { type: string, example: "Basic 5 (A)" }
+
+    TeacherRef:
+      type: object
+      properties:
+        id:        { type: integer }
+        full_name: { type: string, example: "Mrs Abena Mensah" }
+
+    StudentSummary:
+      type: object
+      properties:
+        id:               { type: integer }
+        admission_number: { type: string,  example: "ADM-2024-0023" }
+        full_name:        { type: string,  example: "Kofi Asante" }
+        first_name:       { type: string }
+        last_name:        { type: string }
+        gender:           { type: string,  enum: [male, female] }
+        date_of_birth:    { type: string,  format: date }
+        status:           { type: string,  enum: [active, inactive, graduated, transferred] }
+        photo_url:        { type: string,  format: uri, nullable: true }
+        class:
+          allOf:
+            - $ref: '#/components/schemas/ClassRef'
+            - nullable: true
+
+    AttendanceStatus:
+      type: string
+      enum: [present, absent, late, excused]
+      example: present
+
+    GradeCode:
+      type: string
+      enum: [A1, B2, B3, C4, C5, C6, D7, E8, F9]
+      description: |
+        Ghana GES grading scale:
+        - A1 (80–100) Excellent
+        - B2 (70–79)  Very Good
+        - B3 (60–69)  Good
+        - C4 (55–59)  Credit
+        - C5 (50–54)  Credit
+        - C6 (45–49)  Credit
+        - D7 (40–44)  Pass
+        - E8 (35–39)  Pass
+        - F9 (0–34)   Fail
+
+    PaginationMeta:
+      type: object
+      properties:
+        total:        { type: integer }
+        per_page:     { type: integer }
+        current_page: { type: integer }
+        last_page:    { type: integer }
+
+    ValidationError:
+      type: object
+      properties:
+        message: { type: string, example: "The given data was invalid." }
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items: { type: string }
+
+    UnauthorizedError:
+      type: object
+      properties:
+        message: { type: string, example: "Unauthenticated." }
+
+# ── Paths ────────────────────────────────────────────────────────────────────────
+paths:
+
+  # ── Auth ─────────────────────────────────────────────────────────────────────
+
+  /auth/login:
+    post:
+      tags: [auth]
+      summary: Login and obtain a Bearer token
+      security: []   # Public — no token required
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, school_slug]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: admin@accraacademy.edu.gh
+                password:
+                  type: string
+                  format: password
+                  example: "AccraAdmin@123"
+                school_slug:
+                  type: string
+                  example: accraacademy
+                  description: The school's unique URL slug (subdomain identifier)
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Sanctum personal access token (valid 30 days)
+                    example: "1|abc123def456..."
+                  user:  { $ref: '#/components/schemas/UserInfo' }
+                  school: { $ref: '#/components/schemas/SchoolInfo' }
+        "422":
+          description: Invalid credentials or unknown school slug
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
+
+  /auth/logout:
+    delete:
+      tags: [auth]
+      summary: Revoke the current Bearer token
+      responses:
+        "200":
+          description: Token revoked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: "Logged out successfully." }
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UnauthorizedError' }
+
+  /auth/me:
+    get:
+      tags: [auth]
+      summary: Return authenticated user and school info
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:   { $ref: '#/components/schemas/UserInfo' }
+                  school: { $ref: '#/components/schemas/SchoolInfo' }
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UnauthorizedError' }
+
+  # ── Dashboard ─────────────────────────────────────────────────────────────────
+
+  /dashboard:
+    get:
+      tags: [dashboard]
+      summary: Summary statistics for the mobile home screen
+      responses:
+        "200":
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stats:
+                    type: object
+                    properties:
+                      total_students:  { type: integer, example: 312 }
+                      total_teachers:  { type: integer, example: 18 }
+                      total_classes:   { type: integer, example: 9 }
+                      present_today:   { type: integer, example: 285 }
+                      absent_today:    { type: integer, example: 27 }
+                      attendance_rate: { type: number, format: float, example: 91.3, nullable: true }
+                  recent_announcements:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:           { type: integer }
+                        title:        { type: string }
+                        published_at: { type: string, format: date-time }
+                  generated_at: { type: string, format: date-time }
+
+  # ── Students ─────────────────────────────────────────────────────────────────
+
+  /students:
+    get:
+      tags: [students]
+      summary: List students (paginated)
+      parameters:
+        - name: class_id
+          in: query
+          schema: { type: integer }
+          description: Filter by school class ID
+        - name: status
+          in: query
+          schema: { type: string, enum: [active, inactive], default: active }
+        - name: search
+          in: query
+          schema: { type: string }
+          description: Search by name or admission number
+        - name: per_page
+          in: query
+          schema: { type: integer, default: 25 }
+      responses:
+        "200":
+          description: Paginated student list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/StudentSummary' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+
+  /students/{id}:
+    get:
+      tags: [students]
+      summary: Get full student profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Student profile
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/StudentSummary'
+                  - type: object
+                    properties:
+                      admission_date:  { type: string, format: date }
+                      guardian_name:   { type: string, nullable: true }
+                      guardian_phone:  { type: string, nullable: true }
+                      guardian_email:  { type: string, format: email, nullable: true }
+                      address:         { type: string, nullable: true }
+                      attendance_summary:
+                        type: object
+                        properties:
+                          present: { type: integer }
+                          absent:  { type: integer }
+                          late:    { type: integer }
+                      fee_summary:
+                        type: object
+                        properties:
+                          total_billed: { type: number }
+                          total_paid:   { type: number }
+                          balance:      { type: number }
+        "404":
+          description: Student not found (or belongs to another school)
+
+  # ── Classes ───────────────────────────────────────────────────────────────────
+
+  /classes:
+    get:
+      tags: [classes]
+      summary: List all classes with student counts
+      responses:
+        "200":
+          description: Class list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:            { type: integer }
+                        name:          { type: string, example: "Basic 5" }
+                        section:       { type: string, nullable: true, example: "A" }
+                        full_name:     { type: string, example: "Basic 5 (A)" }
+                        level:         { type: string, nullable: true }
+                        student_count: { type: integer }
+                        class_teacher:
+                          allOf:
+                            - $ref: '#/components/schemas/TeacherRef'
+                            - nullable: true
+
+  /classes/{id}:
+    get:
+      tags: [classes]
+      summary: Get class details with students and subjects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Class detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:           { type: integer }
+                  name:         { type: string }
+                  section:      { type: string, nullable: true }
+                  full_name:    { type: string }
+                  level:        { type: string, nullable: true }
+                  class_teacher:
+                    allOf: [{ $ref: '#/components/schemas/TeacherRef' }, { nullable: true }]
+                  students:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:               { type: integer }
+                        admission_number: { type: string }
+                        full_name:        { type: string }
+                        gender:           { type: string }
+                        photo_url:        { type: string, nullable: true }
+                  subjects:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:      { type: integer }
+                        name:    { type: string }
+                        teacher:
+                          allOf: [{ $ref: '#/components/schemas/TeacherRef' }, { nullable: true }]
+        "404":
+          description: Class not found
+
+  # ── Attendance ────────────────────────────────────────────────────────────────
+
+  /attendance:
+    get:
+      tags: [attendance]
+      summary: Get attendance records for a class on a date
+      parameters:
+        - name: class_id
+          in: query
+          required: true
+          schema: { type: integer }
+        - name: date
+          in: query
+          schema: { type: string, format: date }
+          description: Date to query (default is today)
+      responses:
+        "200":
+          description: Attendance roster
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  date:     { type: string, format: date }
+                  class_id: { type: integer }
+                  records:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        student_id:       { type: integer }
+                        admission_number: { type: string }
+                        full_name:        { type: string }
+                        photo_url:        { type: string, nullable: true }
+                        status:
+                          allOf: [{ $ref: '#/components/schemas/AttendanceStatus' }, { nullable: true }]
+                          description: null means not yet recorded for this date
+                        remark:           { type: string, nullable: true }
+        "422":
+          description: Missing class_id
+
+    post:
+      tags: [attendance]
+      summary: Record attendance for a class
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [class_id, term_id, date, records]
+              properties:
+                class_id: { type: integer }
+                term_id:  { type: integer }
+                date:     { type: string, format: date }
+                records:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required: [student_id, status]
+                    properties:
+                      student_id: { type: integer }
+                      status:     { $ref: '#/components/schemas/AttendanceStatus' }
+                      remark:     { type: string, maxLength: 200, nullable: true }
+      responses:
+        "201":
+          description: Attendance recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  date:    { type: string, format: date }
+                  count:   { type: integer }
+        "422":
+          description: Validation error
+
+  # ── Announcements ─────────────────────────────────────────────────────────────
+
+  /announcements:
+    get:
+      tags: [announcements]
+      summary: List active announcements
+      parameters:
+        - name: audience
+          in: query
+          schema: { type: string, enum: [all, teachers, parents, students, class] }
+        - name: per_page
+          in: query
+          schema: { type: integer, default: 15 }
+      responses:
+        "200":
+          description: Paginated announcements
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:           { type: integer }
+                        title:        { type: string }
+                        body:         { type: string }
+                        audience:     { type: string }
+                        published_at: { type: string, format: date-time, nullable: true }
+                        expires_at:   { type: string, format: date-time, nullable: true }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+
+  # ── Timetable ─────────────────────────────────────────────────────────────────
+
+  /timetable:
+    get:
+      tags: [timetable]
+      summary: Get timetable for a class grouped by day
+      parameters:
+        - name: class_id
+          in: query
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Weekly timetable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  timetable:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        day_number: { type: integer, minimum: 1, maximum: 5 }
+                        day_name:   { type: string, example: "Monday" }
+                        periods:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:            { type: integer }
+                              period_number: { type: integer }
+                              label:         { type: string, example: "Mathematics" }
+                              start_time:    { type: string, example: "07:30:00" }
+                              end_time:      { type: string, example: "08:20:00" }
+                              subject:
+                                type: object
+                                nullable: true
+                                properties:
+                                  id:   { type: integer }
+                                  name: { type: string }
+                              teacher:
+                                allOf: [{ $ref: '#/components/schemas/TeacherRef' }, { nullable: true }]
+
+  # ── Assessments ───────────────────────────────────────────────────────────────
+
+  /assessments:
+    get:
+      tags: [assessments]
+      summary: List student assessments / scores
+      parameters:
+        - name: term_id
+          in: query
+          required: true
+          schema: { type: integer }
+          description: Academic term ID (required)
+        - name: class_id
+          in: query
+          schema: { type: integer }
+        - name: subject_id
+          in: query
+          schema: { type: integer }
+        - name: student_id
+          in: query
+          schema: { type: integer }
+        - name: per_page
+          in: query
+          schema: { type: integer, default: 50 }
+      responses:
+        "200":
+          description: Paginated assessment list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        student:
+                          type: object
+                          nullable: true
+                          properties:
+                            id:               { type: integer }
+                            full_name:        { type: string }
+                            admission_number: { type: string }
+                        subject:
+                          type: object
+                          nullable: true
+                          properties:
+                            id:   { type: integer }
+                            name: { type: string }
+                        class:
+                          type: object
+                          nullable: true
+                          properties:
+                            id:   { type: integer }
+                            name: { type: string }
+                        ca_score:    { type: number, format: float, example: 25.0 }
+                        exam_score:  { type: number, format: float, example: 62.0 }
+                        total_score: { type: number, format: float, example: 87.0 }
+                        grade:       { $ref: '#/components/schemas/GradeCode' }
+                        remark:      { type: string, example: "Excellent" }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+        "422":
+          description: Missing required term_id parameter

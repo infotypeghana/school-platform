@@ -1,0 +1,22 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    # Start at level 5 — catches real bugs without requiring full annotations everywhere.
+    # Raise to 6+ incrementally as the codebase matures.
+    level: 5
+
+    paths:
+        - app
+
+    excludePaths:
+        # Generated / boilerplate files that don't need analysis
+        - app/Http/Middleware/TrustProxies.php
+
+    # Treat these as always-bound in the IoC container so PHPStan doesn't complain
+    # about app('currentTenant') returning mixed.
+    ignoreErrors:
+        # Blade view() calls return View which PHPStan can't statically type
+        - '#Call to an undefined method Illuminate\\View\\View#'
+        # Dynamic magic accessors on Eloquent models
+        - '#Access to an undefined property App\\Models\\[A-Za-z]+::\$#'
