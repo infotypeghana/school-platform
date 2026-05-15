@@ -55,11 +55,13 @@ class FeedingFee extends Model
 
             $balance = $fee->amount_due - $fee->amount_paid;
 
-            $fee->status = match (true) {
-                $balance <= 0              => 'paid',
-                $fee->amount_paid > 0      => 'partial',
-                default                    => 'unpaid',
-            };
+            if ($balance <= 0) {
+                $fee->status = 'paid';
+            } elseif ($fee->amount_paid > 0) {
+                $fee->status = 'partial';
+            } else {
+                $fee->status = 'unpaid';
+            }
         });
     }
 

@@ -250,7 +250,7 @@ class FeedingFeeService
     /**
      * Per-class summary rows for the report page.
      *
-     * @return Collection<int, array>
+     * @return Collection<int, \stdClass>
      */
     public function classBreakdown(int $termId): Collection
     {
