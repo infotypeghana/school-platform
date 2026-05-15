@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Website;
 
 use App\Http\Controllers\Controller;
 use App\Models\AcademicTerm;
+use App\Models\FeedingFee;
 use App\Models\Student;
 use App\Services\GradeCalculator;
 use Illuminate\Http\RedirectResponse;
@@ -156,6 +157,17 @@ class ParentPortalController extends Controller
             ? $student->fees->where('term_id', $currentTerm->id)
             : collect();
 
+        // Feeding fee for current term
+        $currentFeedingFee = null;
+        if ($currentTerm) {
+            $ff = FeedingFee::where('student_id', $student->id)
+                ->where('term_id', $currentTerm->id)
+                ->first();
+            if ($ff) {
+                $currentFeedingFee = $ff->is_exempt ? 'exempt' : $ff;
+            }
+        }
+
         $allFees = $student->fees->groupBy('term_id');
 
         $attendances      = $student->attendances;
@@ -188,6 +200,7 @@ class ParentPortalController extends Controller
             'assessmentsByTerm',
             'caMax',
             'examMax',
+            'currentFeedingFee',
         ));
     }
 

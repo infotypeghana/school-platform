@@ -84,6 +84,11 @@ class Student extends Model
         return $this->hasMany(Fee::class);
     }
 
+    public function feedingFees(): HasMany
+    {
+        return $this->hasMany(FeedingFee::class);
+    }
+
     public function getFullNameAttribute(): string
     {
         return "{$this->first_name} {$this->last_name}";

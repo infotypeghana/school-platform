@@ -1,0 +1,2993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SchoolMS Ghana — App UI Mockup</title>
+<style>
+:root {
+  --green:#10B981; --gold:#F59E0B; --red:#EF4444;
+  --dark:#0D1117; --sidebar:#0F1623; --card:#161D2C;
+  --card2:#1C2537; --border:#2A3448; --text:#F1F5F9;
+  --muted:#8899AA; --white:#fff;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+/* ── Top chrome ── */
+#topbar{
+  height:42px;background:#0a0e18;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 16px;gap:8px;flex-shrink:0;
+}
+.tb-dot{width:11px;height:11px;border-radius:50%;}
+.tb-url{
+  flex:1;max-width:480px;margin:0 auto;
+  background:var(--sidebar);border:1px solid var(--border);
+  border-radius:6px;padding:4px 12px;font-size:12px;color:var(--muted);text-align:center;
+}
+.screen-tabs{display:flex;gap:4px;margin-left:auto;}
+.screen-tab{
+  padding:4px 12px;border-radius:5px;font-size:11px;font-weight:600;
+  cursor:pointer;border:1px solid var(--border);color:var(--muted);
+  transition:all .2s;white-space:nowrap;
+}
+.screen-tab.active,.screen-tab:hover{background:var(--green);color:#fff;border-color:var(--green);}
+
+/* ── App shell ── */
+#app{display:flex;flex:1;overflow:hidden;}
+
+/* ── Sidebar ── */
+#sidebar{
+  width:220px;background:var(--sidebar);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;
+  padding:0;overflow-y:auto;
+}
+.sb-logo{
+  padding:16px 18px 14px;border-bottom:1px solid var(--border);
+  font-size:18px;font-weight:900;letter-spacing:-.02em;
+}
+.sb-logo span{color:var(--green);}
+.sb-school{font-size:10px;color:var(--muted);margin-top:2px;font-weight:400;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);padding:14px 18px 6px;}
+.sb-item{
+  display:flex;align-items:center;gap:10px;padding:9px 18px;
+  font-size:13px;color:var(--muted);cursor:pointer;
+  transition:all .15s;border-left:2px solid transparent;
+}
+.sb-item:hover{background:rgba(255,255,255,.04);color:var(--text);}
+.sb-item.active{
+  background:rgba(16,185,129,.1);color:var(--green);
+  border-left-color:var(--green);font-weight:600;
+}
+.sb-item .ico{font-size:15px;width:18px;text-align:center;}
+.sb-badge{
+  margin-left:auto;background:var(--red);color:#fff;
+  font-size:9px;font-weight:700;padding:1px 6px;border-radius:99px;
+}
+.sb-foot{margin-top:auto;border-top:1px solid var(--border);padding:14px 18px;}
+.sb-user{display:flex;align-items:center;gap:10px;}
+.sb-avatar{
+  width:32px;height:32px;border-radius:50%;background:rgba(16,185,129,.2);
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+}
+.sb-uname{font-size:12px;font-weight:600;}
+.sb-urole{font-size:10px;color:var(--muted);}
+
+/* ── Main content ── */
+#main{flex:1;overflow-y:auto;background:var(--dark);}
+.screen{display:none;padding:24px 28px;}
+.screen.active{display:block;}
+
+/* ── Page header ── */
+.page-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.page-title{font-size:20px;font-weight:800;}
+.page-sub{font-size:13px;color:var(--muted);margin-top:2px;}
+.btn{
+  padding:8px 16px;border-radius:7px;font-size:13px;font-weight:600;
+  cursor:pointer;border:none;display:inline-flex;align-items:center;gap:6px;
+  transition:opacity .2s;
+}
+.btn:hover{opacity:.88;}
+.btn-primary{background:var(--green);color:#fff;}
+.btn-secondary{background:var(--card2);color:var(--text);border:1px solid var(--border);}
+.btn-gold{background:var(--gold);color:#000;}
+.btn-danger{background:var(--red);color:#fff;}
+.btn-sm{padding:5px 12px;font-size:12px;}
+
+/* ── Stat cards ── */
+.stat-row{display:grid;gap:14px;margin-bottom:20px;}
+.stat-row.c4{grid-template-columns:repeat(4,1fr);}
+.stat-row.c3{grid-template-columns:repeat(3,1fr);}
+.stat-card{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:18px 20px;
+}
+.stat-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em;}
+.stat-value{font-size:28px;font-weight:900;line-height:1.1;margin:6px 0 4px;}
+.stat-delta{font-size:12px;color:var(--muted);}
+.stat-delta .up{color:var(--green);}
+.stat-delta .dn{color:var(--red);}
+
+/* ── Cards / panels ── */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.panel-hdr{
+  padding:14px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.panel-title{font-size:14px;font-weight:700;}
+.panel-body{padding:16px 18px;}
+
+/* ── Tables ── */
+.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.tbl th{
+  text-align:left;padding:10px 14px;font-size:11px;font-weight:700;
+  color:var(--muted);text-transform:uppercase;letter-spacing:.07em;
+  background:var(--card2);border-bottom:1px solid var(--border);
+}
+.tbl td{
+  padding:11px 14px;border-bottom:1px solid rgba(42,52,72,.6);
+  color:#D1D9E6;vertical-align:middle;
+}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:rgba(255,255,255,.025);}
+.tbl .text-right{text-align:right;}
+.tbl .text-center{text-align:center;}
+
+/* ── Badges ── */
+.badge{display:inline-block;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;}
+.b-green{background:rgba(16,185,129,.15);color:var(--green);}
+.b-gold{background:rgba(245,158,11,.15);color:var(--gold);}
+.b-red{background:rgba(239,68,68,.15);color:#F87171;}
+.b-blue{background:rgba(96,165,250,.15);color:#60A5FA;}
+.b-purple{background:rgba(167,139,250,.15);color:#A78BFA;}
+.b-gray{background:rgba(100,116,139,.15);color:#94A3B8;}
+
+/* ── Search/filter bar ── */
+.filter-bar{
+  display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;
+}
+.search-input{
+  background:var(--card2);border:1px solid var(--border);border-radius:7px;
+  padding:8px 14px;font-size:13px;color:var(--text);flex:1;min-width:200px;
+  outline:none;
+}
+.search-input::placeholder{color:var(--muted);}
+.select-input{
+  background:var(--card2);border:1px solid var(--border);border-radius:7px;
+  padding:8px 12px;font-size:13px;color:var(--muted);
+}
+
+/* ── Avatar chip ── */
+.ava{
+  width:32px;height:32px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;flex-shrink:0;
+}
+
+/* ── Grid layout ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.g1-2{display:grid;grid-template-columns:1fr 2fr;gap:16px;}
+.g2-1{display:grid;grid-template-columns:2fr 1fr;gap:16px;}
+
+/* ── Progress bar ── */
+.progress-track{height:8px;background:var(--card2);border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:4px;}
+
+/* ── Mini chart bars ── */
+.chart-bars{display:flex;align-items:flex-end;gap:6px;height:80px;}
+.chart-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
+.chart-bar{width:100%;border-radius:3px 3px 0 0;}
+.chart-lbl{font-size:9px;color:var(--muted);}
+.chart-val{font-size:9px;color:var(--text);font-weight:600;}
+
+/* ── Announcement card ── */
+.announce{
+  background:var(--card2);border:1px solid var(--border);border-radius:10px;
+  padding:14px 16px;margin-bottom:10px;
+}
+.announce:last-child{margin-bottom:0;}
+.ann-title{font-size:13px;font-weight:700;margin-bottom:4px;}
+.ann-meta{font-size:11px;color:var(--muted);}
+.ann-body{font-size:12px;color:#94A3B8;margin-top:6px;line-height:1.5;}
+
+/* ── Form ── */
+.form-group{margin-bottom:14px;}
+.form-label{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.06em;}
+.form-control{
+  width:100%;background:var(--card2);border:1px solid var(--border);
+  border-radius:7px;padding:9px 13px;font-size:13px;color:var(--text);outline:none;
+}
+.form-control:focus{border-color:var(--green);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+/* ── Activity feed ── */
+.activity{display:flex;flex-direction:column;gap:0;}
+.act-item{
+  display:flex;gap:12px;padding:10px 0;
+  border-bottom:1px solid rgba(42,52,72,.5);
+}
+.act-item:last-child{border-bottom:none;}
+.act-ico{
+  width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;
+  margin-top:2px;
+}
+.act-text{font-size:13px;line-height:1.4;}
+.act-time{font-size:11px;color:var(--muted);margin-top:2px;}
+
+/* ── Fee detail panel ── */
+.fee-summary-row{
+  display:flex;gap:12px;margin-bottom:16px;
+}
+.fee-box{
+  flex:1;background:var(--card2);border:1px solid var(--border);
+  border-radius:9px;padding:14px 16px;text-align:center;
+}
+.fee-box .fv{font-size:20px;font-weight:900;}
+.fee-box .fl{font-size:11px;color:var(--muted);margin-top:3px;}
+
+/* ── Attendance grid ── */
+.att-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.att-cell{
+  aspect-ratio:1;border-radius:5px;display:flex;align-items:center;
+  justify-content:center;font-size:10px;font-weight:700;cursor:default;
+}
+.att-p{background:rgba(16,185,129,.2);color:var(--green);}
+.att-a{background:rgba(239,68,68,.2);color:#F87171;}
+.att-e{background:rgba(245,158,11,.2);color:var(--gold);}
+.att-h{background:rgba(42,52,72,.5);color:var(--muted);}
+
+/* ── Grade pill ── */
+.grade{
+  display:inline-block;width:34px;height:24px;border-radius:5px;
+  text-align:center;line-height:24px;font-size:12px;font-weight:800;
+}
+.g-a1{background:rgba(16,185,129,.2);color:var(--green);}
+.g-b2{background:rgba(16,185,129,.15);color:#34D399;}
+.g-b3{background:rgba(96,165,250,.15);color:#60A5FA;}
+.g-c4{background:rgba(167,139,250,.15);color:#A78BFA;}
+.g-c5{background:rgba(245,158,11,.15);color:var(--gold);}
+.g-c6{background:rgba(245,158,11,.2);color:var(--gold);}
+.g-d7{background:rgba(239,68,68,.1);color:#FCA5A5;}
+.g-f9{background:rgba(239,68,68,.2);color:#F87171;}
+
+/* ── Timetable ── */
+.tt-grid{display:grid;grid-template-columns:60px repeat(5,1fr);gap:2px;font-size:11px;}
+.tt-head{background:var(--card2);padding:8px 6px;text-align:center;font-weight:700;border-radius:5px;color:var(--muted);}
+.tt-time{background:var(--card2);padding:8px 6px;text-align:center;font-size:10px;color:var(--muted);border-radius:5px;display:flex;align-items:center;justify-content:center;}
+.tt-cell{
+  border-radius:5px;padding:7px 8px;min-height:52px;
+  display:flex;flex-direction:column;justify-content:center;
+}
+.tt-empty{background:rgba(42,52,72,.2);}
+.tt-subj{font-weight:700;font-size:11px;}
+.tt-room{font-size:10px;opacity:.7;margin-top:2px;}
+
+/* ── Parent portal specific ── */
+.portal-header{
+  background:linear-gradient(135deg,rgba(16,185,129,.15) 0%,rgba(16,185,129,.03) 100%);
+  border:1px solid rgba(16,185,129,.2);border-radius:12px;
+  padding:20px 24px;margin-bottom:18px;
+  display:flex;align-items:center;gap:16px;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- Browser chrome -->
+<div id="topbar">
+  <div class="tb-dot" style="background:#F87171;"></div>
+  <div class="tb-dot" style="background:var(--gold);"></div>
+  <div class="tb-dot" style="background:var(--green);"></div>
+  <div class="tb-url" id="urlBar">accraacademy.admin.schoolms.com.gh/dashboard</div>
+  <div class="screen-tabs">
+    <div class="screen-tab active" onclick="switchScreen('dashboard',this,'accraacademy.admin.schoolms.com.gh/dashboard')">Dashboard</div>
+    <div class="screen-tab" onclick="switchScreen('students',this,'accraacademy.admin.schoolms.com.gh/students')">Students</div>
+    <div class="screen-tab" onclick="switchScreen('fees',this,'accraacademy.admin.schoolms.com.gh/fees')">Fees</div>
+    <div class="screen-tab" onclick="switchScreen('attendance',this,'accraacademy.admin.schoolms.com.gh/attendance')">Attendance</div>
+    <div class="screen-tab" onclick="switchScreen('assessments',this,'accraacademy.admin.schoolms.com.gh/assessments')">Assessments</div>
+    <div class="screen-tab" onclick="switchScreen('reportcards',this,'accraacademy.admin.schoolms.com.gh/report-cards')">Report Cards</div>
+    <div class="screen-tab" onclick="switchScreen('teacher',this,'accraacademy.schoolms.com.gh/teacher/dashboard')">Teacher Portal</div>
+    <div class="screen-tab" onclick="switchScreen('teacher-remarks',this,'accraacademy.schoolms.com.gh/teacher/remarks')">Teacher Remarks</div>
+    <div class="screen-tab" onclick="switchScreen('parent',this,'accraacademy.schoolms.com.gh/portal/dashboard')">Parent Portal</div>
+    <div class="screen-tab" onclick="switchScreen('website',this,'accraacademy.schoolms.com.gh/')">School Website</div>
+    <div class="screen-tab" onclick="switchScreen('feeding',this,'accraacademy.admin.schoolms.com.gh/feeding')">Feeding Fees</div>
+    <div class="screen-tab" onclick="switchScreen('grading',this,'accraacademy.admin.schoolms.com.gh/settings/grading')">Grading Settings</div>
+    <div class="screen-tab" onclick="switchScreen('superadmin',this,'superadmin.schoolms.com.gh/dashboard')">Super Admin</div>
+  </div>
+</div>
+
+<div id="app">
+
+<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+<div id="sidebar">
+  <div class="sb-logo">School<span>MS</span><div class="sb-school">Accra Academy Basic School</div></div>
+
+  <div class="sb-section">Main</div>
+  <div class="sb-item active" onclick="switchScreen('dashboard',null,'accraacademy.admin.schoolms.com.gh/dashboard')" id="nav-dashboard">
+    <span class="ico">📊</span> Dashboard
+  </div>
+
+  <div class="sb-section">Academic</div>
+  <div class="sb-item" onclick="switchScreen('students',null,'accraacademy.admin.schoolms.com.gh/students')" id="nav-students">
+    <span class="ico">👥</span> Students
+  </div>
+  <div class="sb-item" id="nav-teachers">
+    <span class="ico">👨‍🏫</span> Teachers
+  </div>
+  <div class="sb-item" id="nav-classes">
+    <span class="ico">🏫</span> Classes & Subjects
+  </div>
+  <div class="sb-item" onclick="switchScreen('assessments',null,'accraacademy.admin.schoolms.com.gh/assessments')" id="nav-assessments">
+    <span class="ico">📝</span> Assessments
+  </div>
+  <div class="sb-item" onclick="switchScreen('reportcards',null,'accraacademy.admin.schoolms.com.gh/report-cards')" id="nav-reportcards">
+    <span class="ico">🎓</span> Report Cards
+  </div>
+  <div class="sb-item" id="nav-timetable">
+    <span class="ico">📅</span> Timetable
+  </div>
+
+  <div class="sb-section">Administration</div>
+  <div class="sb-item" onclick="switchScreen('attendance',null,'accraacademy.admin.schoolms.com.gh/attendance')" id="nav-attendance">
+    <span class="ico">✅</span> Attendance
+  </div>
+  <div class="sb-item" onclick="switchScreen('fees',null,'accraacademy.admin.schoolms.com.gh/fees')" id="nav-fees">
+    <span class="ico">💰</span> Fees
+  </div>
+  <div class="sb-item" onclick="switchScreen('feeding',null,'accraacademy.admin.schoolms.com.gh/feeding')" id="nav-feeding">
+    <span class="ico">🍽</span> Feeding Fees
+  </div>
+  <div class="sb-item" id="nav-admissions">
+    <span class="ico">📋</span> Admissions <span class="sb-badge">4</span>
+  </div>
+  <div class="sb-item" id="nav-notices">
+    <span class="ico">📢</span> Notice Board
+  </div>
+  <div class="sb-item" id="nav-sms">
+    <span class="ico">💬</span> SMS Logs
+  </div>
+
+  <div class="sb-section">System</div>
+  <div class="sb-item" id="nav-backup">
+    <span class="ico">📦</span> Backup & Export
+  </div>
+  <div class="sb-item" id="nav-grading" onclick="switchScreen('grading',null,'accraacademy.admin.schoolms.com.gh/settings/grading')">
+    <span class="ico">📐</span> Grading Settings
+  </div>
+  <div class="sb-item" id="nav-settings">
+    <span class="ico">⚙️</span> Settings
+  </div>
+
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="sb-avatar">👨</div>
+      <div>
+        <div class="sb-uname">Mr. K. Mensah</div>
+        <div class="sb-urole">School Administrator</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MAIN CONTENT ═══════════════════ -->
+<div id="main">
+
+<!-- ════════════ SCREEN: DASHBOARD ════════════ -->
+<div class="screen active" id="screen-dashboard">
+  <div class="page-hdr">
+    <div>
+      <div class="page-title">Good morning, Mr. Mensah 👋</div>
+      <div class="page-sub">Term 2, 2025/2026 Academic Year · Week 8 of 13</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-secondary btn-sm">📢 Post Notice</button>
+      <button class="btn btn-primary btn-sm">+ Quick Add</button>
+    </div>
+  </div>
+
+  <!-- Subscription alert -->
+  <div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:10px 16px;margin-bottom:18px;display:flex;align-items:center;gap:10px;font-size:13px;">
+    <span>✅</span><span style="color:var(--green);font-weight:600;">Subscription Active</span><span style="color:var(--muted);">· Growth Plan · Expires 15 Aug 2026</span>
+    <span style="margin-left:auto;font-size:11px;color:var(--muted);">Renew early for 5% discount</span>
+  </div>
+
+  <!-- Stat cards -->
+  <div class="stat-row c4">
+    <div class="stat-card">
+      <div class="stat-label">Total Students</div>
+      <div class="stat-value" style="color:var(--green);">487</div>
+      <div class="stat-delta"><span class="up">▲ 12</span> from last term</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Fees Collected</div>
+      <div class="stat-value" style="color:var(--gold);">GHS 42,600</div>
+      <div class="stat-delta"><span class="up">▲ 68%</span> collection rate</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Today's Attendance</div>
+      <div class="stat-value" style="color:#60A5FA;">94.2%</div>
+      <div class="stat-delta"><span class="dn">▼ 2.1%</span> vs last week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Active Teachers</div>
+      <div class="stat-value" style="color:#A78BFA;">32</div>
+      <div class="stat-delta"><span style="color:var(--muted);">2 portals inactive</span></div>
+    </div>
+  </div>
+
+  <div class="g2-1">
+    <!-- Left column -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+
+      <!-- Fee collection chart -->
+      <div class="panel">
+        <div class="panel-hdr">
+          <div class="panel-title">Fee Collection by Class — Term 2</div>
+          <select class="select-input" style="font-size:11px;padding:4px 8px;">
+            <option>All Fee Types</option>
+          </select>
+        </div>
+        <div class="panel-body">
+          <div class="chart-bars" style="height:100px;">
+            <div class="chart-col">
+              <div class="chart-val">GHS 18k</div>
+              <div class="chart-bar" style="height:85px;background:var(--green);opacity:.85;"></div>
+              <div class="chart-lbl">JHS 1A</div>
+            </div>
+            <div class="chart-col">
+              <div class="chart-val">GHS 15k</div>
+              <div class="chart-bar" style="height:70px;background:var(--green);opacity:.75;"></div>
+              <div class="chart-lbl">JHS 1B</div>
+            </div>
+            <div class="chart-col">
+              <div class="chart-val">GHS 14k</div>
+              <div class="chart-bar" style="height:65px;background:var(--green);opacity:.7;"></div>
+              <div class="chart-lbl">JHS 2A</div>
+            </div>
+            <div class="chart-col">
+              <div class="chart-val">GHS 11k</div>
+              <div class="chart-bar" style="height:52px;background:var(--gold);opacity:.8;"></div>
+              <div class="chart-lbl">JHS 2B</div>
+            </div>
+            <div class="chart-col">
+              <div class="chart-val">GHS 13k</div>
+              <div class="chart-bar" style="height:60px;background:var(--green);opacity:.7;"></div>
+              <div class="chart-lbl">JHS 3</div>
+            </div>
+            <div class="chart-col">
+              <div class="chart-val">GHS 9k</div>
+              <div class="chart-bar" style="height:42px;background:#EF4444;opacity:.7;"></div>
+              <div class="chart-lbl">Prim 6</div>
+            </div>
+            <div class="chart-col">
+              <div class="chart-val">GHS 8k</div>
+              <div class="chart-bar" style="height:38px;background:#EF4444;opacity:.65;"></div>
+              <div class="chart-lbl">Prim 5</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:10px;font-size:11px;color:var(--muted);">
+            <span style="color:var(--green);">■</span> ≥ 75% collected
+            <span style="color:var(--gold);margin-left:8px;">■</span> 50–74%
+            <span style="color:#EF4444;margin-left:8px;">■</span> &lt; 50%
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent payments -->
+      <div class="panel">
+        <div class="panel-hdr">
+          <div class="panel-title">Recent Payments</div>
+          <button class="btn btn-secondary btn-sm">View All</button>
+        </div>
+        <table class="tbl">
+          <thead><tr><th>Student</th><th>Class</th><th>Amount</th><th>Type</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody>
+            <tr><td><div style="display:flex;align-items:center;gap:8px;"><div class="ava" style="background:rgba(16,185,129,.15);color:var(--green);">KA</div>Kofi Asante</div></td><td>JHS 2A</td><td>GHS 850</td><td>School Fees</td><td><span class="badge b-green">Paid</span></td><td style="color:var(--muted);">Today 9:41 AM</td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:8px;"><div class="ava" style="background:rgba(96,165,250,.15);color:#60A5FA;">AB</div>Ama Boateng</div></td><td>JHS 1A</td><td>GHS 500</td><td>School Fees</td><td><span class="badge b-gold">Partial</span></td><td style="color:var(--muted);">Today 8:15 AM</td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:8px;"><div class="ava" style="background:rgba(167,139,250,.15);color:#A78BFA;">KM</div>Kweku Mensah</div></td><td>JHS 3</td><td>GHS 850</td><td>School Fees</td><td><span class="badge b-green">Paid</span></td><td style="color:var(--muted);">Yesterday</td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:8px;"><div class="ava" style="background:rgba(245,158,11,.15);color:var(--gold);">YD</div>Yaw Darko</div></td><td>Prim 6A</td><td>GHS 200</td><td>Exam Fee</td><td><span class="badge b-green">Paid</span></td><td style="color:var(--muted);">Yesterday</td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:8px;"><div class="ava" style="background:rgba(239,68,68,.15);color:#F87171;">AO</div>Abena Owusu</div></td><td>JHS 1B</td><td>GHS 0</td><td>School Fees</td><td><span class="badge b-red">Unpaid</span></td><td style="color:var(--muted);">Due: 31 May</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+
+      <!-- Attendance summary -->
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Attendance — Today</div></div>
+        <div class="panel-body" style="padding:14px 16px;">
+          <div style="margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;">
+              <span>Present</span><span style="color:var(--green);font-weight:700;">459 / 487</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width:94%;background:var(--green);"></div>
+            </div>
+          </div>
+          <div style="margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;">
+              <span>Absent</span><span style="color:#F87171;font-weight:700;">21 / 487</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width:4.3%;background:#EF4444;"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;">
+              <span>Excused</span><span style="color:var(--gold);font-weight:700;">7 / 487</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width:1.4%;background:var(--gold);"></div>
+            </div>
+          </div>
+          <div style="margin-top:12px;font-size:11px;color:var(--muted);text-align:center;">
+            3 classes have not submitted registers yet
+          </div>
+        </div>
+      </div>
+
+      <!-- Notices -->
+      <div class="panel">
+        <div class="panel-hdr">
+          <div class="panel-title">Recent Notices</div>
+          <button class="btn btn-secondary btn-sm">+ Post</button>
+        </div>
+        <div class="panel-body" style="padding:12px 14px;">
+          <div class="announce">
+            <div class="ann-title">Inter-School Sports Day</div>
+            <div class="ann-meta">📌 Pinned · Posted by Admin · 2 days ago</div>
+            <div class="ann-body">Sports day is scheduled for Friday 23 May. All students should report in full sports kit by 7:30 AM.</div>
+          </div>
+          <div class="announce">
+            <div class="ann-title">Term 2 Exam Timetable Released</div>
+            <div class="ann-meta">Posted by Admin · 5 days ago</div>
+            <div class="ann-body">The end-of-term examination timetable has been published. Parents can view it on the school portal.</div>
+          </div>
+          <div class="announce">
+            <div class="ann-title">PTA Meeting — 28 May 2026</div>
+            <div class="ann-meta">Posted by Admin · 1 week ago</div>
+            <div class="ann-body">All parents are invited to the Term 2 PTA meeting at 10:00 AM in the school hall.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent activity -->
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Audit Activity</div></div>
+        <div class="panel-body" style="padding:10px 14px;">
+          <div class="activity">
+            <div class="act-item">
+              <div class="act-ico" style="background:rgba(16,185,129,.1);">💰</div>
+              <div><div class="act-text">Fee payment recorded for <strong>Kofi Asante</strong> — GHS 850</div><div class="act-time">9:41 AM · by Mr. Mensah</div></div>
+            </div>
+            <div class="act-item">
+              <div class="act-ico" style="background:rgba(96,165,250,.1);">👥</div>
+              <div><div class="act-text">New student <strong>Efua Koomson</strong> enrolled in JHS 1A</div><div class="act-time">Yesterday 2:15 PM</div></div>
+            </div>
+            <div class="act-item">
+              <div class="act-ico" style="background:rgba(167,139,250,.1);">📝</div>
+              <div><div class="act-text">Scores entered for <strong>Mathematics — JHS 2A</strong></div><div class="act-time">Yesterday 11:30 AM</div></div>
+            </div>
+            <div class="act-item">
+              <div class="act-ico" style="background:rgba(245,158,11,.1);">📋</div>
+              <div><div class="act-text">Admission application from <strong>Kwame Darko</strong> approved</div><div class="act-time">2 days ago</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════ SCREEN: STUDENTS ════════════ -->
+<div class="screen" id="screen-students">
+  <div class="page-hdr">
+    <div>
+      <div class="page-title">Students</div>
+      <div class="page-sub">487 active students across 12 classes</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-secondary btn-sm">📤 Export</button>
+      <button class="btn btn-primary btn-sm">+ Enrol Student</button>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <input class="search-input" placeholder="🔍  Search by name or admission number…" style="max-width:300px;">
+    <select class="select-input"><option>All Classes</option><option>JHS 1A</option><option>JHS 1B</option><option>JHS 2A</option><option>JHS 2B</option><option>JHS 3</option></select>
+    <select class="select-input"><option>All Statuses</option><option>Active</option><option>Inactive</option><option>Graduated</option></select>
+    <select class="select-input"><option>All Genders</option><option>Male</option><option>Female</option></select>
+    <button class="btn btn-secondary btn-sm">⚙ Bulk Actions</button>
+  </div>
+
+  <div class="panel">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th style="width:36px;"><input type="checkbox" style="accent-color:var(--green);"></th>
+          <th>Student</th>
+          <th>Admission No.</th>
+          <th>Class</th>
+          <th>Gender</th>
+          <th>Guardian</th>
+          <th>Guardian Phone</th>
+          <th>Fees</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="checkbox" style="accent-color:var(--green);"></td>
+          <td><div style="display:flex;align-items:center;gap:9px;"><div class="ava" style="background:rgba(16,185,129,.15);color:var(--green);">KA</div><div><div style="font-weight:600;font-size:13px;">Kofi Asante</div><div style="font-size:11px;color:var(--muted);">kofi.a@mail.com</div></div></div></td>
+          <td style="font-family:monospace;font-size:12px;color:var(--muted);">ACA-2024-00142</td>
+          <td><span class="badge b-blue">JHS 2A</span></td>
+          <td>Male</td>
+          <td>Mrs. Asante</td>
+          <td style="font-size:12px;color:var(--muted);">+233 24 123 4567</td>
+          <td><span class="badge b-green">Paid</span></td>
+          <td><span class="badge b-green">Active</span></td>
+          <td><button class="btn btn-secondary btn-sm">View</button></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" style="accent-color:var(--green);"></td>
+          <td><div style="display:flex;align-items:center;gap:9px;"><div class="ava" style="background:rgba(96,165,250,.15);color:#60A5FA;">AB</div><div><div style="font-weight:600;font-size:13px;">Ama Boateng</div><div style="font-size:11px;color:var(--muted);">guardian@mail.com</div></div></div></td>
+          <td style="font-family:monospace;font-size:12px;color:var(--muted);">ACA-2024-00098</td>
+          <td><span class="badge b-blue">JHS 1A</span></td>
+          <td>Female</td>
+          <td>Mr. Boateng</td>
+          <td style="font-size:12px;color:var(--muted);">+233 20 987 6543</td>
+          <td><span class="badge b-gold">Partial</span></td>
+          <td><span class="badge b-green">Active</span></td>
+          <td><button class="btn btn-secondary btn-sm">View</button></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" style="accent-color:var(--green);"></td>
+          <td><div style="display:flex;align-items:center;gap:9px;"><div class="ava" style="background:rgba(167,139,250,.15);color:#A78BFA;">KM</div><div><div style="font-weight:600;font-size:13px;">Kweku Mensah</div><div style="font-size:11px;color:var(--muted);">—</div></div></div></td>
+          <td style="font-family:monospace;font-size:12px;color:var(--muted);">ACA-2023-00074</td>
+          <td><span class="badge b-purple">JHS 3</span></td>
+          <td>Male</td>
+          <td>Mr. Mensah Sr.</td>
+          <td style="font-size:12px;color:var(--muted);">+233 27 456 7890</td>
+          <td><span class="badge b-green">Paid</span></td>
+          <td><span class="badge b-green">Active</span></td>
+          <td><button class="btn btn-secondary btn-sm">View</button></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" style="accent-color:var(--green);"></td>
+          <td><div style="display:flex;align-items:center;gap:9px;"><div class="ava" style="background:rgba(239,68,68,.15);color:#F87171;">AO</div><div><div style="font-weight:600;font-size:13px;">Abena Owusu</div><div style="font-size:11px;color:var(--muted);">owusu.fam@mail.com</div></div></div></td>
+          <td style="font-family:monospace;font-size:12px;color:var(--muted);">ACA-2024-00201</td>
+          <td><span class="badge b-blue">JHS 1B</span></td>
+          <td>Female</td>
+          <td>Mrs. Owusu</td>
+          <td style="font-size:12px;color:var(--muted);">+233 24 555 0011</td>
+          <td><span class="badge b-red">Unpaid</span></td>
+          <td><span class="badge b-green">Active</span></td>
+          <td><button class="btn btn-secondary btn-sm">View</button></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" style="accent-color:var(--green);"></td>
+          <td><div style="display:flex;align-items:center;gap:9px;"><div class="ava" style="background:rgba(245,158,11,.15);color:var(--gold);">YD</div><div><div style="font-weight:600;font-size:13px;">Yaw Darko</div><div style="font-size:11px;color:var(--muted);">—</div></div></div></td>
+          <td style="font-family:monospace;font-size:12px;color:var(--muted);">ACA-2022-00031</td>
+          <td><span class="badge b-gold">Prim 6A</span></td>
+          <td>Male</td>
+          <td>Mr. Darko</td>
+          <td style="font-size:12px;color:var(--muted);">+233 20 334 5678</td>
+          <td><span class="badge b-green">Paid</span></td>
+          <td><span class="badge b-green">Active</span></td>
+          <td><button class="btn btn-secondary btn-sm">View</button></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" style="accent-color:var(--green);"></td>
+          <td><div style="display:flex;align-items:center;gap:9px;"><div class="ava" style="background:rgba(16,185,129,.15);color:var(--green);">EK</div><div><div style="font-weight:600;font-size:13px;">Efua Koomson</div><div style="font-size:11px;color:var(--muted);">—</div></div></div></td>
+          <td style="font-family:monospace;font-size:12px;color:var(--muted);">ACA-2025-00001</td>
+          <td><span class="badge b-blue">JHS 1A</span></td>
+          <td>Female</td>
+          <td>Mrs. Koomson</td>
+          <td style="font-size:12px;color:var(--muted);">+233 55 212 3344</td>
+          <td><span class="badge b-red">Unpaid</span></td>
+          <td><span class="badge b-green">Active</span></td>
+          <td><button class="btn btn-secondary btn-sm">View</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted);">
+      <span>Showing 6 of 487 students</span>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-secondary btn-sm">← Prev</button>
+        <button class="btn btn-primary btn-sm" style="background:var(--card2);color:var(--text);">1</button>
+        <button class="btn btn-secondary btn-sm">2</button>
+        <button class="btn btn-secondary btn-sm">3</button>
+        <button class="btn btn-secondary btn-sm">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════ SCREEN: FEES ════════════ -->
+<div class="screen" id="screen-fees">
+  <div class="page-hdr">
+    <div>
+      <div class="page-title">Fee Management</div>
+      <div class="page-sub">Term 2, 2025/2026 · All Classes</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-secondary btn-sm">📊 Summary</button>
+      <button class="btn btn-secondary btn-sm">⚙ Bulk Assign</button>
+      <button class="btn btn-primary btn-sm">+ Record Fee</button>
+    </div>
+  </div>
+
+  <!-- Summary row -->
+  <div class="fee-summary-row">
+    <div class="fee-box">
+      <div class="fv" style="color:var(--muted);">GHS 62,750</div>
+      <div class="fl">Total Levied</div>
+    </div>
+    <div class="fee-box">
+      <div class="fv" style="color:var(--green);">GHS 42,600</div>
+      <div class="fl">Total Collected</div>
+    </div>
+    <div class="fee-box">
+      <div class="fv" style="color:#F87171;">GHS 20,150</div>
+      <div class="fl">Outstanding Balance</div>
+    </div>
+    <div class="fee-box">
+      <div class="fv" style="color:var(--gold);">67.9%</div>
+      <div class="fl">Collection Rate</div>
+    </div>
+  </div>
+  <div class="progress-track" style="margin-bottom:20px;height:12px;border-radius:6px;">
+    <div class="progress-fill" style="width:67.9%;background:linear-gradient(90deg,var(--green),var(--gold));"></div>
+  </div>
+
+  <div class="filter-bar">
+    <input class="search-input" placeholder="🔍  Search student name or admission number…" style="max-width:280px;">
+    <select class="select-input"><option>All Statuses</option><option>Paid</option><option>Partial</option><option>Unpaid</option></select>
+    <select class="select-input"><option>All Classes</option><option>JHS 1A</option><option>JHS 2A</option><option>JHS 3</option></select>
+    <select class="select-input"><option>All Fee Types</option><option>School Fees</option><option>PTA Levy</option><option>Exam Fee</option></select>
+  </div>
+
+  <div class="panel">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Student</th><th>Class</th><th>Fee Type</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Due Date</th><th>Receipt</th><th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div style="display:flex;align-items:center;gap:8px;"><div class="ava" style="background:rgba(16,185,129,.15);color:var(--green);font-size:11px;">KA</div>Kofi Asante</div></td>
+          <td>JHS 2A</td><td>School Fees</td>
+          <td>GHS 850</td><td style="color:var(--green);">GHS 850</td><td style="color:var(--muted);">GHS 0</td>
+          <td>31 May 2026</td>
+          <td style="font-family:monospace;font-size:11px;color:var(--muted);">RCT-20260510-00142</td>
+          <td><span class="badge b-green">Paid</span></td>
+          <td style="display:flex;gap:4px;padding-top:9px;"><button class="btn btn-secondary btn-sm">📄 Receipt</button><button class="btn btn-secondary btn-sm">✏ Edit</button></td>
+        </tr>
+        <tr>
+          <td><div style="display:flex;align-items:center;gap:8px;"><div class="ava" style="background:rgba(96,165,250,.15);color:#60A5FA;font-size:11px;">AB</div>Ama Boateng</div></td>
+          <td>JHS 1A</td><td>School Fees</td>
+          <td>GHS 850</td><td style="color:var(--gold);">GHS 500</td><td style="color:#F87171;">GHS 350</td>
+          <td>31 May 2026</td>
+          <td style="font-family:monospace;font-size:11px;color:var(--muted);">RCT-20260508-00098</td>
+          <td><span class="badge b-gold">Partial</span></td>
+          <td style="display:flex;gap:4px;padding-top:9px;"><button class="btn btn-primary btn-sm">💵 Pay</button><button class="btn btn-secondary btn-sm">✏ Edit</button></td>
+        </tr>
+        <tr>
+          <td><div style="display:flex;align-items:center;gap:8px;"><div class="ava" style="background:rgba(167,139,250,.15);color:#A78BFA;font-size:11px;">KM</div>Kweku Mensah</div></td>
+          <td>JHS 3</td><td>School Fees</td>
+          <td>GHS 850</td><td style="color:var(--green);">GHS 850</td><td style="color:var(--muted);">GHS 0</td>
+          <td>31 May 2026</td>
+          <td style="font-family:monospace;font-size:11px;color:var(--muted);">RCT-20260509-00074</td>
+          <td><span class="badge b-green">Paid</span></td>
+          <td style="display:flex;gap:4px;padding-top:9px;"><button class="btn btn-secondary btn-sm">📄 Receipt</button><button class="btn btn-secondary btn-sm">✏ Edit</button></td>
+        </tr>
+        <tr>
+          <td><div style="display:flex;align-items:center;gap:8px;"><div class="ava" style="background:rgba(239,68,68,.15);color:#F87171;font-size:11px;">AO</div>Abena Owusu</div></td>
+          <td>JHS 1B</td><td>School Fees</td>
+          <td>GHS 850</td><td style="color:var(--muted);">GHS 0</td><td style="color:#F87171;">GHS 850</td>
+          <td style="color:#F87171;">31 May 2026</td>
+          <td style="font-family:monospace;font-size:11px;color:var(--border);">—</td>
+          <td><span class="badge b-red">Unpaid</span></td>
+          <td style="display:flex;gap:4px;padding-top:9px;"><button class="btn btn-primary btn-sm">💵 Pay</button><button class="btn btn-secondary btn-sm">✏ Edit</button></td>
+        </tr>
+        <tr>
+          <td><div style="display:flex;align-items:center;gap:8px;"><div class="ava" style="background:rgba(245,158,11,.15);color:var(--gold);font-size:11px;">YD</div>Yaw Darko</div></td>
+          <td>Prim 6A</td><td>Exam Fee</td>
+          <td>GHS 200</td><td style="color:var(--green);">GHS 200</td><td style="color:var(--muted);">GHS 0</td>
+          <td>20 May 2026</td>
+          <td style="font-family:monospace;font-size:11px;color:var(--muted);">RCT-20260505-00031</td>
+          <td><span class="badge b-green">Paid</span></td>
+          <td style="display:flex;gap:4px;padding-top:9px;"><button class="btn btn-secondary btn-sm">📄 Receipt</button><button class="btn btn-secondary btn-sm">✏ Edit</button></td>
+        </tr>
+        <tr>
+          <td><div style="display:flex;align-items:center;gap:8px;"><div class="ava" style="background:rgba(16,185,129,.15);color:var(--green);font-size:11px;">KA</div>Kofi Asante</div></td>
+          <td>JHS 2A</td><td>PTA Levy</td>
+          <td>GHS 120</td><td style="color:var(--green);">GHS 120</td><td style="color:var(--muted);">GHS 0</td>
+          <td>15 May 2026</td>
+          <td style="font-family:monospace;font-size:11px;color:var(--muted);">RCT-20260501-00142</td>
+          <td><span class="badge b-green">Paid</span></td>
+          <td style="display:flex;gap:4px;padding-top:9px;"><button class="btn btn-secondary btn-sm">📄 Receipt</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted);">
+      <span>Showing 6 of 523 fee records</span>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-secondary btn-sm">← Prev</button>
+        <button class="btn btn-secondary btn-sm" style="background:var(--card2);">1</button>
+        <button class="btn btn-secondary btn-sm">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════ SCREEN: ATTENDANCE ════════════ -->
+<div class="screen" id="screen-attendance">
+  <div class="page-hdr">
+    <div>
+      <div class="page-title">Attendance</div>
+      <div class="page-sub">Thursday, 15 May 2026 · Term 2</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-secondary btn-sm">📊 Reports</button>
+      <button class="btn btn-secondary btn-sm">📤 Export</button>
+      <button class="btn btn-primary btn-sm">+ Mark Attendance</button>
+    </div>
+  </div>
+
+  <div class="g2">
+    <!-- Today's register -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="panel">
+        <div class="panel-hdr">
+          <div class="panel-title">JHS 2A — Today's Register</div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="badge b-green">Submitted</span>
+            <button class="btn btn-secondary btn-sm">✏ Edit</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div style="display:flex;gap:8px;margin-bottom:12px;font-size:12px;">
+            <span style="color:var(--green);">■</span> Present (28)
+            <span style="color:#F87171;margin-left:8px;">■</span> Absent (3)
+            <span style="color:var(--gold);margin-left:8px;">■</span> Excused (1)
+          </div>
+          <table class="tbl" style="font-size:12px;">
+            <thead><tr><th>#</th><th>Student</th><th>Status</th><th>Remark</th></tr></thead>
+            <tbody>
+              <tr><td style="color:var(--muted);">1</td><td>Kofi Asante</td><td><span class="badge b-green">Present</span></td><td style="color:var(--muted);">—</td></tr>
+              <tr><td style="color:var(--muted);">2</td><td>Ama Boateng</td><td><span class="badge b-green">Present</span></td><td style="color:var(--muted);">—</td></tr>
+              <tr><td style="color:var(--muted);">3</td><td>Kweku Mensah</td><td><span class="badge b-red">Absent</span></td><td style="font-size:11px;color:var(--muted);">No notification</td></tr>
+              <tr><td style="color:var(--muted);">4</td><td>Abena Owusu</td><td><span class="badge b-gold">Excused</span></td><td style="font-size:11px;color:var(--muted);">Medical leave</td></tr>
+              <tr><td style="color:var(--muted);">5</td><td>Yaw Darko</td><td><span class="badge b-green">Present</span></td><td style="color:var(--muted);">—</td></tr>
+              <tr><td style="color:var(--muted);">6</td><td>Efua Koomson</td><td><span class="badge b-green">Present</span></td><td style="color:var(--muted);">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Submit pending registers -->
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Pending Registers — Today</div><span class="badge b-red">3 pending</span></div>
+        <div class="panel-body">
+          <table class="tbl" style="font-size:12px;">
+            <thead><tr><th>Class</th><th>Teacher</th><th>Students</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td>Prim 5A</td><td>Ms. Acheampong</td><td>38</td><td><button class="btn btn-primary btn-sm">Mark Now</button></td></tr>
+              <tr><td>Prim 4B</td><td>Mr. Asamoah</td><td>42</td><td><button class="btn btn-primary btn-sm">Mark Now</button></td></tr>
+              <tr><td>Nursery 2</td><td>Mrs. Baah</td><td>22</td><td><button class="btn btn-primary btn-sm">Mark Now</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly calendar view -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="panel">
+        <div class="panel-hdr">
+          <div class="panel-title">Kofi Asante — May 2026 Attendance</div>
+          <span class="badge b-green">96.4%</span>
+        </div>
+        <div class="panel-body">
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px;text-align:center;font-size:10px;color:var(--muted);font-weight:700;">
+            <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+          </div>
+          <div class="att-grid">
+            <div class="att-cell att-h">—</div><div class="att-cell att-h">—</div>
+            <div class="att-cell att-p">P</div><div class="att-cell att-p">P</div><div class="att-cell att-p">P</div>
+            <div class="att-cell att-h">S</div><div class="att-cell att-h">S</div>
+            <div class="att-cell att-p">P</div><div class="att-cell att-p">P</div>
+            <div class="att-cell att-p">P</div><div class="att-cell att-p">P</div><div class="att-cell att-p">P</div>
+            <div class="att-cell att-h">S</div><div class="att-cell att-h">S</div>
+            <div class="att-cell att-p">P</div><div class="att-cell att-a">A</div>
+            <div class="att-cell att-p">P</div><div class="att-cell att-p">P</div><div class="att-cell att-p">P</div>
+            <div class="att-cell att-h">S</div><div class="att-cell att-h">S</div>
+            <div class="att-cell att-p">P</div><div class="att-cell att-p">P</div>
+            <div class="att-cell att-p">P</div><div class="att-cell att-e">E</div><div class="att-cell att-p">P</div>
+            <div class="att-cell att-h">S</div><div class="att-cell att-h">S</div>
+            <div class="att-cell att-p">P</div><div class="att-cell att-p">P</div>
+            <div class="att-cell att-p">P</div><div class="att-cell att-p">P</div>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:12px;font-size:11px;">
+            <span><span style="color:var(--green);">P</span> Present (25)</span>
+            <span><span style="color:#F87171;">A</span> Absent (1)</span>
+            <span><span style="color:var(--gold);">E</span> Excused (1)</span>
+            <span style="color:var(--muted);">S = Weekend/Holiday</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Biometric device status -->
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Biometric Device Status</div></div>
+        <div class="panel-body">
+          <table class="tbl" style="font-size:12px;">
+            <thead><tr><th>Device</th><th>Location</th><th>IP</th><th>Last Sync</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>ZKTeco K40</td><td>Main Gate</td>
+                <td style="font-family:monospace;font-size:11px;">192.168.1.101</td>
+                <td style="font-size:11px;color:var(--muted);">Today 7:32 AM</td>
+                <td><span class="badge b-green">Online</span></td>
+              </tr>
+              <tr>
+                <td>ZKTeco F18</td><td>Staff Room</td>
+                <td style="font-family:monospace;font-size:11px;">192.168.1.102</td>
+                <td style="font-size:11px;color:var(--muted);">Yesterday 5:10 PM</td>
+                <td><span class="badge b-gold">Idle</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="margin-top:10px;">
+            <button class="btn btn-secondary btn-sm">🔄 Sync Now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════ SCREEN: ASSESSMENTS ════════════ -->
+<div class="screen" id="screen-assessments">
+  <div class="page-hdr">
+    <div>
+      <div class="page-title">Assessments & Scores</div>
+      <div class="page-sub">JHS 2A · Term 2, 2025/2026 · GES A1–F9 Grading</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-secondary btn-sm">🎓 Generate Report Cards</button>
+      <button class="btn btn-primary btn-sm">+ Add Assessment</button>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <select class="select-input"><option>JHS 2A</option><option>JHS 1A</option><option>JHS 3</option></select>
+    <select class="select-input"><option>Term 2 · 2025/2026</option><option>Term 1 · 2025/2026</option></select>
+    <select class="select-input"><option>All Subjects</option><option>Mathematics</option><option>English Language</option><option>Science</option></select>
+  </div>
+
+  <div class="g1-2" style="margin-bottom:16px;">
+    <!-- Class averages -->
+    <div class="panel" style="height:fit-content;">
+      <div class="panel-hdr"><div class="panel-title">Class Averages — JHS 2A</div></div>
+      <div class="panel-body">
+        <table class="tbl" style="font-size:12px;">
+          <thead><tr><th>Subject</th><th>Avg Score</th><th>Grade</th></tr></thead>
+          <tbody>
+            <tr><td>Mathematics</td><td>74.2</td><td><span class="grade g-b2">B2</span></td></tr>
+            <tr><td>English Language</td><td>81.5</td><td><span class="grade g-a1">A1</span></td></tr>
+            <tr><td>Integrated Science</td><td>67.3</td><td><span class="grade g-b3">B3</span></td></tr>
+            <tr><td>Social Studies</td><td>70.8</td><td><span class="grade g-b2">B2</span></td></tr>
+            <tr><td>R.M.E.</td><td>78.4</td><td><span class="grade g-b2">B2</span></td></tr>
+            <tr><td>ICT</td><td>55.1</td><td><span class="grade g-c5">C5</span></td></tr>
+            <tr><td>French</td><td>61.9</td><td><span class="grade g-b3">B3</span></td></tr>
+            <tr><td>Ghanaian Lang.</td><td>72.0</td><td><span class="grade g-b2">B2</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Score grid -->
+    <div class="panel">
+      <div class="panel-hdr">
+        <div class="panel-title">Score Sheet — Mathematics (Class Assessment 2)</div>
+        <button class="btn btn-secondary btn-sm">✏ Edit Scores</button>
+      </div>
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th class="text-center">CA1<br><span style="font-weight:400;">/30</span></th>
+            <th class="text-center">CA2<br><span style="font-weight:400;">/30</span></th>
+            <th class="text-center">Exam<br><span style="font-weight:400;">/40</span></th>
+            <th class="text-center">Total<br><span style="font-weight:400;">/100</span></th>
+            <th class="text-center">Grade</th>
+            <th class="text-center">Points</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Kofi Asante</strong></td>
+            <td class="text-center">26</td><td class="text-center">24</td><td class="text-center">28</td>
+            <td class="text-center"><strong>78</strong></td>
+            <td class="text-center"><span class="grade g-b2">B2</span></td>
+            <td class="text-center" style="color:var(--green);font-weight:700;">2</td>
+          </tr>
+          <tr>
+            <td><strong>Ama Boateng</strong></td>
+            <td class="text-center">22</td><td class="text-center">20</td><td class="text-center">30</td>
+            <td class="text-center"><strong>72</strong></td>
+            <td class="text-center"><span class="grade g-b2">B2</span></td>
+            <td class="text-center" style="color:var(--green);font-weight:700;">2</td>
+          </tr>
+          <tr>
+            <td><strong>Kweku Mensah</strong></td>
+            <td class="text-center">28</td><td class="text-center">27</td><td class="text-center">35</td>
+            <td class="text-center"><strong>90</strong></td>
+            <td class="text-center"><span class="grade g-a1">A1</span></td>
+            <td class="text-center" style="color:var(--green);font-weight:700;">1</td>
+          </tr>
+          <tr>
+            <td><strong>Abena Owusu</strong></td>
+            <td class="text-center">15</td><td class="text-center">18</td><td class="text-center">22</td>
+            <td class="text-center"><strong>55</strong></td>
+            <td class="text-center"><span class="grade g-c5">C5</span></td>
+            <td class="text-center" style="color:var(--gold);font-weight:700;">5</td>
+          </tr>
+          <tr>
+            <td><strong>Yaw Darko</strong></td>
+            <td class="text-center">19</td><td class="text-center">21</td><td class="text-center">25</td>
+            <td class="text-center"><strong>65</strong></td>
+            <td class="text-center"><span class="grade g-b3">B3</span></td>
+            <td class="text-center" style="color:#60A5FA;font-weight:700;">3</td>
+          </tr>
+          <tr>
+            <td><strong>Efua Koomson</strong></td>
+            <td class="text-center">12</td><td class="text-center">14</td><td class="text-center">18</td>
+            <td class="text-center"><strong>44</strong></td>
+            <td class="text-center"><span class="grade g-d7">D7</span></td>
+            <td class="text-center" style="color:#FCA5A5;font-weight:700;">7</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="padding:12px 16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);">
+        Class Avg: <strong style="color:var(--text);">67.3 / 100</strong> ·
+        Highest: <strong style="color:var(--green);">90 (Kweku Mensah)</strong> ·
+        Lowest: <strong style="color:#F87171;">44 (Efua Koomson)</strong> ·
+        <span style="margin-left:6px;color:var(--muted);">GES: A1(80+) B2(70) B3(60) C4(55) C5(50) C6(45) D7(40) E8(35) F9(&lt;35)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════ SCREEN: TEACHER PORTAL ════════════ -->
+<div class="screen" id="screen-teacher">
+  <div style="max-width:900px;margin:0 auto;">
+    <!-- Teacher Portal nav -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:4px 8px;margin-bottom:14px;display:flex;gap:2px;font-size:13px;">
+      <button class="btn btn-primary btn-sm" style="background:rgba(96,165,250,.15);color:#60A5FA;border:none;">Dashboard</button>
+      <button class="btn btn-secondary btn-sm" onclick="switchScreen('teacher',null,'accraacademy.schoolms.com.gh/teacher/scores')">Scores</button>
+      <button class="btn btn-secondary btn-sm">Timetable</button>
+      <button class="btn btn-secondary btn-sm" onclick="switchScreen('teacher-remarks',null,'accraacademy.schoolms.com.gh/teacher/remarks')" style="color:var(--green);">Remarks ✦</button>
+    </div>
+
+    <div style="background:linear-gradient(135deg,rgba(96,165,250,.12) 0%,rgba(96,165,250,.03) 100%);border:1px solid rgba(96,165,250,.2);border-radius:12px;padding:18px 22px;margin-bottom:20px;display:flex;align-items:center;gap:16px;">
+      <div style="width:48px;height:48px;border-radius:50%;background:rgba(96,165,250,.2);display:flex;align-items:center;justify-content:center;font-size:22px;">👩‍🏫</div>
+      <div>
+        <div style="font-size:16px;font-weight:800;">Welcome back, Ms. Ama Acheampong</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">Mathematics & ICT Teacher · JHS 2A Class Teacher · Portal last login: Today 7:14 AM</div>
+      </div>
+      <button class="btn btn-secondary btn-sm" style="margin-left:auto;">🔒 Change Password</button>
+    </div>
+
+    <div class="stat-row c4" style="margin-bottom:20px;">
+      <div class="stat-card"><div class="stat-label">My Classes</div><div class="stat-value" style="color:#60A5FA;">3</div><div class="stat-delta">JHS 2A, JHS 2B, JHS 3</div></div>
+      <div class="stat-card"><div class="stat-label">Pending Score Entry</div><div class="stat-value" style="color:var(--gold);">2</div><div class="stat-delta">CA2 results overdue</div></div>
+      <div class="stat-card"><div class="stat-label">Attendance Today</div><div class="stat-value" style="color:var(--green);">Submitted</div><div class="stat-delta" style="color:var(--green);">✓ JHS 2A registered</div></div>
+      <div class="stat-card" onclick="switchScreen('teacher-remarks',null,'accraacademy.schoolms.com.gh/teacher/remarks')" style="cursor:pointer;border-color:rgba(16,185,129,.25);">
+        <div class="stat-label">Remarks Pending</div>
+        <div class="stat-value" style="color:var(--green);">18</div>
+        <div class="stat-delta">of 32 students · JHS 2A</div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <!-- My subjects & score entry -->
+      <div class="panel">
+        <div class="panel-hdr">
+          <div class="panel-title">My Subjects — Score Entry</div>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <table class="tbl">
+            <thead><tr><th>Class</th><th>Subject</th><th>Assessment</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td>JHS 2A</td><td>Mathematics</td><td>CA2</td><td><span class="badge b-green">Submitted</span></td><td><button class="btn btn-secondary btn-sm">View</button></td></tr>
+              <tr><td>JHS 2B</td><td>Mathematics</td><td>CA2</td><td><span class="badge b-red">Pending</span></td><td><button class="btn btn-primary btn-sm">Enter Scores</button></td></tr>
+              <tr><td>JHS 3</td><td>ICT</td><td>CA2</td><td><span class="badge b-red">Pending</span></td><td><button class="btn btn-primary btn-sm">Enter Scores</button></td></tr>
+              <tr><td>JHS 2A</td><td>Mathematics</td><td>Exam</td><td><span class="badge b-gray">Not Open</span></td><td><button class="btn btn-secondary btn-sm" disabled style="opacity:.4;">Locked</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Timetable -->
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">My Timetable — This Week</div></div>
+        <div class="panel-body" style="padding:10px;">
+          <div class="tt-grid">
+            <div class="tt-head">—</div>
+            <div class="tt-head">Mon</div><div class="tt-head">Tue</div>
+            <div class="tt-head">Wed</div><div class="tt-head">Thu</div><div class="tt-head">Fri</div>
+
+            <div class="tt-time">7:30</div>
+            <div class="tt-cell" style="background:rgba(16,185,129,.12);"><div class="tt-subj" style="color:var(--green);">Maths</div><div class="tt-room">JHS 2A</div></div>
+            <div class="tt-cell tt-empty"></div>
+            <div class="tt-cell" style="background:rgba(16,185,129,.12);"><div class="tt-subj" style="color:var(--green);">Maths</div><div class="tt-room">JHS 2B</div></div>
+            <div class="tt-cell" style="background:rgba(16,185,129,.12);"><div class="tt-subj" style="color:var(--green);">Maths</div><div class="tt-room">JHS 2A</div></div>
+            <div class="tt-cell tt-empty"></div>
+
+            <div class="tt-time">9:00</div>
+            <div class="tt-cell tt-empty"></div>
+            <div class="tt-cell" style="background:rgba(96,165,250,.12);"><div class="tt-subj" style="color:#60A5FA;">ICT</div><div class="tt-room">JHS 3</div></div>
+            <div class="tt-cell tt-empty"></div>
+            <div class="tt-cell" style="background:rgba(96,165,250,.12);"><div class="tt-subj" style="color:#60A5FA;">ICT</div><div class="tt-room">JHS 3</div></div>
+            <div class="tt-cell" style="background:rgba(16,185,129,.12);"><div class="tt-subj" style="color:var(--green);">Maths</div><div class="tt-room">JHS 2B</div></div>
+
+            <div class="tt-time">11:00</div>
+            <div class="tt-cell" style="background:rgba(16,185,129,.12);"><div class="tt-subj" style="color:var(--green);">Maths</div><div class="tt-room">JHS 2B</div></div>
+            <div class="tt-cell tt-empty"></div>
+            <div class="tt-cell tt-empty"></div>
+            <div class="tt-cell tt-empty"></div>
+            <div class="tt-cell" style="background:rgba(96,165,250,.12);"><div class="tt-subj" style="color:#60A5FA;">ICT</div><div class="tt-room">JHS 3</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════ SCREEN: PARENT PORTAL ════════════ -->
+<div class="screen" id="screen-parent">
+  <div style="max-width:760px;margin:0 auto;">
+
+    <!-- Multi-ward switcher banner -->
+    <div style="background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2);border-radius:10px;padding:10px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <span style="font-size:12px;font-weight:600;color:var(--muted);">My Children:</span>
+      <button class="btn btn-sm" style="background:rgba(96,165,250,.2);border:1px solid rgba(96,165,250,.5);color:#60A5FA;font-weight:700;border-radius:20px;padding:4px 14px;">
+        👦 Kofi Asante <span style="font-size:10px;opacity:.7;">JHS 2A</span>
+      </button>
+      <button class="btn btn-secondary btn-sm" style="border-radius:20px;padding:4px 14px;color:var(--muted);">
+        👧 Ama Asante <span style="font-size:10px;opacity:.6;">JHS 1B</span>
+      </button>
+      <a href="#" style="font-size:12px;color:#60A5FA;text-decoration:none;margin-left:auto;">+ Add another child</a>
+    </div>
+
+    <div class="portal-header">
+      <div style="width:52px;height:52px;border-radius:50%;background:rgba(16,185,129,.2);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">👦</div>
+      <div>
+        <div style="font-size:18px;font-weight:800;">Kofi Asante</div>
+        <div style="font-size:13px;color:var(--muted);">Admission No: ACA-2024-00142 · JHS 2A · Accra Academy Basic School</div>
+        <div style="font-size:12px;color:var(--green);margin-top:3px;">✓ Logged in as parent/guardian</div>
+      </div>
+      <div style="margin-left:auto;text-align:right;">
+        <div style="font-size:11px;color:var(--muted);">Term 2 · 2025/2026</div>
+        <button class="btn btn-secondary btn-sm" style="margin-top:6px;">🔒 Log Out</button>
+      </div>
+    </div>
+
+    <!-- Quick stats -->
+    <div class="stat-row c3" style="margin-bottom:16px;">
+      <div class="stat-card" style="border-color:rgba(16,185,129,.25);">
+        <div class="stat-label">Fee Balance</div>
+        <div class="stat-value" style="color:var(--green);font-size:22px;">GHS 0</div>
+        <div class="stat-delta" style="color:var(--green);">✓ Fully Paid · Term 2</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Attendance Rate</div>
+        <div class="stat-value" style="color:#60A5FA;font-size:22px;">96.4%</div>
+        <div class="stat-delta">2 absences · 1 excused</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Current Position</div>
+        <div class="stat-value" style="color:var(--gold);font-size:22px;">4th</div>
+        <div class="stat-delta">out of 32 students</div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <!-- Academic results -->
+      <div class="panel">
+        <div class="panel-hdr">
+          <div class="panel-title">Academic Results — Term 2</div>
+          <span class="badge b-blue">Midterm</span>
+        </div>
+        <table class="tbl" style="font-size:13px;">
+          <thead><tr><th>Subject</th><th class="text-center">Score</th><th class="text-center">Grade</th><th class="text-center">Pts</th></tr></thead>
+          <tbody>
+            <tr><td>Mathematics</td><td class="text-center">78</td><td class="text-center"><span class="grade g-b2">B2</span></td><td class="text-center" style="color:var(--green);">2</td></tr>
+            <tr><td>English Language</td><td class="text-center">85</td><td class="text-center"><span class="grade g-a1">A1</span></td><td class="text-center" style="color:var(--green);">1</td></tr>
+            <tr><td>Integrated Science</td><td class="text-center">64</td><td class="text-center"><span class="grade g-b3">B3</span></td><td class="text-center" style="color:#60A5FA;">3</td></tr>
+            <tr><td>Social Studies</td><td class="text-center">72</td><td class="text-center"><span class="grade g-b2">B2</span></td><td class="text-center" style="color:var(--green);">2</td></tr>
+            <tr><td>R.M.E.</td><td class="text-center">79</td><td class="text-center"><span class="grade g-b2">B2</span></td><td class="text-center" style="color:var(--green);">2</td></tr>
+            <tr><td>ICT</td><td class="text-center">58</td><td class="text-center"><span class="grade g-c4">C4</span></td><td class="text-center" style="color:#A78BFA;">4</td></tr>
+            <tr><td>French</td><td class="text-center">70</td><td class="text-center"><span class="grade g-b2">B2</span></td><td class="text-center" style="color:var(--green);">2</td></tr>
+            <tr style="background:rgba(16,185,129,.04);"><td colspan="2" style="font-weight:700;">Aggregate (Best 6)</td><td class="text-center"><strong>—</strong></td><td class="text-center" style="color:var(--green);font-weight:800;font-size:14px;">14</td></tr>
+          </tbody>
+        </table>
+        <div style="padding:10px 14px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);">
+          Lower aggregate = better performance · BECE passing target: ≤ 36
+        </div>
+      </div>
+
+      <!-- Fee history + Attendance -->
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="panel">
+          <div class="panel-hdr"><div class="panel-title">Fee History</div></div>
+          <table class="tbl" style="font-size:12px;">
+            <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Receipt</th></tr></thead>
+            <tbody>
+              <tr><td>10 May 2026</td><td>School Fees</td><td style="color:var(--green);">GHS 850</td><td style="font-family:monospace;font-size:10px;">RCT-20260510-00142</td></tr>
+              <tr><td>1 May 2026</td><td>PTA Levy</td><td style="color:var(--green);">GHS 120</td><td style="font-family:monospace;font-size:10px;">RCT-20260501-00142</td></tr>
+              <tr><td>15 Jan 2026</td><td>School Fees</td><td style="color:var(--green);">GHS 850</td><td style="font-family:monospace;font-size:10px;">RCT-20260115-00142</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <div class="panel-hdr"><div class="panel-title">Attendance — May 2026</div><span class="badge b-green">96.4%</span></div>
+          <div class="panel-body">
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <div style="text-align:center;flex:1;min-width:80px;background:rgba(16,185,129,.08);border-radius:8px;padding:10px;">
+                <div style="font-size:22px;font-weight:900;color:var(--green);">25</div>
+                <div style="font-size:10px;color:var(--muted);">Days Present</div>
+              </div>
+              <div style="text-align:center;flex:1;min-width:80px;background:rgba(239,68,68,.08);border-radius:8px;padding:10px;">
+                <div style="font-size:22px;font-weight:900;color:#F87171;">1</div>
+                <div style="font-size:10px;color:var(--muted);">Absent</div>
+              </div>
+              <div style="text-align:center;flex:1;min-width:80px;background:rgba(245,158,11,.08);border-radius:8px;padding:10px;">
+                <div style="font-size:22px;font-weight:900;color:var(--gold);">1</div>
+                <div style="font-size:10px;color:var(--muted);">Excused</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-hdr"><div class="panel-title">School Announcements</div></div>
+          <div class="panel-body" style="padding:10px 14px;">
+            <div class="announce" style="margin-bottom:8px;">
+              <div class="ann-title" style="font-size:12px;">Sports Day — 23 May</div>
+              <div class="ann-body" style="font-size:11px;">Students report in sports kit by 7:30 AM. No academic uniform required.</div>
+            </div>
+            <div class="announce">
+              <div class="ann-title" style="font-size:12px;">PTA Meeting — 28 May</div>
+              <div class="ann-body" style="font-size:11px;">All parents invited. 10:00 AM in the school hall.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════ SCREEN: REPORT CARDS ════════════ -->
+<div class="screen" id="screen-reportcards">
+
+  <!-- ── Two sub-views toggled by JS: list view and detail view ── -->
+
+  <!-- LIST VIEW -->
+  <div id="rc-list">
+    <div class="page-hdr">
+      <div>
+        <div class="page-title">Report Cards</div>
+        <div class="page-sub">GES A1–F9 Grading · BECE Aggregate · Term 2, 2025/2026</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary btn-sm">📤 Export All PDFs</button>
+        <button class="btn btn-gold btn-sm">🎓 Generate Report Cards</button>
+      </div>
+    </div>
+
+    <!-- Filter / class selector -->
+    <div class="filter-bar">
+      <select class="select-input" onchange="filterRCClass(this.value)" id="rc-class-filter">
+        <option value="all">All Classes</option>
+        <option value="jhs2a" selected>JHS 2A</option>
+        <option value="jhs1a">JHS 1A</option>
+        <option value="jhs3">JHS 3</option>
+      </select>
+      <select class="select-input"><option>Term 2 · 2025/2026</option><option>Term 1 · 2025/2026</option><option>Term 3 · 2024/2025</option></select>
+      <input class="search-input" placeholder="🔍  Search student name…" style="max-width:240px;">
+      <div style="margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);">
+        <span style="color:var(--green);font-weight:700;">32</span> of 32 cards generated
+      </div>
+    </div>
+
+    <!-- Class summary strip -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 20px;margin-bottom:16px;display:flex;gap:24px;flex-wrap:wrap;align-items:center;">
+      <div style="text-align:center;">
+        <div style="font-size:20px;font-weight:900;color:var(--green);">32</div>
+        <div style="font-size:11px;color:var(--muted);">Students</div>
+      </div>
+      <div style="width:1px;height:36px;background:var(--border);"></div>
+      <div style="text-align:center;">
+        <div style="font-size:20px;font-weight:900;color:var(--green);">74.8</div>
+        <div style="font-size:11px;color:var(--muted);">Class Avg (%)</div>
+      </div>
+      <div style="width:1px;height:36px;background:var(--border);"></div>
+      <div style="text-align:center;">
+        <div style="font-size:20px;font-weight:900;color:#60A5FA;">8</div>
+        <div style="font-size:11px;color:var(--muted);">Subjects</div>
+      </div>
+      <div style="width:1px;height:36px;background:var(--border);"></div>
+      <div style="text-align:center;"><div style="font-size:13px;font-weight:700;color:var(--green);">4</div><div style="font-size:10px;color:var(--muted);">A1 Distinctions</div></div>
+      <div style="text-align:center;"><div style="font-size:13px;font-weight:700;color:#60A5FA;">18</div><div style="font-size:10px;color:var(--muted);">B2–B3 Grades</div></div>
+      <div style="text-align:center;"><div style="font-size:13px;font-weight:700;color:var(--gold);">8</div><div style="font-size:10px;color:var(--muted);">C4–C6 Grades</div></div>
+      <div style="text-align:center;"><div style="font-size:13px;font-weight:700;color:#F87171;">2</div><div style="font-size:10px;color:var(--muted);">D7–F9 Grades</div></div>
+      <div style="margin-left:auto;">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Class Teacher: Ms. A. Acheampong</div>
+        <div style="font-size:11px;color:var(--muted);">Head Teacher: Mr. K. Mensah</div>
+      </div>
+    </div>
+
+    <!-- Student list table -->
+    <div class="panel">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th class="text-center">Maths</th>
+            <th class="text-center">English</th>
+            <th class="text-center">Science</th>
+            <th class="text-center">Social</th>
+            <th class="text-center">RME</th>
+            <th class="text-center">ICT</th>
+            <th class="text-center">French</th>
+            <th class="text-center">Gh. Lang</th>
+            <th class="text-center">Avg</th>
+            <th class="text-center">Aggregate</th>
+            <th class="text-center">Position</th>
+            <th class="text-center">Attendance</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="ava" style="background:rgba(16,185,129,.15);color:var(--green);font-size:11px;">KA</div>
+                <div><div style="font-weight:600;">Kofi Asante</div><div style="font-size:10px;color:var(--muted);">ACA-2024-00142</div></div>
+              </div>
+            </td>
+            <td class="text-center"><span class="grade g-b2">B2</span></td>
+            <td class="text-center"><span class="grade g-a1">A1</span></td>
+            <td class="text-center"><span class="grade g-b3">B3</span></td>
+            <td class="text-center"><span class="grade g-b2">B2</span></td>
+            <td class="text-center"><span class="grade g-b2">B2</span></td>
+            <td class="text-center"><span class="grade g-c4">C4</span></td>
+            <td class="text-center"><span class="grade g-b2">B2</span></td>
+            <td class="text-center"><span class="grade g-b2">B2</span></td>
+            <td class="text-center" style="font-weight:700;">74.6</td>
+            <td class="text-center"><span style="font-size:15px;font-weight:900;color:var(--green);">14</span></td>
+            <td class="text-center"><span class="badge b-gold">4th</span></td>
+            <td class="text-center" style="color:var(--green);">96.4%</td>
+            <td><button class="btn btn-primary btn-sm" onclick="showRC('kofi')">📄 View</button></td>
+          </tr>
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="ava" style="background:rgba(167,139,250,.15);color:#A78BFA;font-size:11px;">KM</div>
+                <div><div style="font-weight:600;">Kweku Mensah</div><div style="font-size:10px;color:var(--muted);">ACA-2023-00074</div></div>
+              </div>
+            </td>
+            <td class="text-center"><span class="grade g-a1">A1</span></td>
+            <td class="text-center"><span class="grade g-a1">A1</span></td>
+            <td class="text-center"><span class="grade g-b2">B2</span></td>
+            <td class="text-center"><span class="grade g-a1">A1</span></td>
+            <td class="text-center"><span class="grade g-b2">B2</span></td>
+            <td class="text-center"><span class="grade g-b3">B3</span></td>
+            <td class="text-center"><span class="grade g-b2">B2</span></td>
+            <td class="text-center"><span class="grade g-a1">A1</span></td>
+            <td class="text-center" style="font-weight:700;">88.4</td>
+            <td class="text-center"><span style="font-size:15px;font-weight:900;color:var(--green);">8</span></td>
+            <td class="text-center"><span class="badge b-green">1st</span></td>
+            <td class="text-center" style="color:var(--green);">100%</td>
+            <td><button class="btn btn-primary btn-sm" onclick="showRC('kweku')">📄 View</button></td>
+          </tr>
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="ava" style="background:rgba(96,165,250,.15);color:#60A5FA;font-size:11px;">AB</div>
+                <div><div style="font-weight:600;">Ama Boateng</div><div style="font-size:10px;color:var(--muted);">ACA-2024-00098</div></div>
+              </div>
+            </td>
+            <td class="text-center"><span class="grade g-b3">B3</span></td>
+            <td class="text-center"><span class="grade g-b2">B2</span></td>
+            <td class="text-center"><span class="grade g-b2">B2</span></td>
+            <td class="text-center"><span class="grade g-b3">B3</span></td>
+            <td class="text-center"><span class="grade g-a1">A1</span></td>
+            <td class="text-center"><span class="grade g-b3">B3</span></td>
+            <td class="text-center"><span class="grade g-b3">B3</span></td>
+            <td class="text-center"><span class="grade g-b2">B2</span></td>
+            <td class="text-center" style="font-weight:700;">78.1</td>
+            <td class="text-center"><span style="font-size:15px;font-weight:900;color:var(--green);">12</span></td>
+            <td class="text-center"><span class="badge b-blue">2nd</span></td>
+            <td class="text-center" style="color:var(--green);">98.2%</td>
+            <td><button class="btn btn-primary btn-sm" onclick="showRC('ama')">📄 View</button></td>
+          </tr>
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="ava" style="background:rgba(245,158,11,.15);color:var(--gold);font-size:11px;">YD</div>
+                <div><div style="font-weight:600;">Yaw Darko</div><div style="font-size:10px;color:var(--muted);">ACA-2022-00031</div></div>
+              </div>
+            </td>
+            <td class="text-center"><span class="grade g-b2">B2</span></td>
+            <td class="text-center"><span class="grade g-b3">B3</span></td>
+            <td class="text-center"><span class="grade g-b3">B3</span></td>
+            <td class="text-center"><span class="grade g-b2">B2</span></td>
+            <td class="text-center"><span class="grade g-b3">B3</span></td>
+            <td class="text-center"><span class="grade g-b2">B2</span></td>
+            <td class="text-center"><span class="grade g-c4">C4</span></td>
+            <td class="text-center"><span class="grade g-b3">B3</span></td>
+            <td class="text-center" style="font-weight:700;">76.3</td>
+            <td class="text-center"><span style="font-size:15px;font-weight:900;color:var(--green);">13</span></td>
+            <td class="text-center"><span class="badge b-blue">3rd</span></td>
+            <td class="text-center" style="color:var(--green);">94.6%</td>
+            <td><button class="btn btn-primary btn-sm" onclick="showRC('yaw')">📄 View</button></td>
+          </tr>
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="ava" style="background:rgba(239,68,68,.15);color:#F87171;font-size:11px;">AO</div>
+                <div><div style="font-weight:600;">Abena Owusu</div><div style="font-size:10px;color:var(--muted);">ACA-2024-00201</div></div>
+              </div>
+            </td>
+            <td class="text-center"><span class="grade g-c5">C5</span></td>
+            <td class="text-center"><span class="grade g-c4">C4</span></td>
+            <td class="text-center"><span class="grade g-c6">C6</span></td>
+            <td class="text-center"><span class="grade g-b3">B3</span></td>
+            <td class="text-center"><span class="grade g-b3">B3</span></td>
+            <td class="text-center"><span class="grade g-d7">D7</span></td>
+            <td class="text-center"><span class="grade g-c5">C5</span></td>
+            <td class="text-center"><span class="grade g-c4">C4</span></td>
+            <td class="text-center" style="font-weight:700;">56.2</td>
+            <td class="text-center"><span style="font-size:15px;font-weight:900;color:var(--gold);">28</span></td>
+            <td class="text-center"><span class="badge b-gray">18th</span></td>
+            <td class="text-center" style="color:var(--gold);">88.4%</td>
+            <td><button class="btn btn-primary btn-sm" onclick="showRC('abena')">📄 View</button></td>
+          </tr>
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="ava" style="background:rgba(16,185,129,.15);color:var(--green);font-size:11px;">EK</div>
+                <div><div style="font-weight:600;">Efua Koomson</div><div style="font-size:10px;color:var(--muted);">ACA-2025-00001</div></div>
+              </div>
+            </td>
+            <td class="text-center"><span class="grade g-d7">D7</span></td>
+            <td class="text-center"><span class="grade g-c6">C6</span></td>
+            <td class="text-center"><span class="grade g-d7">D7</span></td>
+            <td class="text-center"><span class="grade g-c5">C5</span></td>
+            <td class="text-center"><span class="grade g-c4">C4</span></td>
+            <td class="text-center"><span class="grade g-f9">F9</span></td>
+            <td class="text-center"><span class="grade g-d7">D7</span></td>
+            <td class="text-center"><span class="grade g-c6">C6</span></td>
+            <td class="text-center" style="font-weight:700;">42.8</td>
+            <td class="text-center"><span style="font-size:15px;font-weight:900;color:#F87171;">37</span></td>
+            <td class="text-center"><span class="badge b-red">30th</span></td>
+            <td class="text-center" style="color:var(--gold);">90.1%</td>
+            <td><button class="btn btn-primary btn-sm" onclick="showRC('efua')">📄 View</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted);">
+        <span>Showing 6 of 32 students in JHS 2A</span>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-secondary btn-sm">← Prev</button>
+          <button class="btn btn-secondary btn-sm" style="background:var(--card2);">1</button>
+          <button class="btn btn-secondary btn-sm">2</button>
+          <button class="btn btn-secondary btn-sm">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GES grading legend -->
+    <div style="margin-top:14px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:11px;color:var(--muted);">
+      <span style="font-weight:700;color:var(--text);margin-right:4px;">GES Grading Scale:</span>
+      <span><span class="grade g-a1" style="width:28px;height:18px;line-height:18px;font-size:10px;">A1</span> 80–100 Excellent</span>
+      <span><span class="grade g-b2" style="width:28px;height:18px;line-height:18px;font-size:10px;">B2</span> 70–79 Very Good</span>
+      <span><span class="grade g-b3" style="width:28px;height:18px;line-height:18px;font-size:10px;">B3</span> 60–69 Good</span>
+      <span><span class="grade g-c4" style="width:28px;height:18px;line-height:18px;font-size:10px;">C4</span> 55–59 Credit</span>
+      <span><span class="grade g-c5" style="width:28px;height:18px;line-height:18px;font-size:10px;">C5</span> 50–54 Credit</span>
+      <span><span class="grade g-c6" style="width:28px;height:18px;line-height:18px;font-size:10px;">C6</span> 45–49 Credit</span>
+      <span><span class="grade g-d7" style="width:28px;height:18px;line-height:18px;font-size:10px;">D7</span> 40–44 Pass</span>
+      <span><span class="grade g-f9" style="width:28px;height:18px;line-height:18px;font-size:10px;">F9</span> 0–34 Fail</span>
+      <span style="margin-left:auto;font-weight:700;color:var(--text);">Aggregate = sum of best-6 subject points (lower = better)</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       DETAIL VIEW — Individual Report Card
+  ════════════════════════════════════════════════════════ -->
+  <div id="rc-detail" style="display:none;">
+
+    <!-- Back button -->
+    <div style="margin-bottom:16px;">
+      <button class="btn btn-secondary btn-sm" onclick="showRCList()">← Back to Class List</button>
+      <button class="btn btn-gold btn-sm" style="margin-left:8px;">📥 Download PDF</button>
+      <button class="btn btn-secondary btn-sm" style="margin-left:4px;">🖨️ Print</button>
+      <button class="btn btn-secondary btn-sm" style="margin-left:4px;">✉ Email to Guardian</button>
+    </div>
+
+    <!-- Report card document -->
+    <div style="max-width:800px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.4);" id="rc-doc">
+
+      <!-- School header -->
+      <div style="background:linear-gradient(135deg,#0a4f3e 0%,#10B981 100%);padding:24px 32px;text-align:center;color:#fff;">
+        <div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;opacity:.8;margin-bottom:6px;">Republic of Ghana · Basic Education</div>
+        <div style="font-size:22px;font-weight:900;letter-spacing:-.01em;">ACCRA ACADEMY BASIC SCHOOL</div>
+        <div style="font-size:12px;opacity:.85;margin-top:3px;">P.O. Box GP 1234, Accra · Tel: +233 30 222 3456 · accraacademy.schoolms.com.gh</div>
+        <div style="margin-top:14px;font-size:16px;font-weight:700;background:rgba(255,255,255,.15);display:inline-block;padding:6px 20px;border-radius:6px;letter-spacing:.05em;">
+          TERMINAL REPORT — TERM 2 · 2025/2026 ACADEMIC YEAR
+        </div>
+      </div>
+
+      <!-- Student details row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-bottom:2px solid #e5e7eb;">
+        <div style="padding:14px 18px;border-right:1px solid #e5e7eb;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;margin-bottom:3px;">Student Name</div>
+          <div style="font-size:15px;font-weight:800;color:#111827;" id="rc-name">Kofi Asante</div>
+        </div>
+        <div style="padding:14px 18px;border-right:1px solid #e5e7eb;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;margin-bottom:3px;">Admission Number</div>
+          <div style="font-size:13px;font-family:monospace;color:#374151;" id="rc-admno">ACA-2024-00142</div>
+        </div>
+        <div style="padding:14px 18px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;margin-bottom:3px;">Class</div>
+          <div style="font-size:13px;font-weight:700;color:#374151;">JHS 2A</div>
+        </div>
+        <div style="padding:14px 18px;border-right:1px solid #e5e7eb;border-top:1px solid #e5e7eb;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;margin-bottom:3px;">Date of Birth</div>
+          <div style="font-size:13px;color:#374151;">12 March 2012</div>
+        </div>
+        <div style="padding:14px 18px;border-right:1px solid #e5e7eb;border-top:1px solid #e5e7eb;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;margin-bottom:3px;">Gender</div>
+          <div style="font-size:13px;color:#374151;">Male</div>
+        </div>
+        <div style="padding:14px 18px;border-top:1px solid #e5e7eb;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;margin-bottom:3px;">Academic Year</div>
+          <div style="font-size:13px;color:#374151;">2025 / 2026</div>
+        </div>
+      </div>
+
+      <!-- Grades table -->
+      <div style="padding:0;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr style="background:#F9FAFB;">
+              <th style="text-align:left;padding:10px 18px;font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #E5E7EB;">Subject</th>
+              <th style="text-align:center;padding:10px 10px;font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;border-bottom:1px solid #E5E7EB;">Class Score<br><span style="font-weight:400;text-transform:none;">(CA1+CA2 / 60)</span></th>
+              <th style="text-align:center;padding:10px 10px;font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;border-bottom:1px solid #E5E7EB;">Exams Score<br><span style="font-weight:400;text-transform:none;">(/40)</span></th>
+              <th style="text-align:center;padding:10px 10px;font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;border-bottom:1px solid #E5E7EB;">Total<br><span style="font-weight:400;text-transform:none;">(/100)</span></th>
+              <th style="text-align:center;padding:10px 10px;font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;border-bottom:1px solid #E5E7EB;">Grade</th>
+              <th style="text-align:center;padding:10px 10px;font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;border-bottom:1px solid #E5E7EB;">Points</th>
+              <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;border-bottom:1px solid #E5E7EB;">Remark</th>
+            </tr>
+          </thead>
+          <tbody id="rc-subjects">
+            <!-- Populated by JS -->
+          </tbody>
+          <tfoot>
+            <tr style="background:#F0FDF4;border-top:2px solid #10B981;">
+              <td style="padding:11px 18px;font-weight:800;color:#065F46;">TOTAL / AVERAGE</td>
+              <td></td><td></td>
+              <td style="text-align:center;font-size:15px;font-weight:900;color:#065F46;" id="rc-total">597 / 74.6%</td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- Aggregate + Position + Attendance -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-top:2px solid #e5e7eb;border-bottom:2px solid #e5e7eb;">
+        <div style="padding:16px 18px;text-align:center;border-right:1px solid #e5e7eb;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;margin-bottom:4px;">BECE Aggregate<br>(Best 6 Subjects)</div>
+          <div style="font-size:32px;font-weight:900;color:#10B981;" id="rc-agg">14</div>
+          <div style="font-size:10px;color:#6B7280;margin-top:2px;">Lower is better</div>
+        </div>
+        <div style="padding:16px 18px;text-align:center;border-right:1px solid #e5e7eb;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;margin-bottom:4px;">Class Position</div>
+          <div style="font-size:32px;font-weight:900;color:#F59E0B;" id="rc-pos">4th</div>
+          <div style="font-size:10px;color:#6B7280;margin-top:2px;">out of 32 students</div>
+        </div>
+        <div style="padding:16px 18px;text-align:center;border-right:1px solid #e5e7eb;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;margin-bottom:4px;">Days Present</div>
+          <div style="font-size:32px;font-weight:900;color:#10B981;" id="rc-att">53 / 55</div>
+          <div style="font-size:10px;color:#6B7280;margin-top:2px;" id="rc-att-pct">96.4% attendance</div>
+        </div>
+        <div style="padding:16px 18px;text-align:center;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;margin-bottom:4px;">Next Term Begins</div>
+          <div style="font-size:14px;font-weight:800;color:#374151;">8 September 2026</div>
+          <div style="font-size:10px;color:#6B7280;margin-top:2px;">Term 3 · 2025/2026</div>
+        </div>
+      </div>
+
+      <!-- Remarks section -->
+      <div style="display:grid;grid-template-columns:58% 42%;border-bottom:2px solid #e5e7eb;">
+        <div style="padding:16px 20px;border-right:1px solid #e5e7eb;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;margin-bottom:8px;">Class Teacher's Remarks</div>
+          <div style="font-size:13px;color:#374151;line-height:1.6;" id="rc-teacher-remark">
+            Kofi has shown consistent effort across all subjects this term. His performance in English Language is commendable. He should focus more on ICT and maintain his current effort in the sciences.
+          </div>
+          <div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:10px;display:flex;gap:40px;">
+            <div>
+              <div style="font-size:11px;color:#9CA3AF;">Class Teacher: Ms. A. Acheampong</div>
+              <div style="margin-top:8px;border-bottom:1px dashed #9CA3AF;width:160px;"></div>
+              <div style="font-size:10px;color:#9CA3AF;margin-top:4px;">Signature &amp; Date</div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:#9CA3AF;">Head Teacher: Mr. K. Mensah</div>
+              <div style="margin-top:8px;border-bottom:1px dashed #9CA3AF;width:160px;"></div>
+              <div style="font-size:10px;color:#9CA3AF;margin-top:4px;">Signature, Stamp &amp; Date</div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:16px 20px;background:#FAFAFA;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;margin-bottom:8px;">Head Teacher's Remarks</div>
+          <div style="font-size:13px;color:#374151;line-height:1.6;" id="rc-head-remark">
+            A satisfactory performance this term. Kofi demonstrates strong academic potential. We encourage continued commitment to all subjects, particularly ICT. Keep it up!
+          </div>
+        </div>
+      </div>
+
+      <!-- Conduct & Behaviour -->
+      <div style="display:grid;grid-template-columns:42% 58%;border-bottom:2px solid #e5e7eb;">
+        <div style="padding:14px 20px;border-right:1px solid #e5e7eb;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;margin-bottom:10px;">Conduct &amp; Behaviour</div>
+          <div style="display:flex;flex-direction:column;gap:7px;font-size:12px;color:#374151;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span>Punctuality</span>
+              <span style="font-weight:700;color:#fff;background:#10B981;border-radius:4px;padding:1px 8px;font-size:10px;">Excellent</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span>Neatness</span>
+              <span style="font-weight:700;color:#fff;background:#3B82F6;border-radius:4px;padding:1px 8px;font-size:10px;">Very Good</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span>Attitude to Work</span>
+              <span style="font-weight:700;color:#fff;background:#3B82F6;border-radius:4px;padding:1px 8px;font-size:10px;">Very Good</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span>Participation</span>
+              <span style="font-weight:700;color:#fff;background:#F59E0B;border-radius:4px;padding:1px 8px;font-size:10px;">Good</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span>Respect for Others</span>
+              <span style="font-weight:700;color:#fff;background:#10B981;border-radius:4px;padding:1px 8px;font-size:10px;">Excellent</span>
+            </div>
+          </div>
+        </div>
+        <!-- Subject Performance Bar Chart -->
+        <div style="padding:14px 20px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;margin-bottom:10px;">Subject Performance</div>
+          <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="width:90px;color:#374151;font-size:10px;flex-shrink:0;">Mathematics</span>
+              <div style="flex:1;height:12px;background:#f3f4f6;border-radius:3px;overflow:hidden;">
+                <div style="height:100%;width:78%;background:#3B82F6;border-radius:3px;"></div>
+              </div>
+              <span style="width:28px;color:#374151;font-weight:700;font-size:10px;text-align:right;">78</span>
+              <span style="width:20px;font-size:9px;background:#3B82F6;color:#fff;border-radius:3px;text-align:center;padding:1px 0;">B2</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="width:90px;color:#374151;font-size:10px;flex-shrink:0;">English</span>
+              <div style="flex:1;height:12px;background:#f3f4f6;border-radius:3px;overflow:hidden;">
+                <div style="height:100%;width:85%;background:#10B981;border-radius:3px;"></div>
+              </div>
+              <span style="width:28px;color:#374151;font-weight:700;font-size:10px;text-align:right;">85</span>
+              <span style="width:20px;font-size:9px;background:#10B981;color:#fff;border-radius:3px;text-align:center;padding:1px 0;">A1</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="width:90px;color:#374151;font-size:10px;flex-shrink:0;">Int. Science</span>
+              <div style="flex:1;height:12px;background:#f3f4f6;border-radius:3px;overflow:hidden;">
+                <div style="height:100%;width:64%;background:#6366F1;border-radius:3px;"></div>
+              </div>
+              <span style="width:28px;color:#374151;font-weight:700;font-size:10px;text-align:right;">64</span>
+              <span style="width:20px;font-size:9px;background:#6366F1;color:#fff;border-radius:3px;text-align:center;padding:1px 0;">B3</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="width:90px;color:#374151;font-size:10px;flex-shrink:0;">Social Studies</span>
+              <div style="flex:1;height:12px;background:#f3f4f6;border-radius:3px;overflow:hidden;">
+                <div style="height:100%;width:72%;background:#3B82F6;border-radius:3px;"></div>
+              </div>
+              <span style="width:28px;color:#374151;font-weight:700;font-size:10px;text-align:right;">72</span>
+              <span style="width:20px;font-size:9px;background:#3B82F6;color:#fff;border-radius:3px;text-align:center;padding:1px 0;">B2</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="width:90px;color:#374151;font-size:10px;flex-shrink:0;">R.M.E.</span>
+              <div style="flex:1;height:12px;background:#f3f4f6;border-radius:3px;overflow:hidden;">
+                <div style="height:100%;width:79%;background:#3B82F6;border-radius:3px;"></div>
+              </div>
+              <span style="width:28px;color:#374151;font-weight:700;font-size:10px;text-align:right;">79</span>
+              <span style="width:20px;font-size:9px;background:#3B82F6;color:#fff;border-radius:3px;text-align:center;padding:1px 0;">B2</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="width:90px;color:#374151;font-size:10px;flex-shrink:0;">ICT</span>
+              <div style="flex:1;height:12px;background:#f3f4f6;border-radius:3px;overflow:hidden;">
+                <div style="height:100%;width:58%;background:#F59E0B;border-radius:3px;"></div>
+              </div>
+              <span style="width:28px;color:#374151;font-weight:700;font-size:10px;text-align:right;">58</span>
+              <span style="width:20px;font-size:9px;background:#F59E0B;color:#fff;border-radius:3px;text-align:center;padding:1px 0;">C4</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="width:90px;color:#374151;font-size:10px;flex-shrink:0;">French</span>
+              <div style="flex:1;height:12px;background:#f3f4f6;border-radius:3px;overflow:hidden;">
+                <div style="height:100%;width:70%;background:#3B82F6;border-radius:3px;"></div>
+              </div>
+              <span style="width:28px;color:#374151;font-weight:700;font-size:10px;text-align:right;">70</span>
+              <span style="width:20px;font-size:9px;background:#3B82F6;color:#fff;border-radius:3px;text-align:center;padding:1px 0;">B2</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="width:90px;color:#374151;font-size:10px;flex-shrink:0;">Gh. Language</span>
+              <div style="flex:1;height:12px;background:#f3f4f6;border-radius:3px;overflow:hidden;">
+                <div style="height:100%;width:73%;background:#3B82F6;border-radius:3px;"></div>
+              </div>
+              <span style="width:28px;color:#374151;font-weight:700;font-size:10px;text-align:right;">73</span>
+              <span style="width:20px;font-size:9px;background:#3B82F6;color:#fff;border-radius:3px;text-align:center;padding:1px 0;">B2</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px;font-size:9px;color:#9CA3AF;">
+            <span>■ <span style="color:#10B981;">A1 (80+)</span></span>
+            <span>■ <span style="color:#3B82F6;">B2/B3 (60–79)</span></span>
+            <span>■ <span style="color:#F59E0B;">C4–C6 (45–59)</span></span>
+            <span>■ <span style="color:#EF4444;">D7–F9 (&lt;45)</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div style="background:#F9FAFB;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:10px;color:#9CA3AF;">Generated by SchoolMS Ghana · accraacademy.admin.schoolms.com.gh · 15 May 2026</div>
+        <div style="font-size:10px;color:#9CA3AF;font-style:italic;">This report is computer-generated and valid without a physical stamp if verified online.</div>
+      </div>
+
+    </div><!-- #rc-doc -->
+  </div><!-- #rc-detail -->
+
+</div><!-- #screen-reportcards -->
+
+<!-- ════════════ SCREEN: SUPER ADMIN ════════════ -->
+<div class="screen" id="screen-superadmin">
+  <div class="page-hdr">
+    <div>
+      <div class="page-title">Super Admin — SchoolMS Platform</div>
+      <div class="page-sub">Platform overview across all tenants · superadmin.schoolms.com.gh</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-secondary btn-sm">📊 Platform Report</button>
+      <button class="btn btn-primary btn-sm">+ Onboard School</button>
+    </div>
+  </div>
+
+  <!-- Platform stats -->
+  <div class="stat-row c4" style="margin-bottom:20px;">
+    <div class="stat-card"><div class="stat-label">Total Schools</div><div class="stat-value" style="color:var(--green);">3</div><div class="stat-delta"><span class="up">▲ 1</span> this month</div></div>
+    <div class="stat-card"><div class="stat-label">Active Subscriptions</div><div class="stat-value" style="color:var(--gold);">3</div><div class="stat-delta">0 in grace/locked</div></div>
+    <div class="stat-card"><div class="stat-label">Total Students</div><div class="stat-value" style="color:#60A5FA;">1,423</div><div class="stat-delta">across all schools</div></div>
+    <div class="stat-card"><div class="stat-label">MRR (est.)</div><div class="stat-value" style="color:#A78BFA;">GHS 2,550</div><div class="stat-delta">3 schools × avg term</div></div>
+  </div>
+
+  <div class="g2">
+    <!-- Schools table -->
+    <div class="panel">
+      <div class="panel-hdr"><div class="panel-title">All Schools</div><button class="btn btn-primary btn-sm">+ Add School</button></div>
+      <table class="tbl">
+        <thead><tr><th>School</th><th>Slug</th><th>Plan</th><th>Students</th><th>Sub Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Accra Academy Basic</strong><br><span style="font-size:11px;color:var(--muted);">Greater Accra</span></td>
+            <td style="font-family:monospace;font-size:12px;">accraacademy</td>
+            <td><span class="badge b-green">Growth</span></td>
+            <td>487</td>
+            <td><span class="badge b-green">Active</span></td>
+            <td><button class="btn btn-secondary btn-sm">Manage</button></td>
+          </tr>
+          <tr>
+            <td><strong>Kumasi Academy Basic</strong><br><span style="font-size:11px;color:var(--muted);">Ashanti</span></td>
+            <td style="font-family:monospace;font-size:12px;">kumasiacademy</td>
+            <td><span class="badge b-gold">Starter</span></td>
+            <td>312</td>
+            <td><span class="badge b-green">Active</span></td>
+            <td><button class="btn btn-secondary btn-sm">Manage</button></td>
+          </tr>
+          <tr>
+            <td><strong>Cape Coast Academy</strong><br><span style="font-size:11px;color:var(--muted);">Central Region</span></td>
+            <td style="font-family:monospace;font-size:12px;">cca</td>
+            <td><span class="badge b-purple">Pro</span></td>
+            <td>624</td>
+            <td><span class="badge b-green">Active</span></td>
+            <td><button class="btn btn-secondary btn-sm">Manage</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Recent payments -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Recent Subscription Payments</div></div>
+        <table class="tbl" style="font-size:12px;">
+          <thead><tr><th>School</th><th>Amount</th><th>Gateway</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody>
+            <tr><td>Accra Academy</td><td>GHS 850</td><td><span class="badge b-green">Paystack</span></td><td><span class="badge b-green">Success</span></td><td style="color:var(--muted);">10 May</td></tr>
+            <tr><td>Cape Coast Acad.</td><td>GHS 1,200</td><td><span class="badge b-blue">Moolre</span></td><td><span class="badge b-green">Success</span></td><td style="color:var(--muted);">8 May</td></tr>
+            <tr><td>Kumasi Academy</td><td>GHS 500</td><td><span class="badge b-green">Paystack</span></td><td><span class="badge b-green">Success</span></td><td style="color:var(--muted);">5 May</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Subscription Lifecycle States</div></div>
+        <div class="panel-body">
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:7px;">
+              <span>🟢 Active</span><strong style="color:var(--green);">3 schools</strong>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.15);border-radius:7px;">
+              <span>🟡 Grace Period (5 days)</span><strong style="color:var(--gold);">0 schools</strong>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.15);border-radius:7px;">
+              <span>🔴 Locked</span><strong style="color:#F87171;">0 schools</strong>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(100,116,139,.05);border:1px solid rgba(100,116,139,.15);border-radius:7px;">
+              <span>⚫ Suspended</span><strong style="color:var(--muted);">0 schools</strong>
+            </div>
+          </div>
+          <div style="margin-top:10px;font-size:11px;color:var(--muted);">Lifecycle check runs daily at 06:00 WAT via Laravel Scheduler</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- ════════════ SCREEN: TEACHER REMARKS ════════════ -->
+<div class="screen" id="screen-teacher-remarks">
+  <div style="max-width:900px;margin:0 auto;">
+
+    <!-- Teacher Portal nav -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:4px 8px;margin-bottom:14px;display:flex;gap:2px;font-size:13px;">
+      <button class="btn btn-secondary btn-sm" onclick="switchScreen('teacher',null,'accraacademy.schoolms.com.gh/teacher/dashboard')">Dashboard</button>
+      <button class="btn btn-secondary btn-sm">Scores</button>
+      <button class="btn btn-secondary btn-sm">Timetable</button>
+      <button class="btn btn-primary btn-sm" style="background:rgba(16,185,129,.15);color:var(--green);border:none;">Remarks</button>
+    </div>
+
+    <!-- Header -->
+    <div class="page-hdr" style="margin-bottom:14px;">
+      <div>
+        <div class="page-title">Student Remarks</div>
+        <div class="page-sub">Enter class teacher remarks and conduct ratings for each student.</div>
+      </div>
+    </div>
+
+    <!-- Class + Term selector -->
+    <div class="panel" style="padding:12px 16px;margin-bottom:14px;">
+      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px;">Class</div>
+          <select class="select-input" style="font-size:13px;">
+            <option selected>JHS 2A (Class Teacher)</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px;">Term</div>
+          <select class="select-input" style="font-size:13px;">
+            <option selected>Term 2 · 2025/2026</option>
+            <option>Term 1 · 2025/2026</option>
+          </select>
+        </div>
+        <div style="margin-left:auto;font-size:12px;color:var(--muted);">
+          <span style="color:var(--green);font-weight:700;">14</span> / 32 remarks entered &nbsp;·&nbsp;
+          <span style="color:var(--gold);font-weight:700;">18</span> pending
+        </div>
+      </div>
+    </div>
+
+    <!-- List view -->
+    <div id="remarks-list">
+      <div class="panel" style="overflow:hidden;">
+        <div style="padding:10px 18px;background:rgba(16,185,129,.04);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:13px;font-weight:700;">JHS 2A — Term 2</span>
+          <span style="font-size:11px;color:var(--muted);">32 students</span>
+        </div>
+        <table class="tbl">
+          <thead>
+            <tr class="text-xs font-semibold text-gray-500">
+              <th style="width:36px;">#</th>
+              <th>Student</th>
+              <th>Remark</th>
+              <th>Conduct</th>
+              <th style="text-align:right;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color:var(--muted);font-size:12px;">1</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div class="ava" style="background:rgba(16,185,129,.15);color:var(--green);font-size:11px;">KA</div>
+                  <div><div style="font-weight:600;font-size:13px;">Kofi Asante</div><div style="font-size:11px;color:var(--muted);">ACA-2024-00142</div></div>
+                </div>
+              </td>
+              <td style="font-size:12px;color:var(--muted);max-width:200px;">
+                <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;">Kofi has shown consistent effort across all subjects this term...</div>
+              </td>
+              <td><span style="font-size:12px;color:var(--green);font-weight:600;">5/5 traits rated</span></td>
+              <td style="text-align:right;">
+                <button class="btn btn-secondary btn-sm" onclick="showRemarksEdit()">Edit Remarks</button>
+              </td>
+            </tr>
+            <tr>
+              <td style="color:var(--muted);font-size:12px;">2</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div class="ava" style="background:rgba(167,139,250,.15);color:#A78BFA;font-size:11px;">KM</div>
+                  <div><div style="font-weight:600;font-size:13px;">Kweku Mensah</div><div style="font-size:11px;color:var(--muted);">ACA-2023-00074</div></div>
+                </div>
+              </td>
+              <td style="font-size:12px;color:var(--muted);">
+                <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;">Kweku is an outstanding student who consistently performs...</div>
+              </td>
+              <td><span style="font-size:12px;color:var(--green);font-weight:600;">5/5 traits rated</span></td>
+              <td style="text-align:right;">
+                <button class="btn btn-secondary btn-sm" onclick="showRemarksEdit()">Edit Remarks</button>
+              </td>
+            </tr>
+            <tr>
+              <td style="color:var(--muted);font-size:12px;">3</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div class="ava" style="background:rgba(96,165,250,.15);color:#60A5FA;font-size:11px;">AB</div>
+                  <div><div style="font-weight:600;font-size:13px;">Ama Boateng</div><div style="font-size:11px;color:var(--muted);">ACA-2024-00098</div></div>
+                </div>
+              </td>
+              <td style="font-size:12px;color:var(--muted);font-style:italic;">Not entered</td>
+              <td><span style="font-size:12px;color:var(--gold);font-weight:600;">3/5 traits rated</span></td>
+              <td style="text-align:right;">
+                <button class="btn btn-primary btn-sm" onclick="showRemarksEdit()">Enter Remarks</button>
+              </td>
+            </tr>
+            <tr>
+              <td style="color:var(--muted);font-size:12px;">4</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div class="ava" style="background:rgba(239,68,68,.15);color:#F87171;font-size:11px;">AO</div>
+                  <div><div style="font-weight:600;font-size:13px;">Abena Owusu</div><div style="font-size:11px;color:var(--muted);">ACA-2024-00201</div></div>
+                </div>
+              </td>
+              <td style="font-size:12px;color:var(--muted);font-style:italic;">Not entered</td>
+              <td><span style="font-size:12px;color:var(--muted);font-style:italic;">Not rated</span></td>
+              <td style="text-align:right;">
+                <button class="btn btn-primary btn-sm" onclick="showRemarksEdit()">Enter Remarks</button>
+              </td>
+            </tr>
+            <tr>
+              <td style="color:var(--muted);font-size:12px;">5</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div class="ava" style="background:rgba(245,158,11,.15);color:var(--gold);font-size:11px;">YD</div>
+                  <div><div style="font-weight:600;font-size:13px;">Yaw Darko</div><div style="font-size:11px;color:var(--muted);">ACA-2022-00031</div></div>
+                </div>
+              </td>
+              <td style="font-size:12px;color:var(--muted);font-style:italic;">Not entered</td>
+              <td><span style="font-size:12px;color:var(--muted);font-style:italic;">Not rated</span></td>
+              <td style="text-align:right;">
+                <button class="btn btn-primary btn-sm" onclick="showRemarksEdit()">Enter Remarks</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="padding:12px 16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);">Showing 5 of 32 students in JHS 2A</div>
+      </div>
+    </div>
+
+    <!-- Edit view (toggled) -->
+    <div id="remarks-edit" style="display:none;max-width:640px;">
+      <!-- Breadcrumb -->
+      <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin-bottom:14px;">
+        <button class="btn btn-secondary btn-sm" onclick="showRemarksList()">← Remarks</button>
+        <span style="color:var(--text);font-weight:600;">Kofi Asante</span>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <div style="font-size:16px;font-weight:800;">Kofi Asante</div>
+        <div style="font-size:13px;color:var(--muted);">JHS 2A · Term 2 · 2025/2026</div>
+      </div>
+
+      <!-- Class Teacher Remark -->
+      <div class="panel" style="padding:16px;margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">Your Remark (Class Teacher)</div>
+        <textarea style="width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-size:13px;resize:none;font-family:inherit;line-height:1.5;" rows="5" placeholder="e.g. Kofi is a hardworking student who participates actively in class...">Kofi has shown consistent effort across all subjects this term. His performance in English Language is commendable. He should focus more on ICT and maintain his current effort in the sciences.</textarea>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Max 1,000 characters. This will print on the report card.</div>
+      </div>
+
+      <!-- Conduct & Behaviour -->
+      <div class="panel" style="padding:16px;margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Conduct &amp; Behaviour</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:14px;">Tap a rating for each trait.</div>
+
+        <!-- Trait rows -->
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <!-- Punctuality -->
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;">Punctuality</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;background:#10B981;color:#fff;cursor:pointer;">Excellent</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Very Good</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Good</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Fair</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Poor</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px dashed var(--border);color:var(--muted);cursor:pointer;">Not set</span>
+            </div>
+          </div>
+          <!-- Neatness -->
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;">Neatness</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Excellent</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;background:#3B82F6;color:#fff;cursor:pointer;">Very Good</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Good</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Fair</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Poor</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px dashed var(--border);color:var(--muted);cursor:pointer;">Not set</span>
+            </div>
+          </div>
+          <!-- Attitude to Work -->
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;">Attitude to Work</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Excellent</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;background:#3B82F6;color:#fff;cursor:pointer;">Very Good</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Good</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Fair</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Poor</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px dashed var(--border);color:var(--muted);cursor:pointer;">Not set</span>
+            </div>
+          </div>
+          <!-- Participation -->
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;">Participation</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Excellent</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Very Good</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;background:#F59E0B;color:#fff;cursor:pointer;">Good</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Fair</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Poor</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px dashed var(--border);color:var(--muted);cursor:pointer;">Not set</span>
+            </div>
+          </div>
+          <!-- Respect for Others -->
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;">Respect for Others</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;background:#10B981;color:#fff;cursor:pointer;">Excellent</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Very Good</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Good</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Fair</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Poor</span>
+              <span style="padding:4px 14px;border-radius:20px;font-size:12px;border:1px dashed var(--border);color:var(--muted);cursor:pointer;">Not set</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-primary" onclick="showRemarksList()">💾 Save Remarks</button>
+        <button class="btn btn-secondary" onclick="showRemarksList()">Back</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════ SCREEN: GRADING SETTINGS ════════════ -->
+<div class="screen" id="screen-grading">
+  <div class="page-hdr">
+    <div>
+      <div class="page-title">Grading Configuration</div>
+      <div class="page-sub">Settings › Grading · Customise CA/Exam weights and the grade scale for this school</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-secondary btn-sm">↺ Reset to GES Defaults</button>
+      <button class="btn btn-primary btn-sm">💾 Save Changes</button>
+    </div>
+  </div>
+
+  <div class="g2">
+    <!-- Weights panel -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Assessment Weights</div></div>
+        <div class="panel-body" style="padding:18px;">
+          <div style="margin-bottom:18px;">
+            <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;">CONTINUOUS ASSESSMENT (CA)</div>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <input type="number" value="30" style="width:70px;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:8px 12px;font-size:14px;font-weight:700;text-align:center;" min="0" max="100">
+              <div style="flex:1;">
+                <div style="height:10px;background:var(--border);border-radius:5px;overflow:hidden;">
+                  <div style="height:100%;width:30%;background:#60A5FA;border-radius:5px;"></div>
+                </div>
+                <div style="font-size:11px;color:var(--muted);margin-top:4px;">30% of total score</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;">END-OF-TERM EXAMINATION</div>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <input type="number" value="70" style="width:70px;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:8px 12px;font-size:14px;font-weight:700;text-align:center;" min="0" max="100" readonly>
+              <div style="flex:1;">
+                <div style="height:10px;background:var(--border);border-radius:5px;overflow:hidden;">
+                  <div style="height:100%;width:70%;background:var(--green);border-radius:5px;"></div>
+                </div>
+                <div style="font-size:11px;color:var(--muted);margin-top:4px;">70% of total score (auto-calculated)</div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:14px;padding:10px 14px;background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2);border-radius:8px;font-size:12px;color:#60A5FA;">
+            ℹ️ CA + Exam must total 100. Exam weight is auto-synced.
+          </div>
+        </div>
+      </div>
+
+      <!-- GES Reference -->
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">GES Standard Reference</div><span class="badge b-blue">Default</span></div>
+        <div class="panel-body" style="padding:10px 14px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Standard GES grading for basic schools (CA 30 / Exam 70)</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <span class="grade g-a1" style="font-size:11px;padding:3px 8px;border-radius:5px;">A1 80–100</span>
+            <span class="grade g-b2" style="font-size:11px;padding:3px 8px;border-radius:5px;">B2 70–79</span>
+            <span class="grade g-b3" style="font-size:11px;padding:3px 8px;border-radius:5px;">B3 60–69</span>
+            <span class="grade g-c4" style="font-size:11px;padding:3px 8px;border-radius:5px;">C4 55–59</span>
+            <span class="grade g-c5" style="font-size:11px;padding:3px 8px;border-radius:5px;">C5 50–54</span>
+            <span class="grade g-c6" style="font-size:11px;padding:3px 8px;border-radius:5px;">C6 45–49</span>
+            <span class="grade g-d7" style="font-size:11px;padding:3px 8px;border-radius:5px;">D7 40–44</span>
+            <span class="grade g-d7" style="font-size:11px;padding:3px 8px;border-radius:5px;background:#F97316;">E8 35–39</span>
+            <span class="grade g-f9" style="font-size:11px;padding:3px 8px;border-radius:5px;">F9 0–34</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grade scale table -->
+    <div class="panel">
+      <div class="panel-hdr">
+        <div class="panel-title">Grading Scale</div>
+        <button class="btn btn-primary btn-sm">+ Add Band</button>
+      </div>
+      <div class="panel-body" style="padding:0;">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Grade</th>
+              <th>Min Score</th>
+              <th>Max Score</th>
+              <th>Remark</th>
+              <th style="text-align:center;">Points</th>
+              <th style="text-align:center;">Remove</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="grade g-a1">A1</span></td>
+              <td><input type="number" value="80" style="width:60px;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;"></td>
+              <td><input type="number" value="100" style="width:60px;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;"></td>
+              <td><input type="text" value="Excellent" style="background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;width:100%;"></td>
+              <td style="text-align:center;color:var(--green);font-weight:700;">1</td>
+              <td style="text-align:center;"><button class="btn btn-secondary btn-sm" style="color:#F87171;padding:2px 8px;">✕</button></td>
+            </tr>
+            <tr>
+              <td><span class="grade g-b2">B2</span></td>
+              <td><input type="number" value="70" style="width:60px;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;"></td>
+              <td><input type="number" value="79" style="width:60px;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;"></td>
+              <td><input type="text" value="Very Good" style="background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;width:100%;"></td>
+              <td style="text-align:center;color:var(--green);font-weight:700;">2</td>
+              <td style="text-align:center;"><button class="btn btn-secondary btn-sm" style="color:#F87171;padding:2px 8px;">✕</button></td>
+            </tr>
+            <tr>
+              <td><span class="grade g-b3">B3</span></td>
+              <td><input type="number" value="60" style="width:60px;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;"></td>
+              <td><input type="number" value="69" style="width:60px;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;"></td>
+              <td><input type="text" value="Good" style="background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;width:100%;"></td>
+              <td style="text-align:center;color:#60A5FA;font-weight:700;">3</td>
+              <td style="text-align:center;"><button class="btn btn-secondary btn-sm" style="color:#F87171;padding:2px 8px;">✕</button></td>
+            </tr>
+            <tr>
+              <td><span class="grade g-c4">C4</span></td>
+              <td><input type="number" value="55" style="width:60px;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;"></td>
+              <td><input type="number" value="59" style="width:60px;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;"></td>
+              <td><input type="text" value="Credit" style="background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;width:100%;"></td>
+              <td style="text-align:center;color:#A78BFA;font-weight:700;">4</td>
+              <td style="text-align:center;"><button class="btn btn-secondary btn-sm" style="color:#F87171;padding:2px 8px;">✕</button></td>
+            </tr>
+            <tr>
+              <td><span class="grade g-c5">C5</span></td>
+              <td><input type="number" value="50" style="width:60px;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;"></td>
+              <td><input type="number" value="54" style="width:60px;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;"></td>
+              <td><input type="text" value="Credit" style="background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;width:100%;"></td>
+              <td style="text-align:center;color:#A78BFA;font-weight:700;">5</td>
+              <td style="text-align:center;"><button class="btn btn-secondary btn-sm" style="color:#F87171;padding:2px 8px;">✕</button></td>
+            </tr>
+            <tr>
+              <td><span class="grade g-c6">C6</span></td>
+              <td><input type="number" value="45" style="width:60px;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;"></td>
+              <td><input type="number" value="49" style="width:60px;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;"></td>
+              <td><input type="text" value="Credit" style="background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;width:100%;"></td>
+              <td style="text-align:center;color:var(--gold);font-weight:700;">6</td>
+              <td style="text-align:center;"><button class="btn btn-secondary btn-sm" style="color:#F87171;padding:2px 8px;">✕</button></td>
+            </tr>
+            <tr>
+              <td><span class="grade g-d7">D7</span></td>
+              <td><input type="number" value="40" style="width:60px;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;"></td>
+              <td><input type="number" value="44" style="width:60px;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;"></td>
+              <td><input type="text" value="Pass" style="background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;width:100%;"></td>
+              <td style="text-align:center;color:var(--gold);font-weight:700;">7</td>
+              <td style="text-align:center;"><button class="btn btn-secondary btn-sm" style="color:#F87171;padding:2px 8px;">✕</button></td>
+            </tr>
+            <tr>
+              <td><span class="grade g-d7" style="background:#F97316;">E8</span></td>
+              <td><input type="number" value="35" style="width:60px;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;"></td>
+              <td><input type="number" value="39" style="width:60px;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;"></td>
+              <td><input type="text" value="Pass" style="background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;width:100%;"></td>
+              <td style="text-align:center;color:#F87171;font-weight:700;">8</td>
+              <td style="text-align:center;"><button class="btn btn-secondary btn-sm" style="color:#F87171;padding:2px 8px;">✕</button></td>
+            </tr>
+            <tr>
+              <td><span class="grade g-f9">F9</span></td>
+              <td><input type="number" value="0" style="width:60px;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;"></td>
+              <td><input type="number" value="34" style="width:60px;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;"></td>
+              <td><input type="text" value="Fail" style="background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:13px;width:100%;"></td>
+              <td style="text-align:center;color:#F87171;font-weight:700;">9</td>
+              <td style="text-align:center;"><button class="btn btn-secondary btn-sm" style="color:#F87171;padding:2px 8px;">✕</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="padding:12px 16px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);">
+          Bands must be contiguous and cover 0–100. Sorted by min score descending on save.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════ SCREEN: SCHOOL WEBSITE ════════════ -->
+<div class="screen" id="screen-website">
+  <div style="max-width:960px;margin:0 auto;">
+
+    <!-- Website nav bar -->
+    <div style="background:#0a4f3e;border-radius:10px 10px 0 0;padding:10px 20px;display:flex;align-items:center;gap:16px;font-size:13px;margin-bottom:0;overflow:hidden;">
+      <div style="font-weight:900;color:#fff;font-size:15px;">ACCRA ACADEMY</div>
+      <div style="width:1px;height:20px;background:rgba(255,255,255,.2);"></div>
+      <div style="display:flex;gap:2px;flex:1;">
+        <a href="#" style="color:#fff;text-decoration:none;padding:5px 10px;border-radius:6px;font-size:12px;background:rgba(255,255,255,.15);">Home</a>
+        <a href="#" style="color:rgba(255,255,255,.7);text-decoration:none;padding:5px 10px;border-radius:6px;font-size:12px;">About</a>
+        <a href="#" style="color:rgba(255,255,255,.7);text-decoration:none;padding:5px 10px;border-radius:6px;font-size:12px;">Academics</a>
+        <a href="#" style="color:rgba(255,255,255,.7);text-decoration:none;padding:5px 10px;border-radius:6px;font-size:12px;">News &amp; Events</a>
+        <a href="#" style="color:rgba(255,255,255,.7);text-decoration:none;padding:5px 10px;border-radius:6px;font-size:12px;">Gallery</a>
+        <a href="#" style="color:rgba(255,255,255,.7);text-decoration:none;padding:5px 10px;border-radius:6px;font-size:12px;">Admissions</a>
+        <a href="#" style="color:rgba(255,255,255,.7);text-decoration:none;padding:5px 10px;border-radius:6px;font-size:12px;">Contact</a>
+      </div>
+      <a href="#" style="background:#10B981;color:#fff;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;">Parent Portal</a>
+    </div>
+
+    <!-- Hero section -->
+    <div style="background:linear-gradient(135deg,#0a4f3e 0%,#065f46 60%,#10B981 100%);padding:50px 40px;text-align:center;color:#fff;position:relative;overflow:hidden;">
+      <div style="position:absolute;inset:0;background:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2280%22 cy=%2220%22 r=%2230%22 fill=%22rgba(255,255,255,.04)%22/><circle cx=%2220%22 cy=%2280%22 r=%2240%22 fill=%22rgba(255,255,255,.03)%22/></svg>');background-size:cover;"></div>
+      <div style="position:relative;">
+        <div style="display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:600;letter-spacing:.08em;margin-bottom:12px;text-transform:uppercase;">Est. 1997 · Greater Accra Region</div>
+        <div style="font-size:32px;font-weight:900;line-height:1.15;letter-spacing:-.02em;margin-bottom:10px;">Accra Academy Basic School</div>
+        <div style="font-size:14px;opacity:.85;max-width:480px;margin:0 auto 22px;line-height:1.6;">Providing quality basic education rooted in excellence, discipline, and the Ghana Education Service curriculum.</div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <a href="#" style="background:#10B981;color:#fff;padding:10px 22px;border-radius:25px;font-weight:700;font-size:13px;text-decoration:none;">Apply for Admission →</a>
+          <a href="#" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:10px 22px;border-radius:25px;font-weight:600;font-size:13px;text-decoration:none;">🔐 Parent Portal Login</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick stats strip -->
+    <div style="background:#fff;border:1px solid #e5e7eb;display:grid;grid-template-columns:repeat(4,1fr);text-align:center;">
+      <div style="padding:16px 10px;border-right:1px solid #e5e7eb;">
+        <div style="font-size:26px;font-weight:900;color:#0a4f3e;">487</div>
+        <div style="font-size:11px;color:#6B7280;margin-top:2px;">Enrolled Students</div>
+      </div>
+      <div style="padding:16px 10px;border-right:1px solid #e5e7eb;">
+        <div style="font-size:26px;font-weight:900;color:#0a4f3e;">32</div>
+        <div style="font-size:11px;color:#6B7280;margin-top:2px;">Qualified Staff</div>
+      </div>
+      <div style="padding:16px 10px;border-right:1px solid #e5e7eb;">
+        <div style="font-size:26px;font-weight:900;color:#0a4f3e;">12</div>
+        <div style="font-size:11px;color:#6B7280;margin-top:2px;">Classes (Nur–JHS 3)</div>
+      </div>
+      <div style="padding:16px 10px;">
+        <div style="font-size:26px;font-weight:900;color:#10B981;">94%</div>
+        <div style="font-size:11px;color:#6B7280;margin-top:2px;">BECE Pass Rate 2025</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 340px;gap:16px;margin-top:16px;">
+      <!-- Left: announcements + academics -->
+      <div style="display:flex;flex-direction:column;gap:16px;">
+
+        <!-- Latest News -->
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+          <div style="padding:14px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:14px;font-weight:800;color:#111;">📢 News &amp; Announcements</div>
+            <a href="#" style="font-size:12px;color:#10B981;text-decoration:none;font-weight:600;">View all →</a>
+          </div>
+          <div style="padding:14px 20px;display:flex;flex-direction:column;gap:14px;">
+            <div style="display:flex;gap:12px;align-items:flex-start;padding-bottom:14px;border-bottom:1px solid #f3f4f6;">
+              <div style="width:44px;height:44px;background:#e0fdf4;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🏆</div>
+              <div>
+                <div style="font-size:13px;font-weight:700;color:#111827;">Inter-School Sports Day — 23 May 2026</div>
+                <div style="font-size:12px;color:#6B7280;margin-top:3px;">All students should report in full sports kit by 7:30 AM. No academic uniform required on this day.</div>
+                <div style="font-size:11px;color:#10B981;margin-top:6px;font-weight:600;">📌 Pinned · 2 days ago</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;padding-bottom:14px;border-bottom:1px solid #f3f4f6;">
+              <div style="width:44px;height:44px;background:#eff6ff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📋</div>
+              <div>
+                <div style="font-size:13px;font-weight:700;color:#111827;">Term 2 Examination Timetable Released</div>
+                <div style="font-size:12px;color:#6B7280;margin-top:3px;">The end-of-term examination timetable is now available. Parents can view it via the Parent Portal.</div>
+                <div style="font-size:11px;color:#6B7280;margin-top:6px;">5 days ago</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <div style="width:44px;height:44px;background:#fef9c3;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">👥</div>
+              <div>
+                <div style="font-size:13px;font-weight:700;color:#111827;">PTA Meeting — 28 May 2026 at 10:00 AM</div>
+                <div style="font-size:12px;color:#6B7280;margin-top:3px;">All parents and guardians are cordially invited to the Term 2 PTA meeting in the school hall.</div>
+                <div style="font-size:11px;color:#6B7280;margin-top:6px;">1 week ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Academics overview -->
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+          <div style="padding:14px 20px;border-bottom:1px solid #e5e7eb;">
+            <div style="font-size:14px;font-weight:800;color:#111;">🎓 Academics</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;">
+            <div style="padding:16px 18px;border-right:1px solid #f3f4f6;text-align:center;">
+              <div style="font-size:20px;margin-bottom:6px;">🧒</div>
+              <div style="font-size:13px;font-weight:700;color:#111;">Nursery &amp; KG</div>
+              <div style="font-size:11px;color:#6B7280;margin-top:4px;line-height:1.4;">Play-based early childhood education</div>
+            </div>
+            <div style="padding:16px 18px;border-right:1px solid #f3f4f6;text-align:center;">
+              <div style="font-size:20px;margin-bottom:6px;">📚</div>
+              <div style="font-size:13px;font-weight:700;color:#111;">Primary (1–6)</div>
+              <div style="font-size:11px;color:#6B7280;margin-top:4px;line-height:1.4;">GES curriculum with strong STEM emphasis</div>
+            </div>
+            <div style="padding:16px 18px;text-align:center;">
+              <div style="font-size:20px;margin-bottom:6px;">🏫</div>
+              <div style="font-size:13px;font-weight:700;color:#111;">JHS (1–3)</div>
+              <div style="font-size:11px;color:#6B7280;margin-top:4px;line-height:1.4;">BECE preparation · 94% pass rate</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right: Parent portal login card + contact -->
+      <div style="display:flex;flex-direction:column;gap:16px;">
+
+        <!-- Parent portal login -->
+        <div style="background:#fff;border:2px solid #10B981;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(16,185,129,.12);">
+          <div style="background:linear-gradient(135deg,#065f46,#10B981);padding:14px 18px;color:#fff;text-align:center;">
+            <div style="font-size:14px;font-weight:800;">🔐 Parent Portal</div>
+            <div style="font-size:11px;opacity:.85;margin-top:3px;">View your child's results, fees &amp; attendance</div>
+          </div>
+          <div style="padding:18px;">
+            <div style="margin-bottom:12px;">
+              <label style="font-size:11px;font-weight:700;color:#6B7280;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em;">Admission Number</label>
+              <input type="text" placeholder="e.g. ACA-2024-00142" style="width:100%;border:1px solid #e5e7eb;border-radius:8px;padding:9px 12px;font-size:13px;color:#374151;background:#f9fafb;box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:14px;">
+              <label style="font-size:11px;font-weight:700;color:#6B7280;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em;">Date of Birth</label>
+              <input type="date" style="width:100%;border:1px solid #e5e7eb;border-radius:8px;padding:9px 12px;font-size:13px;color:#374151;background:#f9fafb;box-sizing:border-box;">
+            </div>
+            <button style="width:100%;background:#10B981;color:#fff;border:none;padding:11px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;">Access Dashboard →</button>
+            <div style="text-align:center;margin-top:10px;font-size:11px;color:#9CA3AF;">No account needed · Secured by admission number</div>
+          </div>
+        </div>
+
+        <!-- Contact card -->
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px;">
+          <div style="font-size:13px;font-weight:800;color:#111;margin-bottom:12px;">📍 Contact Us</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:#374151;">
+            <div style="display:flex;gap:8px;align-items:flex-start;">
+              <span>🏢</span><span>P.O. Box GP 1234, Accra, Greater Accra Region</span>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <span>📞</span><span>+233 30 222 3456</span>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <span>✉️</span><span>info@accraacademy.edu.gh</span>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <span>🌐</span><span style="color:#10B981;">accraacademy.schoolms.com.gh</span>
+            </div>
+          </div>
+          <button style="width:100%;margin-top:12px;background:#f9fafb;border:1px solid #e5e7eb;color:#374151;padding:9px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Send us a message →</button>
+        </div>
+
+        <!-- Admissions CTA -->
+        <div style="background:linear-gradient(135deg,#0a4f3e,#065f46);border-radius:12px;padding:18px;color:#fff;text-align:center;">
+          <div style="font-size:18px;margin-bottom:6px;">🎉</div>
+          <div style="font-size:13px;font-weight:800;margin-bottom:6px;">Enrolment Open — 2026/2027</div>
+          <div style="font-size:11px;opacity:.8;margin-bottom:12px;line-height:1.5;">Applications now open for Nursery through JHS 1. Limited spaces available.</div>
+          <button style="background:#10B981;color:#fff;border:none;padding:9px 20px;border-radius:20px;font-weight:700;font-size:12px;cursor:pointer;">Apply Now →</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="margin-top:16px;background:#0a4f3e;border-radius:0 0 10px 10px;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <div style="font-size:11px;color:rgba(255,255,255,.6);">© 2026 Accra Academy Basic School · Powered by <span style="color:#10B981;font-weight:700;">SchoolMS Ghana</span></div>
+      <div style="display:flex;gap:14px;font-size:11px;">
+        <a href="#" style="color:rgba(255,255,255,.6);text-decoration:none;">Privacy Policy</a>
+        <a href="#" style="color:rgba(255,255,255,.6);text-decoration:none;">Terms</a>
+        <a href="#" style="color:rgba(255,255,255,.6);text-decoration:none;">Admin Login</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════ SCREEN: FEEDING FEES ════════════ -->
+<div class="screen" id="screen-feeding">
+
+  <!-- Sub-nav tabs -->
+  <div style="display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--border);">
+    <div id="ff-tab-list" onclick="showFeedingList()" style="padding:8px 16px;font-size:12px;font-weight:600;color:var(--green);border-bottom:2px solid var(--green);cursor:pointer;">Fees List</div>
+    <div onclick="showFeedingDetail()" style="padding:8px 16px;font-size:12px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;">Student Detail</div>
+    <div style="padding:8px 16px;font-size:12px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;">Configuration</div>
+    <div style="padding:8px 16px;font-size:12px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;">Bulk Assign</div>
+    <div style="padding:8px 16px;font-size:12px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;">Report</div>
+  </div>
+
+  <!-- ── LIST VIEW ─────────────────────────────────────────── -->
+  <div id="ff-list-view">
+    <div class="page-hdr">
+      <div>
+        <div class="page-title">Feeding Fees</div>
+        <div class="page-sub">Term 2, 2025/2026 · All Classes</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary btn-sm">📊 Report</button>
+        <button class="btn btn-secondary btn-sm">⚙ Configure Rates</button>
+        <button class="btn btn-primary btn-sm">+ Assign Fees</button>
+      </div>
+    </div>
+
+    <!-- Stats strip -->
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-bottom:18px;">
+      <div class="panel" style="padding:12px;text-align:center;">
+        <div style="font-size:18px;font-weight:800;color:var(--text);">248</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px;">Total</div>
+      </div>
+      <div class="panel" style="padding:12px;text-align:center;">
+        <div style="font-size:18px;font-weight:800;color:var(--green);">142</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px;">Paid</div>
+      </div>
+      <div class="panel" style="padding:12px;text-align:center;">
+        <div style="font-size:18px;font-weight:800;color:var(--gold);">63</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px;">Partial</div>
+      </div>
+      <div class="panel" style="padding:12px;text-align:center;">
+        <div style="font-size:18px;font-weight:800;color:var(--red);">35</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px;">Unpaid</div>
+      </div>
+      <div class="panel" style="padding:12px;text-align:center;">
+        <div style="font-size:18px;font-weight:800;color:#A78BFA;">8</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px;">Exempt</div>
+      </div>
+      <div class="panel" style="padding:12px;text-align:center;">
+        <div style="font-size:14px;font-weight:800;color:var(--green);">GHS 33,820</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px;">Collected</div>
+      </div>
+      <div class="panel" style="padding:12px;text-align:center;">
+        <div style="font-size:14px;font-weight:800;color:#F87171;">GHS 9,450</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px;">Outstanding</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar" style="margin-bottom:14px;">
+      <select class="select-input"><option>Term 2 (2025/2026) — Current</option><option>Term 1 (2025/2026)</option><option>Term 3 (2024/2025)</option></select>
+      <select class="select-input"><option>All Classes</option><option>JHS 1A</option><option>JHS 1B</option><option>JHS 2A</option><option>JHS 3</option></select>
+      <select class="select-input"><option>All Statuses</option><option>Paid</option><option>Partial</option><option>Unpaid</option><option>Exempt</option></select>
+    </div>
+
+    <!-- Table -->
+    <div class="panel">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Student</th><th>Class</th><th>Days</th><th>Rate/Day</th><th>Amount Due</th><th>Paid</th><th>Balance</th><th>Status</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="ava" style="background:rgba(16,185,129,.15);color:var(--green);font-size:11px;">KA</div><div><div style="font-size:13px;">Kofi Asante</div><div style="font-size:10px;color:var(--muted);">ADM-2026-0142</div></div></div></td>
+            <td style="font-size:12px;">JHS 2A</td>
+            <td style="font-size:12px;color:var(--muted);">65</td>
+            <td style="font-size:12px;color:var(--muted);">GHS 5.00</td>
+            <td style="font-size:13px;">GHS 325.00</td>
+            <td style="font-size:13px;color:var(--green);">GHS 325.00</td>
+            <td style="font-size:13px;color:var(--muted);">GHS 0.00</td>
+            <td><span class="badge b-green">Paid</span></td>
+            <td><button onclick="showFeedingDetail()" class="btn btn-secondary btn-sm">View →</button></td>
+          </tr>
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="ava" style="background:rgba(96,165,250,.15);color:#60A5FA;font-size:11px;">AB</div><div><div style="font-size:13px;">Ama Boateng</div><div style="font-size:10px;color:var(--muted);">ADM-2026-0098</div></div></div></td>
+            <td style="font-size:12px;">JHS 1A</td>
+            <td style="font-size:12px;color:var(--muted);">65</td>
+            <td style="font-size:12px;color:var(--muted);">GHS 5.00</td>
+            <td style="font-size:13px;">GHS 325.00</td>
+            <td style="font-size:13px;color:var(--gold);">GHS 150.00</td>
+            <td style="font-size:13px;color:#F87171;font-weight:600;">GHS 175.00</td>
+            <td><span class="badge b-gold">Partial</span></td>
+            <td><button onclick="showFeedingDetail()" class="btn btn-primary btn-sm">💵 Pay</button></td>
+          </tr>
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="ava" style="background:rgba(239,68,68,.15);color:#F87171;font-size:11px;">AO</div><div><div style="font-size:13px;">Abena Owusu</div><div style="font-size:10px;color:var(--muted);">ADM-2026-0074</div></div></div></td>
+            <td style="font-size:12px;">JHS 1B</td>
+            <td style="font-size:12px;color:var(--muted);">65</td>
+            <td style="font-size:12px;color:var(--muted);">GHS 5.00</td>
+            <td style="font-size:13px;">GHS 325.00</td>
+            <td style="font-size:13px;color:var(--muted);">GHS 0.00</td>
+            <td style="font-size:13px;color:#F87171;font-weight:600;">GHS 325.00</td>
+            <td><span class="badge b-red">Unpaid</span></td>
+            <td><button onclick="showFeedingDetail()" class="btn btn-primary btn-sm">💵 Pay</button></td>
+          </tr>
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="ava" style="background:rgba(167,139,250,.15);color:#A78BFA;font-size:11px;">KM</div><div><div style="font-size:13px;">Kweku Mensah</div><div style="font-size:10px;color:var(--muted);">ADM-2026-0031</div></div></div></td>
+            <td style="font-size:12px;">JHS 3</td>
+            <td style="font-size:12px;color:var(--muted);">65</td>
+            <td style="font-size:12px;color:var(--muted);">GHS 5.00</td>
+            <td style="font-size:13px;">GHS 325.00</td>
+            <td style="font-size:13px;color:var(--green);">GHS 325.00</td>
+            <td style="font-size:13px;color:var(--muted);">GHS 0.00</td>
+            <td><span class="badge b-green">Paid</span></td>
+            <td><button onclick="showFeedingDetail()" class="btn btn-secondary btn-sm">View →</button></td>
+          </tr>
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="ava" style="background:rgba(167,139,250,.15);color:#A78BFA;font-size:11px;">YD</div><div><div style="font-size:13px;">Yaw Darko</div><div style="font-size:10px;color:var(--muted);">ADM-2026-0055</div></div></div></td>
+            <td style="font-size:12px;">Prim 6A</td>
+            <td style="font-size:12px;color:var(--muted);">65</td>
+            <td style="font-size:12px;color:var(--muted);">GHS 4.50</td>
+            <td style="font-size:13px;">GHS 292.50</td>
+            <td style="font-size:13px;color:var(--muted);">GHS 0.00</td>
+            <td style="font-size:13px;color:var(--muted);">—</td>
+            <td><span class="badge" style="background:rgba(167,139,250,.15);color:#A78BFA;">Exempt</span></td>
+            <td><button onclick="showFeedingDetail()" class="btn btn-secondary btn-sm">View →</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted);">
+        <span>Showing 5 of 248 feeding fee records</span>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-secondary btn-sm">← Prev</button>
+          <button class="btn btn-secondary btn-sm" style="background:var(--card2);">1</button>
+          <button class="btn btn-secondary btn-sm">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div><!-- /ff-list-view -->
+
+  <!-- ── DETAIL / PAYMENT VIEW ─────────────────────────────── -->
+  <div id="ff-detail-view" style="display:none;">
+    <div style="margin-bottom:16px;">
+      <button onclick="showFeedingList()" class="btn btn-secondary btn-sm">← Back to list</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start;">
+
+      <!-- Left: Detail card + payment history -->
+      <div style="display:flex;flex-direction:column;gap:14px;">
+
+        <!-- Header card -->
+        <div class="panel">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
+            <div>
+              <div style="font-size:18px;font-weight:800;">Ama Boateng</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">ADM-2026-0098 · JHS 1A</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:1px;">Term 2, 2025/2026</div>
+            </div>
+            <span class="badge b-gold" style="font-size:12px;padding:5px 12px;">Partial</span>
+          </div>
+
+          <!-- Amount trio -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
+            <div style="background:var(--card2);border-radius:10px;padding:12px;text-align:center;">
+              <div style="font-size:18px;font-weight:800;color:var(--text);">GHS 325.00</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:3px;">Total Due</div>
+            </div>
+            <div style="background:rgba(16,185,129,.08);border-radius:10px;padding:12px;text-align:center;border:1px solid rgba(16,185,129,.2);">
+              <div style="font-size:18px;font-weight:800;color:var(--green);">GHS 150.00</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:3px;">Paid</div>
+            </div>
+            <div style="background:rgba(239,68,68,.08);border-radius:10px;padding:12px;text-align:center;border:1px solid rgba(239,68,68,.2);">
+              <div style="font-size:18px;font-weight:800;color:#F87171;">GHS 175.00</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:3px;">Balance</div>
+            </div>
+          </div>
+
+          <!-- Rate breakdown -->
+          <div style="border-top:1px solid var(--border);padding-top:10px;display:flex;gap:24px;font-size:12px;color:var(--muted);">
+            <span>Rate: <strong style="color:var(--text);">GHS 5.00/day</strong></span>
+            <span>Days: <strong style="color:var(--text);">65</strong></span>
+            <span>Mode: <strong style="color:var(--text);">Termly</strong></span>
+          </div>
+        </div>
+
+        <!-- Payment history table -->
+        <div class="panel">
+          <div class="panel-hdr"><div class="panel-title">Payment History</div></div>
+          <div class="panel-body" style="padding:0;">
+            <table class="tbl">
+              <thead><tr><th>Receipt No.</th><th>Date</th><th>Method</th><th>Amount</th><th>Recorded By</th><th></th></tr></thead>
+              <tbody>
+                <tr>
+                  <td style="font-family:monospace;font-size:11px;color:var(--muted);">FF-ACA-26-00018</td>
+                  <td style="font-size:12px;">05 May 2026</td>
+                  <td style="font-size:12px;">Cash</td>
+                  <td style="font-size:13px;font-weight:700;color:var(--green);">GHS 150.00</td>
+                  <td style="font-size:11px;color:var(--muted);">Mr. Asiedu</td>
+                  <td><button class="btn btn-secondary btn-sm">🖨 Receipt</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /left -->
+
+      <!-- Right: Actions panel -->
+      <div style="display:flex;flex-direction:column;gap:12px;">
+
+        <!-- Record payment -->
+        <div class="panel">
+          <div class="panel-hdr"><div class="panel-title">Record Payment</div></div>
+          <div class="panel-body">
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div>
+                <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Amount (GHS) *</label>
+                <input class="search-input" value="175.00" style="width:100%;">
+                <div style="font-size:10px;color:var(--muted);margin-top:3px;">Balance: GHS 175.00</div>
+              </div>
+              <div>
+                <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Payment Date *</label>
+                <input class="search-input" value="15 May 2026" style="width:100%;">
+              </div>
+              <div>
+                <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Method *</label>
+                <select class="select-input" style="width:100%;">
+                  <option selected>Cash</option>
+                  <option>Mobile Money</option>
+                  <option>Bank Transfer</option>
+                  <option>Cheque</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Notes</label>
+                <input class="search-input" placeholder="Optional…" style="width:100%;">
+              </div>
+              <button class="btn btn-primary" style="width:100%;">💵 Record Payment</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Exemption -->
+        <div class="panel">
+          <div class="panel-hdr"><div class="panel-title">Exemption</div></div>
+          <div class="panel-body">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Mark as exempt (scholarship, bursary, etc.).</div>
+            <input class="search-input" placeholder="Reason (optional)…" style="width:100%;margin-bottom:8px;">
+            <button class="btn btn-secondary" style="width:100%;border-color:rgba(167,139,250,.4);color:#A78BFA;">
+              Mark as Exempt
+            </button>
+          </div>
+        </div>
+
+        <!-- Receipt preview hint -->
+        <div style="text-align:center;padding:10px;background:var(--card2);border-radius:10px;border:1px solid var(--border);">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Printable receipt opens in new tab</div>
+          <div style="font-family:monospace;font-size:12px;color:var(--green);">FF-ACA-26-00018</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;">Last receipt number</div>
+        </div>
+
+      </div><!-- /right -->
+    </div><!-- /grid -->
+  </div><!-- /ff-detail-view -->
+
+</div><!-- /screen-feeding -->
+
+</div><!-- #main -->
+</div><!-- #app -->
+
+<script>
+function switchScreen(id, tabEl, url) {
+  // Hide all screens
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  // Show target
+  const target = document.getElementById('screen-' + id);
+  if (target) target.classList.add('active');
+
+  // When leaving report cards, reset to list view
+  if (id !== 'reportcards') showRCList();
+
+  // Update URL bar
+  if (url) document.getElementById('urlBar').textContent = url;
+
+  // Update top tabs
+  if (tabEl) {
+    document.querySelectorAll('.screen-tab').forEach(t => t.classList.remove('active'));
+    tabEl.classList.add('active');
+  }
+
+  // Update sidebar
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  const navItem = document.getElementById('nav-' + id);
+  if (navItem) navItem.classList.add('active');
+
+  // Show/hide sidebar for non-admin screens
+  const sidebar = document.getElementById('sidebar');
+  const noSidebar = ['teacher', 'teacher-remarks', 'parent', 'superadmin', 'website'];
+  if (noSidebar.includes(id)) {
+    sidebar.style.display = 'none';
+  } else {
+    sidebar.style.display = 'flex';
+  }
+
+  // Reset remarks sub-views when entering the teacher-remarks screen
+  if (id === 'teacher-remarks') {
+    showRemarksList();
+  }
+
+  // Reset feeding sub-views when entering the feeding screen
+  if (id === 'feeding') {
+    showFeedingList();
+  }
+}
+
+// ── Feeding fee list/detail toggle ───────────────────────────────────────────
+function showFeedingList() {
+  document.getElementById('ff-list-view').style.display = 'block';
+  document.getElementById('ff-detail-view').style.display = 'none';
+  document.getElementById('urlBar').textContent = 'accraacademy.admin.schoolms.com.gh/feeding';
+}
+function showFeedingDetail() {
+  document.getElementById('ff-list-view').style.display = 'none';
+  document.getElementById('ff-detail-view').style.display = 'block';
+  document.getElementById('urlBar').textContent = 'accraacademy.admin.schoolms.com.gh/feeding/42';
+}
+
+// ── Teacher Remarks list/edit toggle ─────────────────────────────────────────
+function showRemarksEdit() {
+  const list = document.getElementById('remarks-list');
+  const edit = document.getElementById('remarks-edit');
+  if (list) list.style.display = 'none';
+  if (edit) edit.style.display = 'block';
+  document.getElementById('urlBar').textContent =
+    'accraacademy.schoolms.com.gh/teacher/remarks/edit?student_id=142&term_id=2';
+}
+
+function showRemarksList() {
+  const list = document.getElementById('remarks-list');
+  const edit = document.getElementById('remarks-edit');
+  if (list) list.style.display = 'block';
+  if (edit) edit.style.display = 'none';
+  document.getElementById('urlBar').textContent =
+    'accraacademy.schoolms.com.gh/teacher/remarks';
+}
+
+// ── Report card data ──────────────────────────────────────────────
+const RC_DATA = {
+  kofi: {
+    name: 'Kofi Asante', admno: 'ACA-2024-00142',
+    position: '4th', aggregate: 14, att: '53 / 55', attPct: '96.4% attendance',
+    total: '597 / 74.6%',
+    teacherRemark: 'Kofi has shown consistent effort across all subjects this term. His performance in English Language is commendable. He should focus more on ICT and maintain his current effort in the sciences.',
+    headRemark: 'A satisfactory performance this term. Kofi demonstrates strong academic potential. We encourage continued commitment to all subjects, particularly ICT. Keep it up!',
+    subjects: [
+      {name:'Mathematics',       ca:50, exam:28, total:78, grade:'B2', pts:2, remark:'Very Good'},
+      {name:'English Language',  ca:52, exam:33, total:85, grade:'A1', pts:1, remark:'Excellent'},
+      {name:'Integrated Science',ca:41, exam:23, total:64, grade:'B3', pts:3, remark:'Good'},
+      {name:'Social Studies',    ca:44, exam:28, total:72, grade:'B2', pts:2, remark:'Very Good'},
+      {name:'R.M.E.',            ca:47, exam:32, total:79, grade:'B2', pts:2, remark:'Very Good'},
+      {name:'ICT',               ca:35, exam:23, total:58, grade:'C4', pts:4, remark:'Credit'},
+      {name:'French',            ca:43, exam:27, total:70, grade:'B2', pts:2, remark:'Very Good'},
+      {name:'Ghanaian Language', ca:44, exam:29, total:73, grade:'B2', pts:2, remark:'Very Good'},
+    ]
+  },
+  kweku: {
+    name: 'Kweku Mensah', admno: 'ACA-2023-00074',
+    position: '1st', aggregate: 8, att: '55 / 55', attPct: '100% attendance',
+    total: '707 / 88.4%',
+    teacherRemark: 'Kweku is an outstanding student who consistently performs at the top of the class. His dedication, focus, and enthusiasm for learning are exemplary. He is a role model to his peers.',
+    headRemark: 'An exceptional performance this term. Kweku is among the most talented students in the school. We are proud of his achievements and urge him to maintain this high standard.',
+    subjects: [
+      {name:'Mathematics',       ca:56, exam:34, total:90, grade:'A1', pts:1, remark:'Excellent'},
+      {name:'English Language',  ca:55, exam:33, total:88, grade:'A1', pts:1, remark:'Excellent'},
+      {name:'Integrated Science',ca:50, exam:30, total:80, grade:'A1', pts:1, remark:'Excellent'},
+      {name:'Social Studies',    ca:54, exam:35, total:89, grade:'A1', pts:1, remark:'Excellent'},
+      {name:'R.M.E.',            ca:49, exam:30, total:79, grade:'B2', pts:2, remark:'Very Good'},
+      {name:'ICT',               ca:43, exam:25, total:68, grade:'B3', pts:3, remark:'Good'},
+      {name:'French',            ca:46, exam:29, total:75, grade:'B2', pts:2, remark:'Very Good'},
+      {name:'Ghanaian Language', ca:53, exam:38, total:91, grade:'A1', pts:1, remark:'Excellent'},
+    ]
+  },
+  ama: {
+    name: 'Ama Boateng', admno: 'ACA-2024-00098',
+    position: '2nd', aggregate: 12, att: '54 / 55', attPct: '98.2% attendance',
+    total: '625 / 78.1%',
+    teacherRemark: 'Ama is a hardworking and dedicated student. Her performance in R.M.E. and Mathematics reflects her diligence. She should put in more effort in Social Studies to improve her overall aggregate.',
+    headRemark: 'Ama has performed admirably this term, ranking second in her class. Her consistent attendance and positive attitude are noteworthy. We look forward to even greater results next term.',
+    subjects: [
+      {name:'Mathematics',       ca:42, exam:26, total:68, grade:'B3', pts:3, remark:'Good'},
+      {name:'English Language',  ca:47, exam:29, total:76, grade:'B2', pts:2, remark:'Very Good'},
+      {name:'Integrated Science',ca:46, exam:28, total:74, grade:'B2', pts:2, remark:'Very Good'},
+      {name:'Social Studies',    ca:41, exam:23, total:64, grade:'B3', pts:3, remark:'Good'},
+      {name:'R.M.E.',            ca:55, exam:33, total:88, grade:'A1', pts:1, remark:'Excellent'},
+      {name:'ICT',               ca:40, exam:24, total:64, grade:'B3', pts:3, remark:'Good'},
+      {name:'French',            ca:41, exam:23, total:64, grade:'B3', pts:3, remark:'Good'},
+      {name:'Ghanaian Language', ca:44, exam:29, total:73, grade:'B2', pts:2, remark:'Very Good'},
+    ]
+  },
+  yaw: {
+    name: 'Yaw Darko', admno: 'ACA-2022-00031',
+    position: '3rd', aggregate: 13, att: '52 / 55', attPct: '94.6% attendance',
+    total: '610 / 76.3%',
+    teacherRemark: 'Yaw performed well this term and showed significant improvement in Mathematics. His attitude in class is positive. He should work harder on French to achieve a better grade.',
+    headRemark: 'Yaw has had a good term, placing third in his class. His overall performance is pleasing. With additional effort in French and consistent attendance, he can achieve an even better result.',
+    subjects: [
+      {name:'Mathematics',       ca:45, exam:28, total:73, grade:'B2', pts:2, remark:'Very Good'},
+      {name:'English Language',  ca:43, exam:25, total:68, grade:'B3', pts:3, remark:'Good'},
+      {name:'Integrated Science',ca:42, exam:24, total:66, grade:'B3', pts:3, remark:'Good'},
+      {name:'Social Studies',    ca:46, exam:27, total:73, grade:'B2', pts:2, remark:'Very Good'},
+      {name:'R.M.E.',            ca:41, exam:25, total:66, grade:'B3', pts:3, remark:'Good'},
+      {name:'ICT',               ca:44, exam:29, total:73, grade:'B2', pts:2, remark:'Very Good'},
+      {name:'French',            ca:35, exam:22, total:57, grade:'C4', pts:4, remark:'Credit'},
+      {name:'Ghanaian Language', ca:42, exam:24, total:66, grade:'B3', pts:3, remark:'Good'},
+    ]
+  },
+  abena: {
+    name: 'Abena Owusu', admno: 'ACA-2024-00201',
+    position: '18th', aggregate: 28, att: '49 / 55', attPct: '88.4% attendance',
+    total: '450 / 56.2%',
+    teacherRemark: 'Abena needs to improve her commitment to academic work. She has the potential to do better. Regular attendance and timely submission of assignments will significantly improve her performance.',
+    headRemark: 'Abena\'s performance this term is below her potential. We encourage her and her parents to work together to address the areas of weakness, particularly ICT and the sciences.',
+    subjects: [
+      {name:'Mathematics',       ca:31, exam:20, total:51, grade:'C5', pts:5, remark:'Credit'},
+      {name:'English Language',  ca:34, exam:23, total:57, grade:'C4', pts:4, remark:'Credit'},
+      {name:'Integrated Science',ca:28, exam:19, total:47, grade:'C6', pts:6, remark:'Credit'},
+      {name:'Social Studies',    ca:38, exam:25, total:63, grade:'B3', pts:3, remark:'Good'},
+      {name:'R.M.E.',            ca:40, exam:24, total:64, grade:'B3', pts:3, remark:'Good'},
+      {name:'ICT',               ca:24, exam:18, total:42, grade:'D7', pts:7, remark:'Pass'},
+      {name:'French',            ca:29, exam:22, total:51, grade:'C5', pts:5, remark:'Credit'},
+      {name:'Ghanaian Language', ca:33, exam:22, total:55, grade:'C4', pts:4, remark:'Credit'},
+    ]
+  },
+  efua: {
+    name: 'Efua Koomson', admno: 'ACA-2025-00001',
+    position: '30th', aggregate: 37, att: '50 / 55', attPct: '90.1% attendance',
+    total: '343 / 42.8%',
+    teacherRemark: 'Efua is a new student who is still adjusting to the school environment. She requires extra support especially in ICT and Mathematics. Regular private study and parental involvement are strongly advised.',
+    headRemark: 'As a new student, Efua\'s adjustment period is understandable. However, effort must be made to improve significantly next term. The school will provide additional academic support where possible.',
+    subjects: [
+      {name:'Mathematics',       ca:25, exam:18, total:43, grade:'D7', pts:7, remark:'Pass'},
+      {name:'English Language',  ca:28, exam:19, total:47, grade:'C6', pts:6, remark:'Credit'},
+      {name:'Integrated Science',ca:24, exam:17, total:41, grade:'D7', pts:7, remark:'Pass'},
+      {name:'Social Studies',    ca:30, exam:21, total:51, grade:'C5', pts:5, remark:'Credit'},
+      {name:'R.M.E.',            ca:32, exam:23, total:55, grade:'C4', pts:4, remark:'Credit'},
+      {name:'ICT',               ca:18, exam:14, total:32, grade:'F9', pts:9, remark:'Fail'},
+      {name:'French',            ca:22, exam:18, total:40, grade:'D7', pts:7, remark:'Pass'},
+      {name:'Ghanaian Language', ca:29, exam:18, total:47, grade:'C6', pts:6, remark:'Credit'},
+    ]
+  }
+};
+
+const GRADE_CLASSES = {
+  A1:'g-a1', B2:'g-b2', B3:'g-b3', C4:'g-c4',
+  C5:'g-c5', C6:'g-c6', D7:'g-d7', E8:'g-d7', F9:'g-f9'
+};
+
+function showRC(studentKey) {
+  const d = RC_DATA[studentKey];
+  if (!d) return;
+
+  // Show detail, hide list
+  document.getElementById('rc-list').style.display = 'none';
+  document.getElementById('rc-detail').style.display = 'block';
+  document.getElementById('main').scrollTop = 0;
+
+  // Populate header fields
+  document.getElementById('rc-name').textContent   = d.name;
+  document.getElementById('rc-admno').textContent  = d.admno;
+  document.getElementById('rc-pos').textContent    = d.position;
+  document.getElementById('rc-agg').textContent    = d.aggregate;
+  document.getElementById('rc-att').textContent    = d.att;
+  document.getElementById('rc-att-pct').textContent = d.attPct;
+  document.getElementById('rc-total').textContent  = d.total;
+  document.getElementById('rc-teacher-remark').textContent = d.teacherRemark;
+  document.getElementById('rc-head-remark').textContent    = d.headRemark;
+
+  // Aggregate colour
+  const aggEl = document.getElementById('rc-agg');
+  aggEl.style.color = d.aggregate <= 12 ? '#10B981' : d.aggregate <= 24 ? '#F59E0B' : '#EF4444';
+
+  // Build subject rows
+  const tbody = document.getElementById('rc-subjects');
+  tbody.innerHTML = '';
+  d.subjects.forEach((s, i) => {
+    const gc = GRADE_CLASSES[s.grade] || 'g-d7';
+    const rowBg = i % 2 === 0 ? '#ffffff' : '#F9FAFB';
+    const ptsColor = s.pts <= 2 ? '#10B981' : s.pts <= 4 ? '#60A5FA' : s.pts <= 6 ? '#F59E0B' : '#EF4444';
+    tbody.innerHTML += `
+      <tr style="background:${rowBg};">
+        <td style="padding:9px 18px;font-weight:600;color:#111827;border-bottom:1px solid #F3F4F6;">${s.name}</td>
+        <td style="text-align:center;padding:9px 10px;color:#374151;border-bottom:1px solid #F3F4F6;">${s.ca}</td>
+        <td style="text-align:center;padding:9px 10px;color:#374151;border-bottom:1px solid #F3F4F6;">${s.exam}</td>
+        <td style="text-align:center;padding:9px 10px;font-weight:800;color:#111827;border-bottom:1px solid #F3F4F6;">${s.total}</td>
+        <td style="text-align:center;padding:9px 10px;border-bottom:1px solid #F3F4F6;"><span class="grade ${gc}">${s.grade}</span></td>
+        <td style="text-align:center;padding:9px 10px;font-weight:800;color:${ptsColor};border-bottom:1px solid #F3F4F6;">${s.pts}</td>
+        <td style="padding:9px 14px;font-size:12px;color:#6B7280;border-bottom:1px solid #F3F4F6;">${s.remark}</td>
+      </tr>`;
+  });
+
+  document.getElementById('urlBar').textContent =
+    'accraacademy.admin.schoolms.com.gh/report-cards/' + d.admno.toLowerCase();
+}
+
+function showRCList() {
+  const list   = document.getElementById('rc-list');
+  const detail = document.getElementById('rc-detail');
+  if (list)   list.style.display   = 'block';
+  if (detail) detail.style.display = 'none';
+}
+</script>
+</body>
+</html>

@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Admission;
 use App\Models\Assessment;
 use App\Models\Fee;
+use App\Models\FeedingFee;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\Subject;
@@ -42,6 +43,8 @@ class AppServiceProvider extends ServiceProvider
         Teacher::observe(AuditObserver::class);
         Fee::observe(AuditObserver::class);
         Assessment::observe(AuditObserver::class);
+        // Feeding fees
+        FeedingFee::observe(AuditObserver::class);
         // Enrolment pipeline + class/subject structure
         Admission::observe(AuditObserver::class);
         SchoolClass::observe(AuditObserver::class);
