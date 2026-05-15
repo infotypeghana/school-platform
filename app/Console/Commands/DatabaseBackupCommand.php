@@ -46,11 +46,11 @@ class DatabaseBackupCommand extends Command
         Storage::disk('local')->makeDirectory('backups');
 
         // ── Build mysqldump command ────────────────────────────────────────────
-        $host     = config('database.connections.mysql.host');
-        $port     = config('database.connections.mysql.port', 3306);
-        $database = config('database.connections.mysql.database');
-        $username = config('database.connections.mysql.username');
-        $password = config('database.connections.mysql.password');
+        $host     = (string) config('database.connections.mysql.host', '');
+        $port     = (string) config('database.connections.mysql.port', 3306);
+        $database = (string) config('database.connections.mysql.database', '');
+        $username = (string) config('database.connections.mysql.username', '');
+        $password = (string) config('database.connections.mysql.password', '');
 
         // Pipe through gzip to keep file sizes manageable
         $cmd = sprintf(

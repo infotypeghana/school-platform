@@ -17,8 +17,8 @@ class MoolreWebhookController extends Controller
     {
         // ── 1. Signature verification ──────────────────────────────────────
         // Moolre signs the raw payload with HMAC-SHA256 using the public key
-        $publicKey = config('services.moolre.public_key');
-        $signature = $request->header('X-Moolre-Signature');
+        $publicKey = (string) config('services.moolre.public_key', '');
+        $signature = $request->header('X-Moolre-Signature') ?? '';
         $rawBody   = $request->getContent();
 
         if (! $publicKey || ! $signature) {

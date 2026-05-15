@@ -308,6 +308,11 @@ class ExportSchoolDataJob implements ShouldQueue
     private function toCsv(array $headers, array $rows): string
     {
         $output = fopen('php://temp', 'r+');
+
+        if ($output === false) {
+            return '';
+        }
+
         fputcsv($output, $headers);
         foreach ($rows as $row) {
             fputcsv($output, $row);
@@ -316,6 +321,6 @@ class ExportSchoolDataJob implements ShouldQueue
         $csv = stream_get_contents($output);
         fclose($output);
 
-        return $csv;
+        return $csv !== false ? $csv : '';
     }
 }

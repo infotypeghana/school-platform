@@ -68,7 +68,7 @@ class AuditObserver
         $label = $this->labelFor($model);
 
         AuditLog::create([
-            'tenant_id'       => app()->bound('currentTenant') ? app('currentTenant')?->id : ($model->tenant_id ?? null),
+            'tenant_id'       => app()->bound('currentTenant') ? app('currentTenant')?->id : $model->getAttribute('tenant_id'),
             'user_id'         => auth()->id(),
             'user_name'       => auth()->user()?->name,
             'action'          => $action,
@@ -96,6 +96,6 @@ class AuditObserver
             }
         }
 
-        return class_basename($model) . ' #' . $model->getKey();
+        return class_basename($model) . ' #' . (string) $model->getKey();
     }
 }

@@ -18,5 +18,7 @@ parameters:
     ignoreErrors:
         # Blade view() calls return View which PHPStan can't statically type
         - '#Call to an undefined method Illuminate\\View\\View#'
-        # Dynamic magic accessors on Eloquent models
+        # Dynamic magic accessors on Eloquent models (App\Models\* subclasses)
         - '#Access to an undefined property App\\Models\\[A-Za-z]+::\$#'
+        # AuditObserver accepts base Model — magic properties not visible at that level
+        - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$#'

@@ -68,6 +68,13 @@ class SubscriptionService
         $subscription = $payment->subscription;
         $tenant       = $payment->tenant;
 
+        if (! $subscription || ! $tenant) {
+            Log::error('activateFromPayment: missing subscription or tenant', [
+                'payment_id' => $payment->id,
+            ]);
+            return;
+        }
+
         $subscription->transitionToActive();
         $this->flushCache($tenant);
 
@@ -86,7 +93,9 @@ class SubscriptionService
             ->whereHas('term', fn ($q) => $q->whereDate('end_date', '<', Carbon::today()))
             ->each(function (Subscription $sub) use (&$count) {
                 $sub->transitionToGrace();
-                $this->flushCache($sub->tenant);
+                if ($sub->tenant) {
+                    $this->flushCache($sub->tenant);
+                }
                 $count++;
 
                 Log::info('Subscription transitioned to grace', [
@@ -106,7 +115,9 @@ class SubscriptionService
             ->where('grace_ends_at', '<', now())
             ->each(function (Subscription $sub) use (&$count) {
                 $sub->transitionToLocked();
-                $this->flushCache($sub->tenant);
+                if ($sub->tenant) {
+                    $this->flushCache($sub->tenant);
+                }
                 $count++;
 
                 Log::info('Subscription locked — grace expired', [

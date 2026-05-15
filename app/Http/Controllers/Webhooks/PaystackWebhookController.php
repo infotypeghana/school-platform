@@ -60,9 +60,11 @@ class PaystackWebhookController extends Controller
 
         // 5. Send confirmation notification
         try {
-            $payment->tenant->notify(
-                new SubscriptionExpiryNotification($payment->subscription, 'payment_confirmed')
-            );
+            $tenant       = $payment->tenant;
+            $subscription = $payment->subscription;
+            if ($tenant && $subscription) {
+                $tenant->notify(new SubscriptionExpiryNotification($subscription, 'payment_confirmed'));
+            }
         } catch (\Throwable $e) {
             Log::error('Failed to send payment confirmation: ' . $e->getMessage());
         }
@@ -78,10 +80,10 @@ class PaystackWebhookController extends Controller
 
     private function verifySignature(Request $request): bool
     {
-        $secret    = config('services.paystack.secret_key');
-        $signature = $request->header('X-Paystack-Signature');
+        $secret    = (string) config('services.paystack.secret_key', '');
+        $signature = $request->header('X-Paystack-Signature') ?? '';
         $expected  = hash_hmac('sha512', $request->getContent(), $secret);
 
-        return hash_equals($expected, $signature ?? '');
+        return hash_equals($expected, $signature);
     }
 }
