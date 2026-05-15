@@ -27,7 +27,8 @@ parameters:
 
         # Collection::map() closures — Larastan cannot always resolve complex closure
         # return types when the collection element type involves generic parameters.
-        - '#Parameter #1 \$callback of method .+::map\(\) contains unresolvable type#'
+        # Note: \# escapes the literal '#' so it isn't treated as the pattern delimiter.
+        - '#Parameter \#1 \$callback of method .+::map\(\) contains unresolvable type#'
 
         # Dynamic Eloquent relationship methods called on the base Model type.
         # Larastan does not narrow the model type inside generic collection iterators,
