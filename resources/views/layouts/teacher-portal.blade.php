@@ -57,6 +57,13 @@
                               {{ request()->routeIs('teacher.portal.timetable') ? 'bg-blue-50 text-blue-700 font-medium' : '' }}">
                         Timetable
                     </a>
+                    @if(isset($authTeacher) && \App\Models\SchoolClass::where('class_teacher_id', $authTeacher->id)->exists())
+                    <a href="{{ route('teacher.portal.remarks') }}"
+                       class="px-3 py-1.5 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors
+                              {{ request()->routeIs('teacher.portal.remarks*') ? 'bg-blue-50 text-blue-700 font-medium' : '' }}">
+                        Remarks
+                    </a>
+                    @endif
                 </div>
 
                 {{-- Teacher dropdown --}}

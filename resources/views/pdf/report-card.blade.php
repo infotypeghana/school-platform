@@ -103,9 +103,45 @@
   .legend-item { display: table-cell; text-align: center; border: 1px solid #ddd; padding: 3px 4px; font-size: 7.5pt; }
   .legend-item strong { display: block; font-size: 9pt; }
 
+  /* ── Conduct & Behaviour ── */
+  .conduct-section { margin-bottom: 12px; }
+  .conduct-section h3 { font-size: 9pt; font-weight: bold; color: {{ $pc }}; margin-bottom: 6px; text-transform: uppercase; }
+  .conduct-grid { display: table; width: 100%; border-collapse: collapse; }
+  .conduct-row { display: table-row; }
+  .conduct-cell { display: table-cell; width: 50%; padding: 3px 6px; border: 1px solid #eee; font-size: 8.5pt; vertical-align: middle; }
+  .conduct-cell .c-label { color: #555; }
+  .conduct-cell .c-rating {
+    float: right; font-weight: bold; font-size: 8pt;
+    padding: 1px 7px; border-radius: 10px;
+  }
+  .r-excellent { background: #d1fae5; color: #065f46; }
+  .r-very-good { background: #dbeafe; color: #1e40af; }
+  .r-good      { background: #fef9c3; color: #854d0e; }
+  .r-fair      { background: #ffedd5; color: #9a3412; }
+  .r-poor      { background: #fee2e2; color: #991b1b; }
+  .r-none      { background: #f3f4f6; color: #9ca3af; }
+
+  /* ── Bar chart ── */
+  .barchart-section { margin-bottom: 12px; }
+  .barchart-section h3 { font-size: 9pt; font-weight: bold; color: {{ $pc }}; margin-bottom: 6px; text-transform: uppercase; }
+  .bar-row { display: table; width: 100%; margin-bottom: 4px; }
+  .bar-subject { display: table-cell; width: 28%; font-size: 7.5pt; color: #555; vertical-align: middle; padding-right: 4px; }
+  .bar-track   { display: table-cell; width: 63%; vertical-align: middle; }
+  .bar-bg      { background: #e5e7eb; border-radius: 3px; height: 11px; width: 100%; }
+  .bar-fill    { border-radius: 3px; height: 11px; }
+  .bar-score   { display: table-cell; width: 9%; text-align: right; font-size: 7.5pt; font-weight: bold; color: #333; vertical-align: middle; padding-left: 4px; }
+  .bar-grade   { display: table-cell; width: 6%; text-align: center; font-size: 7pt; font-weight: bold; vertical-align: middle; padding-left: 3px; }
+
+  /* Bar colours by grade */
+  .bar-A1 { background: #15803d; }
+  .bar-B2, .bar-B3 { background: #1d4ed8; }
+  .bar-C4, .bar-C5, .bar-C6 { background: #d97706; }
+  .bar-D7, .bar-E8 { background: #ea580c; }
+  .bar-F9 { background: #dc2626; }
+
   /* ── Signatures ── */
   .signatures { display: table; width: 100%; margin-top: 8px; }
-  .sig-col { display: table-cell; width: 33%; text-align: center; padding: 0 8px; }
+  .sig-col { display: table-cell; width: 50%; text-align: center; padding: 0 12px; }
   .sig-line { border-top: 1px solid #888; margin: 22px 0 3px; }
   .sig-label { font-size: 8pt; color: #555; }
 
@@ -284,22 +320,74 @@
     @endforeach
   </div>
 
-  {{-- ══════════════ REMARKS ══════════════ --}}
-  <div class="remarks-section">
-    <div style="display:table; width:100%; margin-bottom:6px;">
-      <div style="display:table-cell; width:50%; padding-right:8px;">
-        <h3>Class Teacher's Remark</h3>
-        <div class="remark-box">
-          {{ $reportCard->class_teacher_remark ?: 'No remark entered.' }}
-        </div>
+  {{-- ══════════════ REMARKS + CONDUCT (two-column) ══════════════ --}}
+  @php
+    $conductRatings = $reportCard->conduct_ratings ?? [];
+    $conductTraits  = \App\Models\ReportCard::CONDUCT_TRAITS;
+    $ratingClass    = fn($r) => match($r) {
+      'Excellent' => 'r-excellent',
+      'Very Good' => 'r-very-good',
+      'Good'      => 'r-good',
+      'Fair'      => 'r-fair',
+      'Poor'      => 'r-poor',
+      default     => 'r-none',
+    };
+  @endphp
+  <div style="display:table; width:100%; margin-bottom:12px;">
+
+    {{-- Left: remarks --}}
+    <div style="display:table-cell; width:58%; padding-right:8px; vertical-align:top;">
+      <div class="remarks-section" style="margin-bottom:8px;">
+        <h3>Class Teacher's Remarks</h3>
+        <div class="remark-box">{{ $reportCard->class_teacher_remark ?: 'No remark entered.' }}</div>
       </div>
-      <div style="display:table-cell; width:50%; padding-left:8px;">
-        <h3>Headmaster's Remark</h3>
-        <div class="remark-box">
-          {{ $reportCard->headmaster_remark ?: 'No remark entered.' }}
+      <div class="remarks-section">
+        <h3>Head Teacher's Remarks</h3>
+        <div class="remark-box">{{ $reportCard->headmaster_remark ?: 'No remark entered.' }}</div>
+      </div>
+    </div>
+
+    {{-- Right: conduct & behaviour --}}
+    <div style="display:table-cell; width:42%; padding-left:8px; vertical-align:top;">
+      <div class="conduct-section">
+        <h3>Conduct &amp; Behaviour</h3>
+        <div class="conduct-grid">
+          @foreach($conductTraits as $key => $label)
+            @php $rating = $conductRatings[$key] ?? null; @endphp
+            <div class="conduct-row">
+              <div class="conduct-cell">
+                <span class="c-label">{{ $label }}</span>
+                <span class="c-rating {{ $ratingClass($rating) }}">
+                  {{ $rating ?? '—' }}
+                </span>
+              </div>
+            </div>
+          @endforeach
         </div>
       </div>
     </div>
+
+  </div>
+
+  {{-- ══════════════ SUBJECT PERFORMANCE BAR CHART ══════════════ --}}
+  <div class="barchart-section">
+    <h3>Subject Performance</h3>
+    @foreach($assessments as $a)
+      @php
+        $pct   = min(100, max(0, (float)$a->total_score));
+        $grade = $a->grade ?? 'F9';
+      @endphp
+      <div class="bar-row">
+        <div class="bar-subject">{{ Str::limit($a->subject?->name ?? '—', 20) }}</div>
+        <div class="bar-track">
+          <div class="bar-bg">
+            <div class="bar-fill bar-{{ $grade }}" style="width:{{ $pct }}%;"></div>
+          </div>
+        </div>
+        <div class="bar-score">{{ number_format($a->total_score, 0) }}</div>
+        <div class="bar-grade grade-{{ $grade }}">{{ $grade }}</div>
+      </div>
+    @endforeach
   </div>
 
   {{-- ══════════════ NEXT TERM ══════════════ --}}
@@ -316,7 +404,7 @@
     {{ $passed >= ceil($assessments->count() * 0.5) ? 'Promoted' : 'Retained — See Headmaster' }}
   </div>
 
-  {{-- ══════════════ SIGNATURES ══════════════ --}}
+  {{-- ══════════════ SIGNATURES (Class Teacher + Headmaster only) ══════════════ --}}
   <div class="signatures">
     <div class="sig-col">
       <div class="sig-line"></div>
@@ -326,10 +414,7 @@
     <div class="sig-col">
       <div class="sig-line"></div>
       <div class="sig-label">Headmaster / Headmistress</div>
-    </div>
-    <div class="sig-col">
-      <div class="sig-line"></div>
-      <div class="sig-label">Parent / Guardian</div>
+      <div class="sig-label">Signature, Stamp &amp; Date</div>
     </div>
   </div>
 

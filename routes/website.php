@@ -31,11 +31,15 @@ Route::prefix('teacher')->group(function () {
     Route::post('/logout', [TeacherPortalController::class, 'logout'])  ->name('teacher.portal.logout');
 
     Route::middleware('teacher.portal')->group(function () {
-        Route::get('/dashboard',   [TeacherPortalController::class, 'dashboard'])   ->name('teacher.portal.dashboard');
-        Route::get('/scores',      [TeacherPortalController::class, 'scores'])      ->name('teacher.portal.scores');
-        Route::get('/scores/edit', [TeacherPortalController::class, 'scoresEdit'])  ->name('teacher.portal.scores.edit');
-        Route::put('/scores',      [TeacherPortalController::class, 'scoresUpdate'])->name('teacher.portal.scores.update');
-        Route::get('/timetable',   [TeacherPortalController::class, 'timetable'])   ->name('teacher.portal.timetable');
+        Route::get('/dashboard',     [TeacherPortalController::class, 'dashboard'])    ->name('teacher.portal.dashboard');
+        Route::get('/scores',        [TeacherPortalController::class, 'scores'])       ->name('teacher.portal.scores');
+        Route::get('/scores/edit',   [TeacherPortalController::class, 'scoresEdit'])   ->name('teacher.portal.scores.edit');
+        Route::put('/scores',        [TeacherPortalController::class, 'scoresUpdate']) ->name('teacher.portal.scores.update');
+        Route::get('/timetable',     [TeacherPortalController::class, 'timetable'])    ->name('teacher.portal.timetable');
+        // Remarks — class teachers only
+        Route::get('/remarks',       [TeacherPortalController::class, 'remarksIndex']) ->name('teacher.portal.remarks');
+        Route::get('/remarks/edit',  [TeacherPortalController::class, 'remarksEdit'])  ->name('teacher.portal.remarks.edit');
+        Route::put('/remarks',       [TeacherPortalController::class, 'remarksUpdate'])->name('teacher.portal.remarks.update');
     });
 });
 

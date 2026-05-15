@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\AcademicTerm;
 use App\Models\Announcement;
 use App\Models\Assessment;
+use App\Models\ReportCard;
 use App\Models\SchoolClass;
+use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Teacher;
 use App\Models\Timetable;
@@ -210,6 +212,148 @@ class TeacherPortalController extends Controller
             'subject_id' => $subject->id,
             'term_id'    => $request->term_id,
         ])->with('success', 'Scores saved successfully.');
+    }
+
+    // ── Remarks (class teachers only) ────────────────────────────────────────
+
+    /**
+     * List all students in the teacher's class(es) so they can enter remarks.
+     * Only class teachers (class_teacher_id = this teacher) see this section.
+     */
+    public function remarksIndex(Request $request): View|RedirectResponse
+    {
+        /** @var Teacher $teacher */
+        $teacher = view()->shared('authTeacher');
+
+        $myClasses = SchoolClass::where('class_teacher_id', $teacher->id)->get();
+
+        if ($myClasses->isEmpty()) {
+            return redirect()->route('teacher.portal.dashboard')
+                ->with('info', 'Only class teachers can enter student remarks.');
+        }
+
+        $terms   = AcademicTerm::with('academicYear')->orderByDesc('id')->get();
+        $current = AcademicTerm::current();
+
+        $classId = $request->integer('class_id', $myClasses->first()->id);
+        $termId  = $request->integer('term_id',  $current?->id ?? $terms->first()?->id);
+
+        // Security: teacher must be the class teacher for the requested class
+        $class = $myClasses->firstWhere('id', $classId) ?? $myClasses->first();
+        $term  = AcademicTerm::with('academicYear')->findOrFail($termId);
+
+        $students = Student::where('school_class_id', $class->id)
+            ->where('status', 'active')
+            ->orderBy('first_name')
+            ->get();
+
+        // Pre-load existing report cards for this class + term
+        $reportCards = ReportCard::where('school_class_id', $class->id)
+            ->where('term_id', $term->id)
+            ->get()
+            ->keyBy('student_id');
+
+        return view('teacher-portal.remarks.index', compact(
+            'teacher', 'myClasses', 'class', 'terms', 'term', 'students', 'reportCards'
+        ));
+    }
+
+    /**
+     * Show the remarks + conduct form for one student.
+     */
+    public function remarksEdit(Request $request): View|RedirectResponse
+    {
+        $request->validate([
+            'student_id' => 'required|integer|exists:students,id',
+            'term_id'    => 'required|integer|exists:academic_terms,id',
+        ]);
+
+        /** @var Teacher $teacher */
+        $teacher = view()->shared('authTeacher');
+
+        $student = Student::with('schoolClass')->findOrFail($request->student_id);
+
+        // Security: teacher must be the class teacher for this student's class
+        $isClassTeacher = SchoolClass::where('id', $student->school_class_id)
+            ->where('class_teacher_id', $teacher->id)
+            ->exists();
+
+        if (! $isClassTeacher) {
+            return redirect()->route('teacher.portal.remarks')
+                ->withErrors(['student_id' => 'You are not the class teacher for this student.']);
+        }
+
+        $term = AcademicTerm::with('academicYear')->findOrFail($request->term_id);
+
+        // Load or create a stub report card (stats computed by admin; here we only edit remarks)
+        $reportCard = ReportCard::firstOrCreate(
+            [
+                'tenant_id'       => app('currentTenant')?->id,
+                'student_id'      => $student->id,
+                'term_id'         => $term->id,
+            ],
+            [
+                'school_class_id' => $student->school_class_id,
+            ]
+        );
+
+        return view('teacher-portal.remarks.edit', compact('teacher', 'student', 'term', 'reportCard'));
+    }
+
+    /**
+     * Save the class teacher's remark and conduct ratings for one student.
+     */
+    public function remarksUpdate(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'student_id'           => 'required|integer|exists:students,id',
+            'term_id'              => 'required|integer|exists:academic_terms,id',
+            'class_teacher_remark' => 'nullable|string|max:1000',
+            'conduct'              => 'nullable|array',
+            'conduct.*'            => 'nullable|string|in:' . implode(',', ReportCard::CONDUCT_RATINGS),
+        ]);
+
+        /** @var Teacher $teacher */
+        $teacher = view()->shared('authTeacher');
+
+        $student = Student::findOrFail($request->student_id);
+
+        // Security: teacher must be the class teacher
+        $isClassTeacher = SchoolClass::where('id', $student->school_class_id)
+            ->where('class_teacher_id', $teacher->id)
+            ->exists();
+
+        if (! $isClassTeacher) {
+            abort(403, 'You are not the class teacher for this student.');
+        }
+
+        $reportCard = ReportCard::firstOrCreate(
+            [
+                'tenant_id'  => app('currentTenant')?->id,
+                'student_id' => $student->id,
+                'term_id'    => $request->term_id,
+            ],
+            ['school_class_id' => $student->school_class_id]
+        );
+
+        // Build conduct ratings — only store recognised trait keys
+        $conductInput   = $request->input('conduct', []);
+        $conductRatings = [];
+        foreach (array_keys(ReportCard::CONDUCT_TRAITS) as $trait) {
+            if (! empty($conductInput[$trait])) {
+                $conductRatings[$trait] = $conductInput[$trait];
+            }
+        }
+
+        $reportCard->update([
+            'class_teacher_remark' => $request->class_teacher_remark,
+            'conduct_ratings'      => ! empty($conductRatings) ? $conductRatings : null,
+        ]);
+
+        return redirect()->route('teacher.portal.remarks', [
+            'class_id' => $student->school_class_id,
+            'term_id'  => $request->term_id,
+        ])->with('success', "Remarks saved for {$student->first_name}.");
     }
 
     // ── Timetable ─────────────────────────────────────────────────────────────
