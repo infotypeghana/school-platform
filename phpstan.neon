@@ -10,8 +10,8 @@ parameters:
         - app
 
     excludePaths:
-        # Generated / boilerplate files that don't need analysis
-        - app/Http/Middleware/TrustProxies.php
+        # TrustProxies is a Laravel stub — may not exist in all installations
+        - app/Http/Middleware/TrustProxies.php (?)
 
     # Treat these as always-bound in the IoC container so PHPStan doesn't complain
     # about app('currentTenant') returning mixed.
