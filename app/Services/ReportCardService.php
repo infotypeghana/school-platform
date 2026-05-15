@@ -135,7 +135,7 @@ class ReportCardService
     public function generatePdf(ReportCard $reportCard): string
     {
         $reportCard->load([
-            'student',
+            'student.tenant',
             'schoolClass.classTeacher',
             'term.academicYear',
         ]);
@@ -149,14 +149,28 @@ class ReportCardService
         $grades = $assessments->pluck('grade')->filter()->toArray();
         $aggregate = ! empty($grades) ? $this->grader->aggregate($grades, count($grades)) : null;
 
+        // Resolve tenant — attached to student or fall back to app binding.
+        // Parentheses around the ternary are required to avoid PHP's ?? / ?: precedence trap.
+        $tenant       = $reportCard->student->tenant
+            ?? (app()->bound('currentTenant') ? app('currentTenant') : null);
+        $primaryColor = (($tenant?->primary_color ?? '') !== '') ? $tenant->primary_color : '#1a3a6e';
+
+        // Resolve per-tenant CA/Exam maxes for label display on the PDF
+        $caMax   = GradeCalculator::tenantCaMax($tenant);
+        $examMax = GradeCalculator::tenantExamMax($tenant);
+
         $data = [
-            'reportCard'  => $reportCard,
-            'student'     => $reportCard->student,
-            'class'       => $reportCard->schoolClass,
-            'term'        => $reportCard->term,
-            'assessments' => $assessments,
-            'aggregate'   => $aggregate,
-            'gradeScale'  => $this->grader->scale(),
+            'reportCard'   => $reportCard,
+            'student'      => $reportCard->student,
+            'class'        => $reportCard->schoolClass,
+            'term'         => $reportCard->term,
+            'assessments'  => $assessments,
+            'aggregate'    => $aggregate,
+            'gradeScale'   => GradeCalculator::tenantScale($tenant),
+            'tenant'       => $tenant,
+            'primaryColor' => $primaryColor,
+            'caMax'        => $caMax,
+            'examMax'      => $examMax,
         ];
 
         $pdf = Pdf::loadView('pdf.report-card', $data)

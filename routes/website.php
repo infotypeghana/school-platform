@@ -14,12 +14,14 @@ Route::get('/contact',    [WebsiteController::class, 'contact'])    ->name('webs
 Route::get('/admissions', [WebsiteController::class, 'admissions']) ->name('website.admissions');
 Route::post('/admissions',[WebsiteController::class, 'applyAdmission'])->name('website.admissions.apply');
 
-// ── Parent Portal — session-based auth ───────────────────────────────────────
-Route::get ('/portal',           [ParentPortalController::class, 'index'])     ->name('website.portal');
-Route::post('/portal',           [ParentPortalController::class, 'lookup'])    ->name('website.portal.lookup')
+// ── Parent Portal — session-based auth, multi-ward ───────────────────────────
+Route::get ('/portal',                [ParentPortalController::class, 'index'])        ->name('website.portal');
+Route::post('/portal',                [ParentPortalController::class, 'lookup'])       ->name('website.portal.lookup')
     ->middleware('throttle:6,1');
-Route::get ('/portal/dashboard', [ParentPortalController::class, 'dashboard'])->name('website.portal.dashboard');
-Route::post('/portal/logout',    [ParentPortalController::class, 'logout'])    ->name('website.portal.logout');
+Route::get ('/portal/dashboard',      [ParentPortalController::class, 'dashboard'])    ->name('website.portal.dashboard');
+Route::post('/portal/switch-ward',    [ParentPortalController::class, 'switchWard'])   ->name('website.portal.switch-ward');
+Route::get ('/portal/add-ward',       [ParentPortalController::class, 'addWardForm'])  ->name('website.portal.add-ward');
+Route::post('/portal/logout',         [ParentPortalController::class, 'logout'])       ->name('website.portal.logout');
 
 // ── Teacher Portal ───────────────────────────────────────────────────────────
 Route::prefix('teacher')->group(function () {

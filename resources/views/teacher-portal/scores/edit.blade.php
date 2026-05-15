@@ -40,7 +40,7 @@
                 </p>
             </div>
             <div class="flex items-center gap-3">
-                <span class="text-xs text-gray-400">CA max: 30 · Exam max: 70 · Total: 100</span>
+                <span class="text-xs text-gray-400">CA max: {{ $caMax }} · Exam max: {{ $examMax }} · Total: 100</span>
                 <button type="submit"
                         class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg text-sm transition-colors">
                     Save Scores
@@ -57,8 +57,8 @@
                         <tr>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 w-10">#</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500">Student</th>
-                            <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 w-24">CA <span class="font-normal">/30</span></th>
-                            <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 w-24">Exam <span class="font-normal">/70</span></th>
+                            <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 w-24">CA <span class="font-normal">/{{ $caMax }}</span></th>
+                            <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 w-24">Exam <span class="font-normal">/{{ $examMax }}</span></th>
                             <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 w-20">Total</th>
                             <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 w-16">Grade</th>
                         </tr>
@@ -79,7 +79,7 @@
                                 <td class="px-2 py-2 text-center">
                                     <input type="number" name="scores[{{ $student->id }}][ca]"
                                            value="{{ $ca !== null ? number_format($ca, 1, '.', '') : '' }}"
-                                           min="0" max="30" step="0.5"
+                                           min="0" max="{{ $caMax }}" step="0.5"
                                            class="score-input ca-input w-20 text-center border border-gray-200 rounded-lg py-1.5 text-sm
                                                   focus:border-blue-400 hover:border-gray-300"
                                            data-row="{{ $student->id }}" placeholder="—">
@@ -87,7 +87,7 @@
                                 <td class="px-2 py-2 text-center">
                                     <input type="number" name="scores[{{ $student->id }}][exam]"
                                            value="{{ $exam !== null ? number_format($exam, 1, '.', '') : '' }}"
-                                           min="0" max="70" step="0.5"
+                                           min="0" max="{{ $examMax }}" step="0.5"
                                            class="score-input exam-input w-20 text-center border border-gray-200 rounded-lg py-1.5 text-sm
                                                   focus:border-blue-400 hover:border-gray-300"
                                            data-row="{{ $student->id }}" placeholder="—">
@@ -125,23 +125,13 @@
 
 @push('scripts')
 <script>
-// Ghana GES grade scale (matches server-side GradeCalculator)
-const GRADE_SCALE = [
-    { min: 80, grade: 'A1' },
-    { min: 70, grade: 'B2' },
-    { min: 60, grade: 'B3' },
-    { min: 55, grade: 'C4' },
-    { min: 50, grade: 'C5' },
-    { min: 45, grade: 'C6' },
-    { min: 40, grade: 'D7' },
-    { min: 35, grade: 'E8' },
-    { min:  0, grade: 'F9' },
-];
+// Tenant grading scale — injected from server so live preview matches saved grade
+const GRADE_SCALE = @json(array_values(\App\Services\GradeCalculator::tenantScale(app()->bound('currentTenant') ? app('currentTenant') : null)));
 
 function calcGrade(total) {
-    const t = Math.floor(total);
-    for (const row of GRADE_SCALE) {
-        if (t >= row.min) return row.grade;
+    const t = Math.floor(Math.max(0, Math.min(100, total)));
+    for (const band of GRADE_SCALE) {
+        if (t >= band.min && t <= band.max) return band.grade;
     }
     return 'F9';
 }

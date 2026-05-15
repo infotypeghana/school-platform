@@ -19,9 +19,18 @@ namespace App\Services;
  * D7      40 – 44       Pass
  * E8      35 – 39       Pass
  * F9       0 – 34       Fail
+ *
+ * Per-tenant overrides are stored in tenants.grading_settings (JSON).
+ * When null the platform falls back to the built-in GES standard scale.
  */
 class GradeCalculator
 {
+    /** Default CA weight under the GES standard. */
+    public const DEFAULT_CA_MAX   = 30;
+
+    /** Default Exam weight under the GES standard. */
+    public const DEFAULT_EXAM_MAX = 70;
+
     /**
      * Grade boundaries: [min, max, grade, remark, points].
      */
@@ -168,5 +177,113 @@ class GradeCalculator
     public static function isPassing(string $grade): bool
     {
         return self::points($grade) <= 6;
+    }
+
+    // ── Per-tenant helpers ────────────────────────────────────────────────────
+
+    /**
+     * Return the resolved grading settings for a tenant.
+     *
+     * Falls back to GES defaults when the tenant has no override.
+     *
+     * @param  object|null  $tenant  Tenant model instance (or null → defaults)
+     * @return array{ca_max: int, exam_max: int, scale: array}
+     */
+    public static function tenantSettings(?object $tenant): array
+    {
+        $stored = $tenant?->grading_settings ?? null;
+
+        if (
+            is_array($stored)
+            && isset($stored['ca_max'], $stored['exam_max'], $stored['scale'])
+            && is_array($stored['scale'])
+            && count($stored['scale']) > 0
+        ) {
+            return [
+                'ca_max'   => (int) $stored['ca_max'],
+                'exam_max' => (int) $stored['exam_max'],
+                'scale'    => $stored['scale'],
+            ];
+        }
+
+        return [
+            'ca_max'   => self::DEFAULT_CA_MAX,
+            'exam_max' => self::DEFAULT_EXAM_MAX,
+            'scale'    => self::$scale,
+        ];
+    }
+
+    /**
+     * Return the grading scale for a tenant (falls back to GES defaults).
+     *
+     * @param  object|null  $tenant
+     * @return array<int, array{min: int, max: int, grade: string, remark: string, points: int}>
+     */
+    public static function tenantScale(?object $tenant): array
+    {
+        return self::tenantSettings($tenant)['scale'];
+    }
+
+    /**
+     * Return the CA maximum for a tenant (default 30).
+     */
+    public static function tenantCaMax(?object $tenant): int
+    {
+        return self::tenantSettings($tenant)['ca_max'];
+    }
+
+    /**
+     * Return the Exam maximum for a tenant (default 70).
+     */
+    public static function tenantExamMax(?object $tenant): int
+    {
+        return self::tenantSettings($tenant)['exam_max'];
+    }
+
+    /**
+     * Return the letter grade for a given total score using the tenant's scale.
+     *
+     * When $scale is null the built-in GES scale is used (backward-compatible).
+     *
+     * @param  float       $score
+     * @param  array|null  $scale  Band array from tenantScale() / scale()
+     */
+    public static function gradeWithScale(float $score, ?array $scale = null): string
+    {
+        $bands = $scale ?? self::$scale;
+        $score = (int) max(0, min(100, floor($score)));
+
+        foreach ($bands as $band) {
+            if ($score >= (int) $band['min'] && $score <= (int) $band['max']) {
+                return (string) $band['grade'];
+            }
+        }
+
+        return 'F9';
+    }
+
+    /**
+     * Evaluate a score using the tenant's scale and return [grade, remark, points].
+     *
+     * @param  float       $score
+     * @param  array|null  $scale  Band array from tenantScale() / scale()
+     * @return array{grade: string, remark: string, points: int}
+     */
+    public static function evaluateWithScale(float $score, ?array $scale = null): array
+    {
+        $bands = $scale ?? self::$scale;
+        $score = (int) max(0, min(100, floor($score)));
+
+        foreach ($bands as $band) {
+            if ($score >= (int) $band['min'] && $score <= (int) $band['max']) {
+                return [
+                    'grade'  => (string) $band['grade'],
+                    'remark' => (string) $band['remark'],
+                    'points' => (int)    $band['points'],
+                ];
+            }
+        }
+
+        return ['grade' => 'F9', 'remark' => 'Fail', 'points' => 9];
     }
 }

@@ -10,6 +10,10 @@
      class="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700">
     School Profile
   </a>
+  <a href="{{ route('admin.settings.grading') }}"
+     class="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+    Grading
+  </a>
   <a href="{{ route('admin.settings.account') }}"
      class="px-4 py-2 text-sm font-medium border-b-2 border-blue-600 text-blue-600">
     Account

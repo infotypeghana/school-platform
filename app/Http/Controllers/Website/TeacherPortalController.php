@@ -10,6 +10,7 @@ use App\Models\SchoolClass;
 use App\Models\Subject;
 use App\Models\Teacher;
 use App\Models\Timetable;
+use App\Services\GradeCalculator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -137,7 +138,11 @@ class TeacherPortalController extends Controller
             ->get()
             ->keyBy('student_id');
 
-        return view('teacher-portal.scores.edit', compact('teacher', 'subject', 'term', 'class', 'students', 'existing'));
+        $tenant  = app()->bound('currentTenant') ? app('currentTenant') : null;
+        $caMax   = GradeCalculator::tenantCaMax($tenant);
+        $examMax = GradeCalculator::tenantExamMax($tenant);
+
+        return view('teacher-portal.scores.edit', compact('teacher', 'subject', 'term', 'class', 'students', 'existing', 'caMax', 'examMax'));
     }
 
     /**
@@ -145,12 +150,16 @@ class TeacherPortalController extends Controller
      */
     public function scoresUpdate(Request $request): RedirectResponse
     {
+        $tenant  = app()->bound('currentTenant') ? app('currentTenant') : null;
+        $caMax   = GradeCalculator::tenantCaMax($tenant);
+        $examMax = GradeCalculator::tenantExamMax($tenant);
+
         $request->validate([
             'subject_id'      => 'required|exists:subjects,id',
             'term_id'         => 'required|exists:academic_terms,id',
             'scores'          => 'required|array',
-            'scores.*.ca'     => 'nullable|numeric|min:0|max:30',
-            'scores.*.exam'   => 'nullable|numeric|min:0|max:70',
+            'scores.*.ca'     => "nullable|numeric|min:0|max:{$caMax}",
+            'scores.*.exam'   => "nullable|numeric|min:0|max:{$examMax}",
         ]);
 
         /** @var Teacher $teacher */

@@ -54,6 +54,11 @@ class Student extends Model
         return sprintf('ADM-%d-%04d', $year, $sequence);
     }
 
+    public function tenant(): BelongsTo
+    {
+        return $this->belongsTo(Tenant::class);
+    }
+
     public function schoolClass(): BelongsTo
     {
         return $this->belongsTo(SchoolClass::class);

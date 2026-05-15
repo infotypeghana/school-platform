@@ -15,10 +15,10 @@ class Assessment extends Model
 
     protected $fillable = [
         'tenant_id', 'student_id', 'subject_id', 'school_class_id', 'term_id',
-        'ca_score',        // max 30
-        'exam_score',      // max 70
+        'ca_score',        // max is tenant-configurable (default GES: 30)
+        'exam_score',      // max is tenant-configurable (default GES: 70)
         'total_score',     // computed: ca + exam
-        'grade',           // A1–F9
+        'grade',           // A1–F9 (or tenant-defined grade)
         'position_in_class',
         'class_average',
         'highest_score',
@@ -55,13 +55,19 @@ class Assessment extends Model
     }
 
     /**
-     * Compute total and grade before saving.
+     * Compute total and grade before saving using the tenant's grading scale.
      */
     protected static function booted(): void
     {
         static::saving(function (Assessment $assessment) {
             $assessment->total_score = round(($assessment->ca_score ?? 0) + ($assessment->exam_score ?? 0), 2);
-            $assessment->grade       = GradeCalculator::grade($assessment->total_score);
+
+            // Resolve the tenant so we can apply per-tenant grading scale.
+            // During web requests / jobs, currentTenant is bound in the container.
+            $tenant = app()->bound('currentTenant') ? app('currentTenant') : null;
+            $scale  = GradeCalculator::tenantScale($tenant);
+
+            $assessment->grade = GradeCalculator::gradeWithScale($assessment->total_score, $scale);
         });
     }
 
