@@ -56,7 +56,16 @@ class StudentController extends Controller
     public function show(Student $student): View
     {
         $this->authorize('view', $student);
-        $student->load(['schoolClass', 'assessments.subject', 'fees', 'attendances']);
+        $student->load([
+            'schoolClass',
+            'assessments.subject',
+            'fees',
+            'attendances',
+            'promotions.fromClass',
+            'promotions.toClass',
+            'promotions.academicYear',
+            'promotions.promotedBy',
+        ]);
 
         $attendances = $student->attendances;
         $total       = $attendances->count();
