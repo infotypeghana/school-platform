@@ -182,6 +182,52 @@
         </div>
       @endif
 
+      {{-- Feeding Fee balance --}}
+      @if($currentTerm && isset($currentFeedingFee))
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+          <h2 class="text-sm font-semibold text-gray-900 mb-1">Feeding Fee</h2>
+          <p class="text-xs text-gray-400 mb-3">{{ $currentTerm->term_name }}</p>
+
+          @if($currentFeedingFee === 'exempt')
+            <div class="flex items-center gap-2 text-purple-700 bg-purple-50 border border-purple-100 rounded-lg px-3 py-2 text-sm">
+              <svg class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Exempt from feeding fees this term.
+            </div>
+          @else
+            @php
+              $ffStatus = $currentFeedingFee->status;
+              $ffBadge  = match($ffStatus) {
+                'paid'    => 'bg-green-100 text-green-700',
+                'partial' => 'bg-amber-100 text-amber-700',
+                default   => 'bg-red-100 text-red-600',
+              };
+            @endphp
+            <div class="border border-gray-100 rounded-lg p-3">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-800">School Feeding</span>
+                <span class="text-xs px-2 py-0.5 rounded-full font-medium {{ $ffBadge }}">
+                  {{ ucfirst($ffStatus) }}
+                </span>
+              </div>
+              <div class="flex justify-between text-xs text-gray-500">
+                <span>Total Due: GHS {{ number_format($currentFeedingFee->amount_due, 2) }}</span>
+                <span>Paid: GHS {{ number_format($currentFeedingFee->amount_paid, 2) }}</span>
+              </div>
+              @if($currentFeedingFee->balance() > 0)
+                <p class="text-xs text-red-600 mt-1.5 font-medium">
+                  Balance: GHS {{ number_format($currentFeedingFee->balance(), 2) }}
+                  — Please pay to the school bursar.
+                </p>
+              @else
+                <p class="text-xs text-green-600 mt-1.5 font-medium">✓ Fully paid. Thank you!</p>
+              @endif
+            </div>
+          @endif
+        </div>
+      @endif
+
     </div>
 
     {{-- Right col — assessments --}}

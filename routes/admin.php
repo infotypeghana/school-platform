@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\AttendanceController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\FeeController;
+use App\Http\Controllers\Admin\FeedingController;
 use App\Http\Controllers\Admin\FinanceController;
 use App\Http\Controllers\Admin\ReportCardController;
 use App\Http\Controllers\Admin\SchoolClassController;
@@ -146,6 +147,19 @@ Route::get   ('/fees/{fee}/receipt',    [FeeController::class,    'receipt'])   
 Route::put   ('/fees/{fee}',            [FeeController::class,    'update'])        ->name('admin.fees.update');
 Route::post  ('/fees/{fee}/payment',    [FeeController::class,    'recordPayment']) ->name('admin.fees.payment');
 Route::delete('/fees/{fee}',            [FeeController::class,    'destroy'])       ->name('admin.fees.destroy');
+
+// ── Feeding Fees ──────────────────────────────────────────────────────────────
+Route::get   ('/feeding',                        [FeedingController::class, 'index'])           ->name('admin.feeding.index');
+Route::get   ('/feeding/config',                 [FeedingController::class, 'config'])          ->name('admin.feeding.config');
+Route::put   ('/feeding/config',                 [FeedingController::class, 'updateConfig'])    ->name('admin.feeding.config.update');
+Route::put   ('/feeding/config/class/{classId}', [FeedingController::class, 'updateClassConfig'])->name('admin.feeding.config.class');
+Route::get   ('/feeding/assign',                 [FeedingController::class, 'assignForm'])      ->name('admin.feeding.assign');
+Route::post  ('/feeding/assign',                 [FeedingController::class, 'assign'])          ->name('admin.feeding.assign.store');
+Route::get   ('/feeding/report',                 [FeedingController::class, 'report'])          ->name('admin.feeding.report');
+Route::get   ('/feeding/{id}',                   [FeedingController::class, 'show'])            ->name('admin.feeding.show');
+Route::post  ('/feeding/{id}/pay',               [FeedingController::class, 'pay'])             ->name('admin.feeding.pay');
+Route::post  ('/feeding/{id}/exempt',            [FeedingController::class, 'exempt'])          ->name('admin.feeding.exempt');
+Route::get   ('/feeding/receipt/{paymentId}',    [FeedingController::class, 'receipt'])         ->name('admin.feeding.receipt');
 
 // ── Attendance export ─────────────────────────────────────────────────────────
 Route::get('/attendance/export', [ExportController::class, 'attendance'])->name('admin.attendance.export');
