@@ -7,6 +7,7 @@ use App\Jobs\GenerateReportCardJob;
 use App\Models\AcademicTerm;
 use App\Models\ReportCard;
 use App\Models\SchoolClass;
+use App\Models\Teacher;
 use App\Services\ReportCardService;
 use Illuminate\Bus\Batch;
 use Illuminate\Http\JsonResponse;
@@ -204,12 +205,29 @@ class ReportCardController extends Controller
 
     public function updateRemarks(Request $request, ReportCard $reportCard): RedirectResponse
     {
+        $allowedRatings = implode(',', ReportCard::CONDUCT_RATINGS);
+
         $data = $request->validate([
-            'class_teacher_remark' => 'nullable|string|max:1000',
-            'headmaster_remark'    => 'nullable|string|max:1000',
+            'class_teacher_remark'        => 'nullable|string|max:1000',
+            'headmaster_remark'           => 'nullable|string|max:1000',
+            'conduct'                     => 'nullable|array',
+            'conduct.*'                   => "nullable|string|in:{$allowedRatings}",
         ]);
 
-        $reportCard->update($data);
+        // Build conduct_ratings array — only include keys matching defined traits
+        $conductInput = $data['conduct'] ?? [];
+        $conductRatings = [];
+        foreach (array_keys(ReportCard::CONDUCT_TRAITS) as $trait) {
+            if (! empty($conductInput[$trait])) {
+                $conductRatings[$trait] = $conductInput[$trait];
+            }
+        }
+
+        $reportCard->update([
+            'class_teacher_remark' => $data['class_teacher_remark'] ?? null,
+            'headmaster_remark'    => $data['headmaster_remark']    ?? null,
+            'conduct_ratings'      => ! empty($conductRatings) ? $conductRatings : null,
+        ]);
 
         return back()->with('success', 'Remarks saved.');
     }

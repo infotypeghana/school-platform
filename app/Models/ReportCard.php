@@ -10,6 +10,17 @@ class ReportCard extends Model
 {
     use HasTenantScope;
 
+    /** Allowed conduct rating values (shown in dropdowns and on the PDF). */
+    public const CONDUCT_TRAITS = [
+        'punctuality'        => 'Punctuality',
+        'neatness'           => 'Neatness',
+        'attitude_to_work'   => 'Attitude to Work',
+        'participation'      => 'Participation',
+        'respect_for_others' => 'Respect for Others',
+    ];
+
+    public const CONDUCT_RATINGS = ['Excellent', 'Very Good', 'Good', 'Fair', 'Poor'];
+
     protected $fillable = [
         'tenant_id', 'student_id', 'school_class_id', 'term_id',
         'total_subjects',
@@ -17,6 +28,7 @@ class ReportCard extends Model
         'out_of',              // e.g. 42 (students in class)
         'class_teacher_remark',
         'headmaster_remark',
+        'conduct_ratings',     // JSON: per-student conduct & behaviour assessment
         'attendance_present',
         'attendance_total',
         'generated_at',
@@ -24,7 +36,8 @@ class ReportCard extends Model
     ];
 
     protected $casts = [
-        'generated_at' => 'datetime',
+        'generated_at'   => 'datetime',
+        'conduct_ratings' => 'array',
     ];
 
     public function student(): BelongsTo
