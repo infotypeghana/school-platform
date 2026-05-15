@@ -2,7 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+@php
+  // Sanitise primary colour — must be a valid 3 or 6-digit hex code.
+  // Falls back to a professional navy if the stored value is absent or malformed.
+  $pc = preg_match('/^#[0-9A-Fa-f]{3}([0-9A-Fa-f]{3})?$/', $primaryColor ?? '')
+      ? $primaryColor
+      : '#1a3a6e';
+@endphp
 <style>
+  :root { --pc: {{ $pc }}; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: Arial, Helvetica, sans-serif;
@@ -15,23 +23,23 @@
   .page { width: 100%; padding: 14mm 14mm 10mm 14mm; }
 
   /* ── Header ── */
-  .header { display: table; width: 100%; border-bottom: 3px solid #1a3a6e; padding-bottom: 8px; margin-bottom: 10px; }
+  .header { display: table; width: 100%; border-bottom: 3px solid {{ $pc }}; padding-bottom: 8px; margin-bottom: 10px; }
   .header-logo { display: table-cell; width: 70px; vertical-align: middle; }
-  .header-logo img { width: 60px; height: 60px; border-radius: 50%; }
+  .header-logo img { width: 60px; height: 60px; border-radius: 4px; object-fit: contain; }
   .header-logo .logo-placeholder {
-    width: 60px; height: 60px; border-radius: 50%;
-    background: #1a3a6e; color: #fff;
+    width: 60px; height: 60px; border-radius: 4px;
+    background: {{ $pc }}; color: #fff;
     font-size: 22pt; font-weight: bold;
     text-align: center; line-height: 60px;
   }
   .header-info { display: table-cell; text-align: center; vertical-align: middle; }
-  .header-info h1 { font-size: 16pt; font-weight: bold; color: #1a3a6e; text-transform: uppercase; letter-spacing: 1px; }
+  .header-info h1 { font-size: 16pt; font-weight: bold; color: {{ $pc }}; text-transform: uppercase; letter-spacing: 1px; }
   .header-info p  { font-size: 8.5pt; color: #555; margin-top: 2px; }
   .header-right { display: table-cell; width: 80px; text-align: right; vertical-align: middle; }
 
   /* ── Report title banner ── */
   .report-title {
-    background: #1a3a6e; color: #fff;
+    background: {{ $pc }}; color: #fff;
     text-align: center; font-size: 11pt;
     font-weight: bold; padding: 5px;
     text-transform: uppercase; letter-spacing: 2px;
@@ -49,16 +57,16 @@
   /* ── Scores table ── */
   .scores-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
   .scores-table th {
-    background: #1a3a6e; color: #fff;
+    background: {{ $pc }}; color: #fff;
     padding: 5px 6px; font-size: 9pt;
-    border: 1px solid #1a3a6e; text-align: center;
+    border: 1px solid {{ $pc }}; text-align: center;
   }
   .scores-table td { padding: 4px 6px; border: 1px solid #ddd; font-size: 9pt; }
   .scores-table tbody tr:nth-child(even) { background: #f7f9fc; }
   .scores-table .subject-col { font-weight: 600; }
   .scores-table .grade-col { font-weight: bold; text-align: center; }
   .scores-table .pos-col { text-align: center; color: #555; }
-  .scores-table tfoot td { background: #eef1f7; font-weight: bold; border-top: 2px solid #1a3a6e; }
+  .scores-table tfoot td { background: #eef1f7; font-weight: bold; border-top: 2px solid {{ $pc }}; }
 
   /* Grade colour coding */
   .grade-A1 { color: #15803d; }
@@ -75,7 +83,7 @@
     text-align: center; vertical-align: middle;
   }
   .summary-box .s-label { font-size: 7.5pt; color: #888; text-transform: uppercase; }
-  .summary-box .s-val { font-size: 14pt; font-weight: bold; color: #1a3a6e; margin-top: 2px; }
+  .summary-box .s-val { font-size: 14pt; font-weight: bold; color: {{ $pc }}; margin-top: 2px; }
 
   /* ── Attendance ── */
   .attendance-bar-bg { background: #e5e7eb; border-radius: 4px; height: 10px; width: 100%; }
@@ -83,7 +91,7 @@
 
   /* ── Remarks ── */
   .remarks-section { margin-bottom: 12px; }
-  .remarks-section h3 { font-size: 9pt; font-weight: bold; color: #1a3a6e; margin-bottom: 4px; text-transform: uppercase; }
+  .remarks-section h3 { font-size: 9pt; font-weight: bold; color: {{ $pc }}; margin-bottom: 4px; text-transform: uppercase; }
   .remark-box {
     border: 1px solid #ddd; border-radius: 4px;
     padding: 6px 8px; font-size: 9pt; min-height: 30px;
@@ -112,7 +120,7 @@
   .watermark {
     position: fixed; top: 50%; left: 50%;
     transform: translate(-50%, -50%) rotate(-35deg);
-    font-size: 80pt; color: rgba(26,58,110,0.04);
+    font-size: 80pt; color: rgba(0,0,0,0.03);
     font-weight: bold; white-space: nowrap;
     z-index: -1; pointer-events: none;
   }
@@ -190,8 +198,8 @@
       <tr>
         <th style="width:5%; text-align:center;">#</th>
         <th style="width:32%; text-align:left;">Subject</th>
-        <th style="width:10%;">CA<br><span style="font-size:7.5pt;font-weight:normal;">(30)</span></th>
-        <th style="width:10%;">Exam<br><span style="font-size:7.5pt;font-weight:normal;">(70)</span></th>
+        <th style="width:10%;">CA<br><span style="font-size:7.5pt;font-weight:normal;">({{ $caMax }})</span></th>
+        <th style="width:10%;">Exam<br><span style="font-size:7.5pt;font-weight:normal;">({{ $examMax }})</span></th>
         <th style="width:10%;">Total<br><span style="font-size:7.5pt;font-weight:normal;">(100)</span></th>
         <th style="width:8%;">Grade</th>
         <th style="width:10%;">Remark</th>

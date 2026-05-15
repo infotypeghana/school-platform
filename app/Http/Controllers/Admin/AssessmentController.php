@@ -8,6 +8,7 @@ use App\Models\Assessment;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\Subject;
+use App\Services\GradeCalculator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -36,6 +37,10 @@ class AssessmentController extends Controller
             'term_id'  => 'required|exists:academic_terms,id',
         ]);
 
+        $tenant   = app('currentTenant');
+        $caMax    = GradeCalculator::tenantCaMax($tenant);
+        $examMax  = GradeCalculator::tenantExamMax($tenant);
+
         $class    = SchoolClass::with(['students' => fn ($q) => $q->where('status', 'active')->orderBy('first_name'), 'subjects'])->findOrFail($request->class_id);
         $term     = AcademicTerm::with('academicYear')->findOrFail($request->term_id);
         $students = $class->students;
@@ -48,7 +53,7 @@ class AssessmentController extends Controller
             ->groupBy('student_id')
             ->map(fn ($rows) => $rows->keyBy('subject_id'));
 
-        return view('admin.assessments.edit', compact('class', 'term', 'students', 'subjects', 'existing'));
+        return view('admin.assessments.edit', compact('class', 'term', 'students', 'subjects', 'existing', 'caMax', 'examMax'));
     }
 
     /**
@@ -56,18 +61,22 @@ class AssessmentController extends Controller
      */
     public function update(Request $request): RedirectResponse
     {
+        $tenant  = app('currentTenant');
+        $caMax   = GradeCalculator::tenantCaMax($tenant);
+        $examMax = GradeCalculator::tenantExamMax($tenant);
+
         $request->validate([
             'class_id'        => 'required|exists:school_classes,id',
             'term_id'         => 'required|exists:academic_terms,id',
             'scores'          => 'required|array',
             'scores.*.*'      => 'array',
-            'scores.*.*.ca'   => 'nullable|numeric|min:0|max:30',
-            'scores.*.*.exam' => 'nullable|numeric|min:0|max:70',
+            'scores.*.*.ca'   => "nullable|numeric|min:0|max:{$caMax}",
+            'scores.*.*.exam' => "nullable|numeric|min:0|max:{$examMax}",
         ]);
 
-        $classId = $request->class_id;
-        $termId  = $request->term_id;
-        $tenantId = app('currentTenant')?->id;
+        $classId  = $request->class_id;
+        $termId   = $request->term_id;
+        $tenantId = $tenant?->id;
 
         // Security: pre-load the valid student + subject IDs for this class so that
         // a crafted POST with foreign keys cannot inject scores for another class/tenant.

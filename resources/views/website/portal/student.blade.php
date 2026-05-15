@@ -7,7 +7,7 @@
 <div class="max-w-4xl mx-auto px-4 py-10">
 
   {{-- Header bar --}}
-  <div class="flex items-center justify-between mb-6">
+  <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
     <a href="{{ route('website.home') }}" class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
@@ -26,6 +26,67 @@
       </button>
     </form>
   </div>
+
+  {{-- ── Ward switcher (shown only when 2+ wards are linked) ── --}}
+  @if($allWards->count() > 1)
+  <div class="bg-blue-50 border border-blue-200 rounded-2xl px-5 py-4 mb-5">
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <div>
+        <p class="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1">Viewing records for</p>
+        <div class="flex flex-wrap gap-2">
+          @foreach($allWards as $ward)
+            @if($ward->id === $student->id)
+              {{-- Active ward --}}
+              <span class="inline-flex items-center gap-1.5 bg-blue-600 text-white text-sm font-semibold px-3 py-1.5 rounded-full">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+                {{ $ward->first_name }} {{ $ward->last_name }}
+                <span class="text-blue-200 font-normal text-xs">({{ $ward->schoolClass?->full_name ?? '—' }})</span>
+              </span>
+            @else
+              {{-- Inactive ward — click to switch --}}
+              <form method="POST" action="{{ route('website.portal.switch-ward') }}" class="inline">
+                @csrf
+                <input type="hidden" name="student_id" value="{{ $ward->id }}">
+                <button type="submit"
+                        class="inline-flex items-center gap-1.5 bg-white border border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-sm font-medium px-3 py-1.5 rounded-full transition-colors">
+                  {{ $ward->first_name }} {{ $ward->last_name }}
+                  <span class="text-gray-400 text-xs">({{ $ward->schoolClass?->full_name ?? '—' }})</span>
+                </button>
+              </form>
+            @endif
+          @endforeach
+        </div>
+      </div>
+      <a href="{{ route('website.portal.add-ward') }}"
+         class="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-medium border border-blue-300 hover:border-blue-500 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Add another child
+      </a>
+    </div>
+  </div>
+  @else
+  {{-- Single ward — show a subtle "add another child" link --}}
+  <div class="flex justify-end mb-3">
+    <a href="{{ route('website.portal.add-ward') }}"
+       class="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-blue-600 transition-colors">
+      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Add another child
+    </a>
+  </div>
+  @endif
+
+  {{-- Flash messages --}}
+  @if(session('success'))
+    <div class="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-xl px-4 py-3">
+      {{ session('success') }}
+    </div>
+  @endif
 
   {{-- Student header card --}}
   <div class="bg-white rounded-2xl border border-gray-200 shadow-sm px-6 py-5 mb-6 flex items-center gap-5">
@@ -139,8 +200,8 @@
             <thead>
               <tr class="border-b border-gray-100">
                 <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500">Subject</th>
-                <th class="px-4 py-2 text-center text-xs font-semibold text-gray-500">CA</th>
-                <th class="px-4 py-2 text-center text-xs font-semibold text-gray-500">Exam</th>
+                <th class="px-4 py-2 text-center text-xs font-semibold text-gray-500">CA<span class="font-normal text-gray-400">/{{ $caMax }}</span></th>
+                <th class="px-4 py-2 text-center text-xs font-semibold text-gray-500">Exam<span class="font-normal text-gray-400">/{{ $examMax }}</span></th>
                 <th class="px-4 py-2 text-center text-xs font-semibold text-gray-500">Total</th>
                 <th class="px-4 py-2 text-center text-xs font-semibold text-gray-500">Grade</th>
               </tr>

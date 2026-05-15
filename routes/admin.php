@@ -34,10 +34,13 @@ Route::get('/api-docs', fn () => redirect(url('/api/docs')))->name('admin.api.do
 Route::get('/subscription', fn () => view('admin.subscription.index'))->name('admin.subscription');
 
 // ── Settings ──────────────────────────────────────────────────────────────────
-Route::get('/settings',         [SettingsController::class, 'school'])        ->name('admin.settings.school');
-Route::put('/settings',         [SettingsController::class, 'updateSchool'])  ->name('admin.settings.school.update');
-Route::get('/settings/account', [SettingsController::class, 'account'])       ->name('admin.settings.account');
-Route::put('/settings/account', [SettingsController::class, 'updateAccount']) ->name('admin.settings.account.update');
+Route::get   ('/settings',                  [SettingsController::class, 'school'])         ->name('admin.settings.school');
+Route::put   ('/settings',                  [SettingsController::class, 'updateSchool'])   ->name('admin.settings.school.update');
+Route::get   ('/settings/grading',          [SettingsController::class, 'grading'])        ->name('admin.settings.grading');
+Route::put   ('/settings/grading',          [SettingsController::class, 'updateGrading'])  ->name('admin.settings.grading.update');
+Route::delete('/settings/grading/reset',    [SettingsController::class, 'resetGrading'])   ->name('admin.settings.grading.reset');
+Route::get   ('/settings/account',          [SettingsController::class, 'account'])        ->name('admin.settings.account');
+Route::put   ('/settings/account',          [SettingsController::class, 'updateAccount'])  ->name('admin.settings.account.update');
 
 // ── Backup / Full Data Export ─────────────────────────────────────────────────
 Route::get ('/backup',                   [BackupController::class, 'index'])    ->name('admin.backup.index');

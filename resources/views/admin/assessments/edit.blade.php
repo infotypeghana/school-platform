@@ -39,8 +39,8 @@
 
   {{-- Legend --}}
   <div class="flex items-center gap-6 mb-3 text-xs text-gray-500">
-    <span class="font-medium text-gray-700">CA max: <span class="text-blue-600 font-bold">30</span></span>
-    <span class="font-medium text-gray-700">Exam max: <span class="text-blue-600 font-bold">70</span></span>
+    <span class="font-medium text-gray-700">CA max: <span class="text-blue-600 font-bold">{{ $caMax }}</span></span>
+    <span class="font-medium text-gray-700">Exam max: <span class="text-blue-600 font-bold">{{ $examMax }}</span></span>
     <span class="font-medium text-gray-700">Total: <span class="text-blue-600 font-bold">100</span></span>
     <span class="text-gray-400">Leave blank to skip</span>
   </div>
@@ -54,8 +54,8 @@
             <th class="px-2 py-3 text-center font-semibold min-w-[120px]" colspan="2">
               <div class="truncate max-w-[110px] mx-auto text-xs leading-tight">{{ $subject->name }}</div>
               <div class="flex gap-1 mt-1 justify-center text-xs font-normal text-gray-300">
-                <span class="w-14 text-center">CA/30</span>
-                <span class="w-14 text-center">Exam/70</span>
+                <span class="w-14 text-center">CA/{{ $caMax }}</span>
+                <span class="w-14 text-center">Exam/{{ $examMax }}</span>
               </div>
             </th>
           @endforeach
@@ -81,7 +81,7 @@
                     type="number"
                     name="scores[{{ $student->id }}][{{ $subject->id }}][ca]"
                     value="{{ old("scores.{$student->id}.{$subject->id}.ca", $assessment?->ca_score) }}"
-                    min="0" max="30" step="0.5"
+                    min="0" max="{{ $caMax }}" step="0.5"
                     placeholder="CA"
                     class="w-14 border border-gray-200 rounded px-1.5 py-1 text-center text-xs focus:ring-2 focus:ring-blue-400 focus:border-blue-400 @error("scores.{$student->id}.{$subject->id}.ca") border-red-400 @enderror"
                     oninput="calcTotal(this)"
@@ -91,7 +91,7 @@
                     type="number"
                     name="scores[{{ $student->id }}][{{ $subject->id }}][exam]"
                     value="{{ old("scores.{$student->id}.{$subject->id}.exam", $assessment?->exam_score) }}"
-                    min="0" max="70" step="0.5"
+                    min="0" max="{{ $examMax }}" step="0.5"
                     placeholder="Exam"
                     class="w-14 border border-gray-200 rounded px-1.5 py-1 text-center text-xs focus:ring-2 focus:ring-blue-400 focus:border-blue-400 @error("scores.{$student->id}.{$subject->id}.exam") border-red-400 @enderror"
                     oninput="calcTotal(this)"
@@ -129,6 +129,9 @@
 @endif
 
 <script>
+// Tenant grading scale — injected server-side so the live preview matches the saved grade
+const GRADE_SCALE = @json(array_values(\App\Services\GradeCalculator::tenantScale(app('currentTenant'))));
+
 function calcTotal(input) {
   const cell = input.closest('td');
   const inputs = cell.querySelectorAll('input[type="number"]');
@@ -154,15 +157,11 @@ function calcTotal(input) {
     (grade === 'F9' ? 'text-red-500' : total >= 60 ? 'text-emerald-600' : 'text-amber-600');
 }
 
-function getGrade(s) {
-  if (s >= 80) return 'A1';
-  if (s >= 70) return 'B2';
-  if (s >= 60) return 'B3';
-  if (s >= 55) return 'C4';
-  if (s >= 50) return 'C5';
-  if (s >= 45) return 'C6';
-  if (s >= 40) return 'D7';
-  if (s >= 35) return 'E8';
+function getGrade(score) {
+  const s = Math.floor(Math.max(0, Math.min(100, score)));
+  for (const band of GRADE_SCALE) {
+    if (s >= band.min && s <= band.max) return band.grade;
+  }
   return 'F9';
 }
 </script>

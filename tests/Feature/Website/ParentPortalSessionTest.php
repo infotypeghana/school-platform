@@ -9,6 +9,10 @@ use App\Models\Student;
  * Parent portal session-based authentication.
  * Tests: login form, successful lookup (session creation), dashboard,
  *        session persistence, logout, expired session redirect.
+ *
+ * Session keys (multi-ward architecture):
+ *   parent_portal_student_ids  → array<int>
+ *   parent_portal_active_id    → int
  */
 class ParentPortalSessionTest extends WebsiteTestCase
 {
@@ -35,6 +39,16 @@ class ParentPortalSessionTest extends WebsiteTestCase
         ]);
     }
 
+    /** Convenience: session data for a single authenticated ward. */
+    private function wardSession(?int $studentId = null): array
+    {
+        $id = $studentId ?? $this->student->id;
+        return [
+            'parent_portal_student_ids' => [$id],
+            'parent_portal_active_id'   => $id,
+        ];
+    }
+
     // ── Login form ────────────────────────────────────────────────────────────
 
     public function test_portal_login_page_is_accessible(): void
@@ -44,7 +58,7 @@ class ParentPortalSessionTest extends WebsiteTestCase
 
     public function test_authenticated_user_is_redirected_from_login_to_dashboard(): void
     {
-        $this->withSession(['parent_portal_student_id' => $this->student->id])
+        $this->withSession($this->wardSession())
             ->get('/portal')
             ->assertRedirect('/portal/dashboard');
     }
@@ -59,7 +73,9 @@ class ParentPortalSessionTest extends WebsiteTestCase
         ]);
 
         $response->assertRedirect('/portal/dashboard');
-        $this->assertEquals($this->student->id, session('parent_portal_student_id'));
+        // The new architecture stores an array of ward IDs
+        $this->assertContains($this->student->id, session('parent_portal_student_ids', []));
+        $this->assertEquals($this->student->id, session('parent_portal_active_id'));
     }
 
     public function test_wrong_admission_number_is_rejected(): void
@@ -70,7 +86,7 @@ class ParentPortalSessionTest extends WebsiteTestCase
         ]);
 
         $response->assertSessionHasErrors('admission_number');
-        $this->assertNull(session('parent_portal_student_id'));
+        $this->assertEmpty(session('parent_portal_student_ids', []));
     }
 
     public function test_wrong_date_of_birth_is_rejected(): void
@@ -81,7 +97,7 @@ class ParentPortalSessionTest extends WebsiteTestCase
         ]);
 
         $response->assertSessionHasErrors('admission_number');
-        $this->assertNull(session('parent_portal_student_id'));
+        $this->assertEmpty(session('parent_portal_student_ids', []));
     }
 
     public function test_lookup_requires_both_fields(): void
@@ -100,7 +116,7 @@ class ParentPortalSessionTest extends WebsiteTestCase
 
     public function test_dashboard_shows_student_details(): void
     {
-        $response = $this->withSession(['parent_portal_student_id' => $this->student->id])
+        $response = $this->withSession($this->wardSession())
             ->get('/portal/dashboard');
 
         $response->assertOk();
@@ -111,17 +127,17 @@ class ParentPortalSessionTest extends WebsiteTestCase
 
     public function test_dashboard_uses_student_view(): void
     {
-        $this->withSession(['parent_portal_student_id' => $this->student->id])
+        $this->withSession($this->wardSession())
             ->get('/portal/dashboard')
             ->assertViewIs('website.portal.student');
     }
 
     public function test_dashboard_with_missing_student_id_redirects_to_login(): void
     {
-        // Student deleted after session was created
+        // Student deleted after session was created — stale ID should be scrubbed
         $staleId = 99999;
 
-        $this->withSession(['parent_portal_student_id' => $staleId])
+        $this->withSession($this->wardSession($staleId))
             ->get('/portal/dashboard')
             ->assertRedirect('/portal');
     }
@@ -130,16 +146,17 @@ class ParentPortalSessionTest extends WebsiteTestCase
 
     public function test_logout_clears_session(): void
     {
-        $response = $this->withSession(['parent_portal_student_id' => $this->student->id])
+        $response = $this->withSession($this->wardSession())
             ->post('/portal/logout');
 
         $response->assertRedirect('/portal');
-        $this->assertNull(session('parent_portal_student_id'));
+        $this->assertEmpty(session('parent_portal_student_ids', []));
+        $this->assertNull(session('parent_portal_active_id'));
     }
 
     public function test_logout_shows_success_message(): void
     {
-        $response = $this->withSession(['parent_portal_student_id' => $this->student->id])
+        $response = $this->withSession($this->wardSession())
             ->post('/portal/logout');
 
         $response->assertSessionHas('success');
