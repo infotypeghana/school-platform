@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SchoolMS Ghana — Investor Pitch Deck</title>
+<style>
+  :root {
+    --green:  #10B981;
+    --gold:   #F59E0B;
+    --red:    #CE1126;
+    --dark:   #0A0E1A;
+    --card:   #111827;
+    --card2:  #1F2937;
+    --border: #374151;
+    --text:   #F9FAFB;
+    --muted:  #9CA3AF;
+    --white:  #FFFFFF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    overflow: hidden;
+  }
+
+  /* ── Deck shell ── */
+  #deck {
+    width: 100vw; height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 64px;
+    opacity: 0;
+    transform: translateX(60px);
+    transition: opacity .45s cubic-bezier(.4,0,.2,1), transform .45s cubic-bezier(.4,0,.2,1);
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .slide.active {
+    opacity: 1; transform: translateX(0);
+    pointer-events: all;
+    z-index: 2;
+  }
+  .slide.exit-left {
+    opacity: 0; transform: translateX(-60px);
+    z-index: 1;
+  }
+
+  /* ── Progress bar ── */
+  #progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--green), var(--gold));
+    transition: width .4s ease;
+    z-index: 100;
+  }
+
+  /* ── Nav dots ── */
+  #dots {
+    position: fixed;
+    bottom: 20px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 8px;
+    z-index: 100;
+  }
+  .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--border);
+    cursor: pointer;
+    transition: background .3s, transform .3s;
+  }
+  .dot.active { background: var(--green); transform: scale(1.4); }
+
+  /* ── Arrow controls ── */
+  #prev, #next {
+    position: fixed;
+    top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,.07);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+    transition: background .2s, color .2s;
+  }
+  #prev:hover, #next:hover { background: var(--green); color: #fff; }
+  #prev { left: 16px; }
+  #next { right: 16px; }
+
+  /* ── Slide counter ── */
+  #counter {
+    position: fixed;
+    top: 16px; right: 20px;
+    font-size: 12px;
+    color: var(--muted);
+    z-index: 100;
+    letter-spacing: .05em;
+  }
+
+  /* ── Typography ── */
+  .eyebrow {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .15em; text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 12px;
+  }
+  .headline {
+    font-size: clamp(28px, 4vw, 52px);
+    font-weight: 800;
+    line-height: 1.12;
+    letter-spacing: -.02em;
+  }
+  .headline .accent { color: var(--green); }
+  .headline .gold   { color: var(--gold); }
+  .sub {
+    font-size: clamp(14px, 1.6vw, 18px);
+    color: var(--muted);
+    line-height: 1.65;
+    max-width: 680px;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 28px;
+  }
+  .card-grid {
+    display: grid;
+    gap: 16px;
+    width: 100%;
+  }
+  .card-grid.col2 { grid-template-columns: 1fr 1fr; }
+  .card-grid.col3 { grid-template-columns: 1fr 1fr 1fr; }
+  .card-grid.col4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+  /* ── Stat pill ── */
+  .stat-pill {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    text-align: center;
+  }
+  .stat-pill .num {
+    font-size: clamp(24px, 3vw, 40px);
+    font-weight: 800;
+    color: var(--green);
+  }
+  .stat-pill .lbl { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* ── Badge ── */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .05em;
+  }
+  .badge-green  { background: rgba(16,185,129,.15); color: var(--green); }
+  .badge-gold   { background: rgba(245,158,11,.15);  color: var(--gold); }
+  .badge-red    { background: rgba(206,17,38,.15);   color: #F87171; }
+
+  /* ── Divider ── */
+  .divider {
+    width: 48px; height: 3px;
+    background: linear-gradient(90deg, var(--green), var(--gold));
+    border-radius: 2px;
+    margin: 16px 0;
+  }
+
+  /* ── Ghana flag stripe ── */
+  .flag-stripe {
+    display: flex; gap: 0;
+    height: 5px;
+    border-radius: 3px;
+    overflow: hidden;
+    width: 80px;
+  }
+  .flag-stripe span { flex: 1; }
+  .flag-stripe .r { background: var(--red); }
+  .flag-stripe .g { background: var(--gold); }
+  .flag-stripe .gr { background: var(--green); }
+
+  /* ── App Mockup ── */
+  .mockup-frame {
+    background: #1a1f2e;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 11px;
+  }
+  .mockup-topbar {
+    background: var(--card2);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .topbar-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .topbar-url {
+    flex: 1;
+    background: #111827;
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .mockup-sidebar {
+    width: 110px;
+    background: #0f1623;
+    border-right: 1px solid var(--border);
+    padding: 12px 0;
+    flex-shrink: 0;
+  }
+  .sidebar-logo {
+    padding: 0 12px 12px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--green);
+  }
+  .sidebar-item {
+    padding: 7px 12px;
+    font-size: 10px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: default;
+  }
+  .sidebar-item.active {
+    background: rgba(16,185,129,.12);
+    color: var(--green);
+    border-left: 2px solid var(--green);
+  }
+  .sidebar-item .si { font-size: 12px; }
+  .mockup-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+  .mockup-content { flex: 1; padding: 14px; overflow: hidden; }
+  .mockup-title { font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+
+  /* ── Stat rows ── */
+  .mini-stat-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .mini-stat {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 8px;
+    text-align: center;
+  }
+  .mini-stat .mn { font-size: 14px; font-weight: 800; color: var(--green); }
+  .mini-stat .ml { font-size: 9px; color: var(--muted); }
+
+  /* ── Mini table ── */
+  .mini-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+  .mini-table th {
+    text-align: left; padding: 5px 8px;
+    background: var(--card2);
+    color: var(--muted);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+  .mini-table td {
+    padding: 5px 8px;
+    border-bottom: 1px solid rgba(55,65,81,.5);
+    color: #E5E7EB;
+  }
+  .mini-table tr:last-child td { border-bottom: none; }
+  .status-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 700;
+  }
+  .sb-paid    { background: rgba(16,185,129,.2); color: var(--green); }
+  .sb-partial { background: rgba(245,158,11,.2);  color: var(--gold); }
+  .sb-unpaid  { background: rgba(239,68,68,.2);   color: #F87171; }
+  .sb-present { background: rgba(16,185,129,.2);  color: var(--green); }
+  .sb-absent  { background: rgba(239,68,68,.2);   color: #F87171; }
+
+  /* ── Bar chart ── */
+  .bar-chart { display: flex; align-items: flex-end; gap: 10px; height: 80px; }
+  .bar-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+  .bar {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    transition: height .6s ease;
+  }
+  .bar-lbl { font-size: 9px; color: var(--muted); }
+  .bar-val { font-size: 9px; color: var(--text); font-weight: 600; }
+
+  /* ── Comparison table ── */
+  .comp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .comp-table th {
+    padding: 10px 16px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border);
+  }
+  .comp-table td {
+    padding: 10px 16px;
+    text-align: center;
+    border-bottom: 1px solid rgba(55,65,81,.4);
+    color: var(--muted);
+  }
+  .comp-table td:first-child { text-align: left; color: var(--text); font-weight: 500; }
+  .comp-table .us { color: var(--text); font-weight: 700; }
+  .comp-table .highlight-col td:not(:first-child) { background: rgba(16,185,129,.04); }
+  .check { color: var(--green); font-size: 14px; }
+  .cross { color: #6B7280; font-size: 14px; }
+  .partial-check { color: var(--gold); font-size: 14px; }
+
+  /* ── Timeline ── */
+  .timeline { display: flex; gap: 0; width: 100%; position: relative; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 22px; left: 0; right: 0;
+    height: 2px;
+    background: var(--border);
+    z-index: 0;
+  }
+  .tl-phase { flex: 1; text-align: center; position: relative; z-index: 1; }
+  .tl-dot {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    font-weight: 800;
+    border: 2px solid;
+  }
+  .tl-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .tl-sub   { font-size: 11px; color: var(--muted); line-height: 1.4; }
+  .tl-tag   { font-size: 10px; margin-bottom: 8px; }
+
+  /* ── Fund bar ── */
+  .fund-row { margin-bottom: 14px; }
+  .fund-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; }
+  .fund-label .pct { color: var(--green); font-weight: 700; }
+  .fund-track {
+    height: 10px;
+    background: var(--card2);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .fund-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 1s ease;
+  }
+
+  /* ── Proj chart ── */
+  .proj-bars { display: flex; align-items: flex-end; gap: 20px; height: 120px; width: 100%; }
+  .proj-col { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
+  .proj-bar {
+    width: 100%;
+    border-radius: 6px 6px 0 0;
+  }
+  .proj-lbl { font-size: 12px; color: var(--muted); }
+  .proj-val { font-size: 13px; font-weight: 700; }
+
+  /* ── Slide-specific backgrounds ── */
+  .slide-cover { background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(16,185,129,.18) 0%, transparent 70%), var(--dark); }
+  .slide-problem { background: radial-gradient(ellipse 70% 60% at 90% 50%, rgba(206,17,38,.08) 0%, transparent 60%), var(--dark); }
+  .slide-market { background: radial-gradient(ellipse 80% 70% at 10% 50%, rgba(245,158,11,.08) 0%, transparent 60%), var(--dark); }
+  .slide-solution { background: radial-gradient(ellipse 70% 60% at 50% 100%, rgba(16,185,129,.1) 0%, transparent 60%), var(--dark); }
+  .slide-ask { background: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(245,158,11,.1) 0%, transparent 65%), var(--dark); }
+
+  /* ── Checklist ── */
+  .check-list { list-style: none; }
+  .check-list li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(55,65,81,.4);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .check-list li:last-child { border-bottom: none; }
+  .check-list .icon { color: var(--green); font-size: 16px; margin-top: 1px; flex-shrink: 0; }
+
+  /* ── Pain points ── */
+  .pain-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; }
+  .pain-card {
+    background: var(--card);
+    border: 1px solid rgba(206,17,38,.25);
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .pain-icon { font-size: 24px; flex-shrink: 0; }
+  .pain-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .pain-body  { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* ── Feature grid ── */
+  .feat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; width: 100%; }
+  .feat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    transition: border-color .2s;
+  }
+  .feat-card:hover { border-color: var(--green); }
+  .feat-icon { font-size: 22px; margin-bottom: 8px; }
+  .feat-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .feat-body  { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+  /* ── Pricing cards ── */
+  .price-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; width: 100%; }
+  .price-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 20px;
+    text-align: center;
+    transition: border-color .2s, transform .2s;
+  }
+  .price-card:hover { transform: translateY(-3px); }
+  .price-card.highlight {
+    border-color: var(--green);
+    background: linear-gradient(180deg, rgba(16,185,129,.06) 0%, var(--card) 100%);
+  }
+  .price-tier { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+  .price-amount { font-size: 32px; font-weight: 900; margin: 8px 0 4px; }
+  .price-period { font-size: 11px; color: var(--muted); }
+  .price-limit { font-size: 12px; margin: 10px 0; color: var(--muted); }
+  .price-features { list-style: none; margin-top: 14px; text-align: left; }
+  .price-features li { font-size: 11px; padding: 4px 0; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+  .price-features li .ok { color: var(--green); }
+
+  /* ── Advantage cards ── */
+  .adv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; }
+  .adv-card {
+    background: linear-gradient(135deg, rgba(16,185,129,.07) 0%, var(--card) 100%);
+    border: 1px solid rgba(16,185,129,.3);
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .adv-icon { font-size: 28px; flex-shrink: 0; }
+  .adv-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .adv-body  { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* ── Team card ── */
+  .team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; width: 100%; }
+  .team-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .team-avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    font-weight: 800;
+  }
+  .team-name  { font-size: 14px; font-weight: 700; }
+  .team-role  { font-size: 11px; color: var(--green); margin: 3px 0 6px; }
+  .team-desc  { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+  /* ── Equity donut (CSS-only) ── */
+  .donut-wrap { position: relative; width: 140px; height: 140px; flex-shrink: 0; }
+  .donut-wrap svg { transform: rotate(-90deg); }
+  .donut-label {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 900;
+    color: var(--gold);
+  }
+  .donut-label span { font-size: 11px; color: var(--muted); font-weight: 400; }
+
+  /* ── Responsive tweaks ── */
+  @media (max-width: 900px) {
+    .slide { padding: 32px 28px; }
+    .card-grid.col4 { grid-template-columns: 1fr 1fr; }
+    .feat-grid { grid-template-columns: 1fr 1fr; }
+    .team-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div id="counter"></div>
+<button id="prev" onclick="go(-1)">&#8592;</button>
+<button id="next" onclick="go(1)">&#8594;</button>
+<div id="dots"></div>
+
+<div id="deck">
+
+<!-- ════════════════════════════════════════════════════
+     SLIDE 1 — COVER
+════════════════════════════════════════════════════ -->
+<section class="slide slide-cover" data-index="0">
+  <div style="text-align:center; max-width:780px;">
+    <div class="flag-stripe" style="margin:0 auto 28px;">
+      <span class="r"></span><span class="g"></span><span class="gr"></span>
+    </div>
+
+    <div style="font-size:48px; font-weight:900; letter-spacing:-.03em; margin-bottom:6px;">
+      School<span style="color:var(--green);">MS</span>
+    </div>
+    <div class="eyebrow" style="margin-bottom:24px; font-size:12px;">Ghana</div>
+
+    <div class="headline" style="font-size:clamp(20px,3.2vw,42px); margin-bottom:20px; line-height:1.2;">
+      The All-in-One School Management<br>Platform Built for <span class="accent">Ghana</span>
+    </div>
+
+    <p class="sub" style="text-align:center; margin:0 auto 36px;">
+      Automating attendance, fees, grades, and parent communication for 35,000+ Ghanaian schools — starting with private basic schools in Greater Accra.
+    </p>
+
+    <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-bottom:40px;">
+      <div class="badge badge-green">🚀 Pre-Seed Round</div>
+      <div class="badge badge-gold">🇬🇭 GHS 25,000 – 50,000</div>
+      <div class="badge" style="background:rgba(255,255,255,.07); color:var(--muted);">10–15% Equity</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; max-width:600px; margin:0 auto;">
+      <div class="stat-pill">
+        <div class="num">35K+</div>
+        <div class="lbl">Ghana Schools</div>
+      </div>
+      <div class="stat-pill">
+        <div class="num">8.5K</div>
+        <div class="lbl">Private Schools</div>
+      </div>
+      <div class="stat-pill">
+        <div class="num" style="color:var(--gold);">GHS 0</div>
+        <div class="lbl">Paper Saved / School</div>
+      </div>
+      <div class="stat-pill">
+        <div class="num">100%</div>
+        <div class="lbl">Ghana-Specific</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════
+     SLIDE 2 — THE PROBLEM
+════════════════════════════════════════════════════ -->
+<section class="slide slide-problem" data-index="1">
+  <div style="width:100%; max-width:960px;">
+    <div class="eyebrow">The Problem</div>
+    <div class="headline" style="margin-bottom:8px;">Ghana Schools Are <span style="color:#F87171;">Drowning in Paper</span></div>
+    <div class="divider"></div>
+    <p class="sub" style="margin-bottom:28px;">
+      8,500+ private basic schools manage hundreds of students each. Every admin task is manual, error-prone, and wasteful.
+    </p>
+
+    <div class="pain-grid">
+      <div class="pain-card">
+        <div class="pain-icon">📋</div>
+        <div>
+          <div class="pain-title">Manual Attendance Registers</div>
+          <div class="pain-body">Teachers fill paper registers daily. Reports are compiled weekly by hand. Late absences go unnoticed by parents for days.</div>
+        </div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">💸</div>
+        <div>
+          <div class="pain-title">Fee Collection Chaos</div>
+          <div class="pain-body">Receipts written by hand. No real-time balance visibility. Fee defaulters only discovered at term end — cash flow suffers.</div>
+        </div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">📝</div>
+        <div>
+          <div class="pain-title">Report Card Season = Crisis</div>
+          <div class="pain-body">GES grading (A1–F9) computed manually on spreadsheets. Terminals are 2-week projects. Errors are common and embarrassing.</div>
+        </div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">📞</div>
+        <div>
+          <div class="pain-title">Zero Parent Communication</div>
+          <div class="pain-body">Parents receive no real-time updates on fees, attendance, or results. They only engage at end-of-term — or when something goes wrong.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px; background:rgba(206,17,38,.08); border:1px solid rgba(206,17,38,.2); border-radius:12px; padding:16px 20px; display:flex; align-items:center; gap:12px;">
+      <span style="font-size:20px;">💡</span>
+      <span style="font-size:14px; color:#FCA5A5;">No existing solution speaks Ghana's language — GES curriculum, BECE aggregates, GHS currency, mobile-money parents, or intermittent internet.</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════
+     SLIDE 3 — MARKET CONTEXT
+════════════════════════════════════════════════════ -->
+<section class="slide slide-market" data-index="2">
+  <div style="width:100%; max-width:960px;">
+    <div class="eyebrow">Market Opportunity</div>
+    <div class="headline" style="margin-bottom:8px;">A <span class="gold">$40M+</span> Untapped Market</div>
+    <div class="divider"></div>
+
+    <div class="card-grid col3" style="margin-bottom:20px;">
+      <div class="card" style="border-color:rgba(16,185,129,.3); text-align:center;">
+        <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:8px;">TAM</div>
+        <div style="font-size:36px; font-weight:900; color:var(--green); line-height:1;">GHS 630M</div>
+        <div style="font-size:11px; color:var(--muted); margin-top:6px;">35,000 schools × GHS 1,500 / term × 3 terms × 4 years ARR potential</div>
+      </div>
+      <div class="card" style="border-color:rgba(245,158,11,.3); text-align:center;">
+        <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:8px;">SAM</div>
+        <div style="font-size:36px; font-weight:900; color:var(--gold); line-height:1;">GHS 76M</div>
+        <div style="font-size:11px; color:var(--muted); margin-top:6px;">8,500 private schools tech-ready for subscription tools</div>
+      </div>
+      <div class="card" style="border-color:rgba(206,17,38,.3); text-align:center;">
+        <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:8px;">SOM (Yr 3)</div>
+        <div style="font-size:36px; font-weight:900; color:#F87171; line-height:1;">GHS 3.6M</div>
+        <div style="font-size:11px; color:var(--muted); margin-top:6px;">500 schools at GHS 850/term average across 3 terms</div>
+      </div>
+    </div>
+
+    <div class="card-grid col2" style="gap:14px;">
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:10px;">Market Signals</div>
+        <ul class="check-list">
+          <li><span class="icon">✓</span><span>Ghana's basic school enrollment exceeded <strong>5.2 million</strong> students (2023 GES report)</span></li>
+          <li><span class="icon">✓</span><span>Mobile internet penetration at <strong>68%</strong> — smartphones ubiquitous among school admin</span></li>
+          <li><span class="icon">✓</span><span>Paystack & Moolre already trusted by Ghanaian SMBs for digital payments</span></li>
+          <li><span class="icon">✓</span><span>GES mandating digital records for accreditation — regulatory tailwind</span></li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:10px;">Why Now?</div>
+        <ul class="check-list">
+          <li><span class="icon">✓</span><span>Post-COVID: schools learned digital tools exist and are willing to pay</span></li>
+          <li><span class="icon">✓</span><span>EdTech investment in West Africa grew <strong>3× YoY</strong> (2022–2024)</span></li>
+          <li><span class="icon">✓</span><span>No dominant local player — market is wide open for a Ghana-first solution</span></li>
+          <li><span class="icon">✓</span><span>SaaS model = recurring revenue per term, aligned with school budget cycles</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════
+     SLIDE 4 — SOLUTION
+════════════════════════════════════════════════════ -->
+<section class="slide slide-solution" data-index="3">
+  <div style="width:100%; max-width:960px;">
+    <div class="eyebrow">The Solution</div>
+    <div class="headline" style="margin-bottom:8px;">One Platform. <span class="accent">Everything</span> a School Needs.</div>
+    <div class="divider"></div>
+    <p class="sub" style="margin-bottom:28px;">
+      SchoolMS is a multi-tenant SaaS platform built from the ground up for Ghanaian schools — on-brand, in GHS, with GES grading baked in.
+    </p>
+
+    <div class="card-grid col4" style="margin-bottom:20px;">
+      <div class="card" style="text-align:center; padding:20px 14px;">
+        <div style="font-size:28px; margin-bottom:8px;">📊</div>
+        <div style="font-weight:700; font-size:13px; margin-bottom:4px;">Admin Dashboard</div>
+        <div style="font-size:11px; color:var(--muted);">Real-time school health at a glance</div>
+      </div>
+      <div class="card" style="text-align:center; padding:20px 14px;">
+        <div style="font-size:28px; margin-bottom:8px;">👥</div>
+        <div style="font-weight:700; font-size:13px; margin-bottom:4px;">Student Management</div>
+        <div style="font-size:11px; color:var(--muted);">Enrolment, profiles, classes, promotions</div>
+      </div>
+      <div class="card" style="text-align:center; padding:20px 14px;">
+        <div style="font-size:28px; margin-bottom:8px;">💰</div>
+        <div style="font-weight:700; font-size:13px; margin-bottom:4px;">Fee Management</div>
+        <div style="font-size:11px; color:var(--muted);">Collection, receipts, SMS to parents</div>
+      </div>
+      <div class="card" style="text-align:center; padding:20px 14px;">
+        <div style="font-size:28px; margin-bottom:8px;">📋</div>
+        <div style="font-weight:700; font-size:13px; margin-bottom:4px;">GES Report Cards</div>
+        <div style="font-size:11px; color:var(--muted);">A1–F9 auto-grading, PDF download</div>
+      </div>
+    </div>
+
+    <div class="card-grid col4">
+      <div class="card" style="text-align:center; padding:20px 14px;">
+        <div style="font-size:28px; margin-bottom:8px;">🕐</div>
+        <div style="font-weight:700; font-size:13px; margin-bottom:4px;">Attendance Tracking</div>
+        <div style="font-size:11px; color:var(--muted);">Daily rolls + biometric device sync</div>
+      </div>
+      <div class="card" style="text-align:center; padding:20px 14px;">
+        <div style="font-size:28px; margin-bottom:8px;">👨‍🏫</div>
+        <div style="font-weight:700; font-size:13px; margin-bottom:4px;">Teacher Portal</div>
+        <div style="font-size:11px; color:var(--muted);">Score entry, timetable, own subjects only</div>
+      </div>
+      <div class="card" style="text-align:center; padding:20px 14px;">
+        <div style="font-size:28px; margin-bottom:8px;">👨‍👩‍👧</div>
+        <div style="font-weight:700; font-size:13px; margin-bottom:4px;">Parent Portal</div>
+        <div style="font-size:11px; color:var(--muted);">Fees, attendance, results on mobile</div>
+      </div>
+      <div class="card" style="text-align:center; padding:20px 14px;">
+        <div style="font-size:28px; margin-bottom:8px;">📱</div>
+        <div style="font-weight:700; font-size:13px; margin-bottom:4px;">REST API</div>
+        <div style="font-size:11px; color:var(--muted);">Mobile app ready (Sanctum auth)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════
+     SLIDE 5 — PRODUCT MOCKUP: ADMIN DASHBOARD
+════════════════════════════════════════════════════ -->
+<section class="slide" data-index="4">
+  <div style="width:100%; max-width:980px;">
+    <div class="eyebrow">Product — Admin Dashboard</div>
+    <div class="headline" style="margin-bottom:8px; font-size:clamp(20px,2.4vw,32px);">The Command Centre Every <span class="accent">Headmaster</span> Needs</div>
+    <div class="divider"></div>
+
+    <div class="mockup-frame" style="width:100%; margin-top:16px;">
+      <!-- Browser chrome -->
+      <div class="mockup-topbar">
+        <span class="topbar-dot" style="background:#F87171;"></span>
+        <span class="topbar-dot" style="background:var(--gold);"></span>
+        <span class="topbar-dot" style="background:var(--green);"></span>
+        <div class="topbar-url">accraacademy.admin.schoolms.com.gh/dashboard</div>
+      </div>
+
+      <div class="mockup-body">
+        <!-- Sidebar -->
+        <div class="mockup-sidebar">
+          <div class="sidebar-logo">SchoolMS</div>
+          <div class="sidebar-item active"><span class="si">📊</span> Dashboard</div>
+          <div class="sidebar-item"><span class="si">👥</span> Students</div>
+          <div class="sidebar-item"><span class="si">👨‍🏫</span> Teachers</div>
+          <div class="sidebar-item"><span class="si">💰</span> Fees</div>
+          <div class="sidebar-item"><span class="si">📋</span> Attendance</div>
+          <div class="sidebar-item"><span class="si">📝</span> Assessments</div>
+          <div class="sidebar-item"><span class="si">🏫</span> Classes</div>
+          <div class="sidebar-item"><span class="si">📢</span> Notice Board</div>
+          <div class="sidebar-item"><span class="si">⚙️</span> Settings</div>
+        </div>
+
+        <!-- Content -->
+        <div class="mockup-content">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <div class="mockup-title">Good morning, Mr. Mensah 👋</div>
+            <div style="font-size:9px; color:var(--muted);">Term 2 · 2025/2026 · Week 8</div>
+          </div>
+
+          <div class="mini-stat-row">
+            <div class="mini-stat">
+              <div class="mn" style="color:var(--green);">487</div>
+              <div class="ml">Total Students</div>
+            </div>
+            <div class="mini-stat">
+              <div class="mn" style="color:var(--gold);">GHS 42,600</div>
+              <div class="ml">Fees Collected</div>
+            </div>
+            <div class="mini-stat">
+              <div class="mn" style="color:#60A5FA;">94.2%</div>
+              <div class="ml">Today's Attendance</div>
+            </div>
+            <div class="mini-stat">
+              <div class="mn" style="color:#A78BFA;">32</div>
+              <div class="ml">Teachers Active</div>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div>
+              <div style="font-size:10px; font-weight:700; margin-bottom:6px; color:var(--muted);">FEE COLLECTION — TERM 2</div>
+              <div class="bar-chart" style="height:65px;">
+                <div class="bar-col">
+                  <div class="bar-val">GHS 18k</div>
+                  <div class="bar" style="height:55px; background:var(--green); opacity:.9;"></div>
+                  <div class="bar-lbl">JHS 1</div>
+                </div>
+                <div class="bar-col">
+                  <div class="bar-val">GHS 14k</div>
+                  <div class="bar" style="height:43px; background:var(--green); opacity:.7;"></div>
+                  <div class="bar-lbl">JHS 2</div>
+                </div>
+                <div class="bar-col">
+                  <div class="bar-val">GHS 11k</div>
+                  <div class="bar" style="height:34px; background:var(--gold); opacity:.8;"></div>
+                  <div class="bar-lbl">JHS 3</div>
+                </div>
+                <div class="bar-col">
+                  <div class="bar-val">GHS 16k</div>
+                  <div class="bar" style="height:50px; background:var(--green); opacity:.8;"></div>
+                  <div class="bar-lbl">Prim 6</div>
+                </div>
+                <div class="bar-col">
+                  <div class="bar-val">GHS 9k</div>
+                  <div class="bar" style="height:28px; background:#F87171; opacity:.8;"></div>
+                  <div class="bar-lbl">Prim 5</div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div style="font-size:10px; font-weight:700; margin-bottom:6px; color:var(--muted);">RECENT PAYMENTS</div>
+              <table class="mini-table">
+                <thead><tr><th>Student</th><th>Amount</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td>Kofi Asante</td><td>GHS 850</td><td><span class="status-badge sb-paid">PAID</span></td></tr>
+                  <tr><td>Ama Boateng</td><td>GHS 500</td><td><span class="status-badge sb-partial">PART.</span></td></tr>
+                  <tr><td>Kweku Mensah</td><td>GHS 850</td><td><span class="status-badge sb-paid">PAID</span></td></tr>
+                  <tr><td>Abena Owusu</td><td>GHS 0</td><td><span class="status-badge sb-unpaid">UNPAID</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════
+     SLIDE 6 — PRODUCT MOCKUP: FEE MANAGEMENT + PARENT PORTAL
+════════════════════════════════════════════════════ -->
+<section class="slide" data-index="5">
+  <div style="width:100%; max-width:980px;">
+    <div class="eyebrow">Product — Fee Management & Parent Portal</div>
+    <div class="headline" style="font-size:clamp(18px,2.2vw,30px); margin-bottom:8px;">
+      <span class="accent">Instant</span> Receipts · <span class="gold">SMS Alerts</span> · Parent Self-Service
+    </div>
+    <div class="divider"></div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:14px;">
+
+      <!-- Fee Management Screen -->
+      <div class="mockup-frame">
+        <div class="mockup-topbar">
+          <span class="topbar-dot" style="background:#F87171;"></span>
+          <span class="topbar-dot" style="background:var(--gold);"></span>
+          <span class="topbar-dot" style="background:var(--green);"></span>
+          <div class="topbar-url">…/admin/fees</div>
+        </div>
+        <div class="mockup-content" style="padding:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <div class="mockup-title">Fee Records</div>
+            <div style="display:flex; gap:6px;">
+              <div style="background:var(--green); color:#fff; font-size:9px; padding:3px 8px; border-radius:4px; font-weight:700;">+ Add Fee</div>
+              <div style="background:var(--card2); border:1px solid var(--border); font-size:9px; padding:3px 8px; border-radius:4px; color:var(--muted);">Bulk Assign</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:6px; margin-bottom:8px;">
+            <div style="background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.3); border-radius:6px; padding:6px 10px; font-size:9px; color:var(--green); flex:1; text-align:center;">
+              <div style="font-weight:800; font-size:13px;">GHS 68,400</div>Total Levied
+            </div>
+            <div style="background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.3); border-radius:6px; padding:6px 10px; font-size:9px; color:var(--green); flex:1; text-align:center;">
+              <div style="font-weight:800; font-size:13px;">GHS 42,600</div>Collected
+            </div>
+            <div style="background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.3); border-radius:6px; padding:6px 10px; font-size:9px; color:#F87171; flex:1; text-align:center;">
+              <div style="font-weight:800; font-size:13px;">GHS 25,800</div>Outstanding
+            </div>
+          </div>
+          <table class="mini-table">
+            <thead><tr><th>Student</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Kofi Asante</td><td>School Fees</td><td>GHS 850</td><td><span class="status-badge sb-paid">PAID</span></td></tr>
+              <tr><td>Ama Boateng</td><td>School Fees</td><td>GHS 850</td><td><span class="status-badge sb-partial">PARTIAL</span></td></tr>
+              <tr><td>Kweku Mensah</td><td>PTA Levy</td><td>GHS 120</td><td><span class="status-badge sb-paid">PAID</span></td></tr>
+              <tr><td>Abena Owusu</td><td>School Fees</td><td>GHS 850</td><td><span class="status-badge sb-unpaid">UNPAID</span></td></tr>
+              <tr><td>Yaw Darko</td><td>Exam Fee</td><td>GHS 200</td><td><span class="status-badge sb-paid">PAID</span></td></tr>
+            </tbody>
+          </table>
+          <div style="margin-top:8px; font-size:9px; color:var(--muted); text-align:center;">✉ Auto SMS receipt sent to guardian on payment</div>
+        </div>
+      </div>
+
+      <!-- Parent Portal Screen -->
+      <div class="mockup-frame">
+        <div class="mockup-topbar">
+          <span class="topbar-dot" style="background:#F87171;"></span>
+          <span class="topbar-dot" style="background:var(--gold);"></span>
+          <span class="topbar-dot" style="background:var(--green);"></span>
+          <div class="topbar-url">accraacademy.schoolms.com.gh/portal</div>
+        </div>
+        <div class="mockup-content" style="padding:12px;">
+          <div style="text-align:center; margin-bottom:10px;">
+            <div style="font-size:11px; font-weight:700; color:var(--green);">PARENT / GUARDIAN PORTAL</div>
+            <div style="font-size:13px; font-weight:700; margin-top:4px;">Welcome, Mrs. Asante</div>
+            <div style="font-size:10px; color:var(--muted);">Viewing: Kofi Asante · JHS 2A</div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:10px;">
+            <div style="background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.3); border-radius:6px; padding:8px; text-align:center;">
+              <div style="font-size:9px; color:var(--muted);">Fee Balance</div>
+              <div style="font-size:16px; font-weight:800; color:var(--green);">GHS 0</div>
+              <div style="font-size:9px; color:var(--green);">✓ Fully Paid</div>
+            </div>
+            <div style="background:rgba(96,165,250,.1); border:1px solid rgba(96,165,250,.3); border-radius:6px; padding:8px; text-align:center;">
+              <div style="font-size:9px; color:var(--muted);">Attendance</div>
+              <div style="font-size:16px; font-weight:800; color:#60A5FA;">96.4%</div>
+              <div style="font-size:9px; color:var(--muted);">2 absences this term</div>
+            </div>
+          </div>
+
+          <div style="font-size:10px; font-weight:700; color:var(--muted); margin-bottom:6px;">RECENT ASSESSMENTS</div>
+          <table class="mini-table">
+            <thead><tr><th>Subject</th><th>Score</th><th>Grade</th></tr></thead>
+            <tbody>
+              <tr><td>Mathematics</td><td>78/100</td><td><span class="status-badge sb-paid">B2</span></td></tr>
+              <tr><td>English</td><td>85/100</td><td><span class="status-badge sb-paid">A1</span></td></tr>
+              <tr><td>Science</td><td>64/100</td><td><span class="status-badge sb-partial">B3</span></td></tr>
+              <tr><td>Social Studies</td><td>72/100</td><td><span class="status-badge sb-paid">B2</span></td></tr>
+            </tbody>
+          </table>
+          <div style="margin-top:8px; font-size:9px; color:var(--muted); text-align:center;">No app download needed — works on any phone browser 📱</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════
+     SLIDE 7 — FEATURES DEEP DIVE
+════════════════════════════════════════════════════ -->
+<section class="slide" data-index="6">
+  <div style="width:100%; max-width:960px;">
+    <div class="eyebrow">Platform Features</div>
+    <div class="headline" style="margin-bottom:8px;">Built for <span class="accent">Every Role</span> in Your School</div>
+    <div class="divider"></div>
+
+    <div class="feat-grid" style="margin-top:20px;">
+      <div class="feat-card">
+        <div class="feat-icon">🏫</div>
+        <div class="feat-title">Multi-School Architecture</div>
+        <div class="feat-body">Every school gets its own subdomain, isolated data, and branded portal. One platform, infinite schools — zero cross-contamination.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🎓</div>
+        <div class="feat-title">GES Grading Engine</div>
+        <div class="feat-body">A1–F9 grades computed automatically per GES curriculum. BECE aggregate calculation built in. PDF report cards with one click.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📲</div>
+        <div class="feat-title">SMS + Email Alerts</div>
+        <div class="feat-body">Payment receipts, fee reminders, and result notifications sent instantly to guardian phones via SMS — no app required.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🔐</div>
+        <div class="feat-title">2FA Security</div>
+        <div class="feat-body">TOTP two-factor authentication for all admin accounts. Teacher portal has separate credentials. Parent portal is admission-number + DOB.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🖐</div>
+        <div class="feat-title">Biometric Integration</div>
+        <div class="feat-body">ZKTeco fingerprint device sync via TCP. Auto-imports attendance logs — eliminates manual register entry for schools with devices.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">💳</div>
+        <div class="feat-title">Ghanaian Payment Gateways</div>
+        <div class="feat-body">Paystack and Moolre integrated for subscription billing. GHS currency, mobile money support — no USD conversion friction.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📦</div>
+        <div class="feat-title">Data Export & Backup</div>
+        <div class="feat-body">Schools can export all their data (students, fees, attendance) as a ZIP with CSV files. Daily automated DB backups on the server.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📡</div>
+        <div class="feat-title">REST API</div>
+        <div class="feat-body">Full OpenAPI 3.1 spec. Token-based auth (Sanctum). Ready for a native mobile app or third-party integrations without extra work.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📝</div>
+        <div class="feat-title">Online Admissions</div>
+        <div class="feat-body">Public admission form on school's subdomain. Applications reviewed and approved by admin. Enrolled students auto-provisioned.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════
+     SLIDE 8 — BUSINESS MODEL
+════════════════════════════════════════════════════ -->
+<section class="slide" data-index="7">
+  <div style="width:100%; max-width:960px;">
+    <div class="eyebrow">Business Model</div>
+    <div class="headline" style="margin-bottom:8px;">Recurring Revenue — <span class="accent">Per Term</span>, Every Term</div>
+    <div class="divider"></div>
+    <p class="sub" style="margin-bottom:28px;">
+      Subscription billed 3× per year aligned to Ghana's school term calendar. Schools pay when they pay their other bills — zero friction.
+    </p>
+
+    <div class="price-grid" style="margin-bottom:20px;">
+      <div class="price-card">
+        <div class="price-tier">Starter</div>
+        <div class="price-amount" style="color:var(--muted);">GHS 500</div>
+        <div class="price-period">per term (3× per year)</div>
+        <div class="price-limit">Up to 200 students</div>
+        <ul class="price-features">
+          <li><span class="ok">✓</span> Student & Teacher management</li>
+          <li><span class="ok">✓</span> Attendance tracking</li>
+          <li><span class="ok">✓</span> Basic fee records</li>
+          <li><span class="ok">✓</span> GES report cards</li>
+          <li style="color:#6B7280;"><span>✗</span> SMS notifications</li>
+          <li style="color:#6B7280;"><span>✗</span> Biometric sync</li>
+        </ul>
+      </div>
+      <div class="price-card highlight">
+        <div class="badge badge-green" style="margin-bottom:6px;">Most Popular</div>
+        <div class="price-tier">Growth</div>
+        <div class="price-amount" style="color:var(--green);">GHS 850</div>
+        <div class="price-period">per term (3× per year)</div>
+        <div class="price-limit">Up to 500 students</div>
+        <ul class="price-features">
+          <li><span class="ok">✓</span> Everything in Starter</li>
+          <li><span class="ok">✓</span> SMS + Email alerts</li>
+          <li><span class="ok">✓</span> Parent & Teacher portals</li>
+          <li><span class="ok">✓</span> Online admissions</li>
+          <li><span class="ok">✓</span> Data export & backup</li>
+          <li style="color:#6B7280;"><span>✗</span> Biometric sync</li>
+        </ul>
+      </div>
+      <div class="price-card">
+        <div class="price-tier">Pro</div>
+        <div class="price-amount" style="color:var(--gold);">GHS 1,200</div>
+        <div class="price-period">per term (3× per year)</div>
+        <div class="price-limit">Unlimited students</div>
+        <ul class="price-features">
+          <li><span class="ok">✓</span> Everything in Growth</li>
+          <li><span class="ok">✓</span> Biometric device sync</li>
+          <li><span class="ok">✓</span> REST API access</li>
+          <li><span class="ok">✓</span> Priority support</li>
+          <li><span class="ok">✓</span> Custom branding</li>
+          <li><span class="ok">✓</span> Dedicated onboarding</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="display:flex; gap:32px; align-items:center; padding:16px 24px;">
+      <div style="text-align:center; flex-shrink:0;">
+        <div style="font-size:11px; color:var(--muted); margin-bottom:4px;">ANNUAL REVENUE PER SCHOOL</div>
+        <div style="font-size:28px; font-weight:900; color:var(--green);">GHS 1,500 – 3,600</div>
+      </div>
+      <div style="width:1px; height:48px; background:var(--border);"></div>
+      <div style="text-align:center; flex-shrink:0;">
+        <div style="font-size:11px; color:var(--muted); margin-bottom:4px;">CHURN RISK</div>
+        <div style="font-size:28px; font-weight:900; color:var(--gold);">Very Low</div>
+      </div>
+      <div style="width:1px; height:48px; background:var(--border);"></div>
+      <div style="flex:1; font-size:13px; color:var(--muted); line-height:1.5;">
+        <strong style="color:var(--text);">Why schools don't churn:</strong> Once student records, attendance history, and fee data live in SchoolMS, migrating away means losing institutional memory. Schools renew every term automatically.
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════
+     SLIDE 9 — COMPETITIVE LANDSCAPE
+════════════════════════════════════════════════════ -->
+<section class="slide" data-index="8">
+  <div style="width:100%; max-width:920px;">
+    <div class="eyebrow">Competitive Landscape</div>
+    <div class="headline" style="margin-bottom:8px;">We Are the <span class="accent">Only</span> Ghana-Native Option</div>
+    <div class="divider"></div>
+
+    <div class="card" style="padding:0; overflow:hidden; margin-top:20px;">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th style="text-align:left; padding-left:20px;">Feature</th>
+            <th style="color:var(--green); border-bottom:2px solid var(--green);">SchoolMS 🇬🇭</th>
+            <th>Spreadsheets</th>
+            <th>Fedena / India</th>
+            <th>Generic SaaS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="highlight-col">
+            <td style="padding-left:20px;">GES A1–F9 Grading</td>
+            <td class="us check">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td style="padding-left:20px;">BECE Aggregate Calc</td>
+            <td class="us check">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr class="highlight-col">
+            <td style="padding-left:20px;">GHS Currency + Paystack</td>
+            <td class="us check">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="partial-check">~</td>
+          </tr>
+          <tr>
+            <td style="padding-left:20px;">Ghana Term Calendar</td>
+            <td class="us check">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr class="highlight-col">
+            <td style="padding-left:20px;">Works on Slow / Mobile Internet</td>
+            <td class="us check">✓</td>
+            <td class="partial-check">~</td>
+            <td class="cross">✗</td>
+            <td class="partial-check">~</td>
+          </tr>
+          <tr>
+            <td style="padding-left:20px;">Parent Portal (no app needed)</td>
+            <td class="us check">✓</td>
+            <td class="cross">✗</td>
+            <td class="partial-check">~</td>
+            <td class="partial-check">~</td>
+          </tr>
+          <tr class="highlight-col">
+            <td style="padding-left:20px;">Biometric Attendance Sync</td>
+            <td class="us check">✓</td>
+            <td class="cross">✗</td>
+            <td class="check">✓</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td style="padding-left:20px;">Priced in GHS per term</td>
+            <td class="us check">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr class="highlight-col">
+            <td style="padding-left:20px;">Local support (Ghana timezone)</td>
+            <td class="us check">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:14px; text-align:center; font-size:13px; color:var(--muted);">
+      No competitor checks all boxes for Ghana. <strong style="color:var(--green);">SchoolMS is purpose-built — not adapted.</strong>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════
+     SLIDE 10 — GO-TO-MARKET
+════════════════════════════════════════════════════ -->
+<section class="slide" data-index="9">
+  <div style="width:100%; max-width:960px;">
+    <div class="eyebrow">Go-to-Market Strategy</div>
+    <div class="headline" style="margin-bottom:8px;">From <span class="accent">0 to 500 Schools</span> in 36 Months</div>
+    <div class="divider"></div>
+    <p class="sub" style="margin-bottom:32px;">
+      A tight, sequential playbook — establish proof, build referrals, then scale to the region.
+    </p>
+
+    <div class="timeline" style="margin-bottom:28px;">
+      <div class="tl-phase">
+        <div class="tl-dot" style="background:rgba(16,185,129,.15); border-color:var(--green); color:var(--green);">1</div>
+        <div class="tl-tag"><span class="badge badge-green">Months 1–6</span></div>
+        <div class="tl-title">Proof of Value</div>
+        <div class="tl-sub">5–10 pilot schools in Greater Accra. Hands-on onboarding. Collect testimonials. Refine UX with real teachers.</div>
+      </div>
+      <div class="tl-phase">
+        <div class="tl-dot" style="background:rgba(245,158,11,.15); border-color:var(--gold); color:var(--gold);">2</div>
+        <div class="tl-tag"><span class="badge badge-gold">Months 7–18</span></div>
+        <div class="tl-title">Word-of-Mouth Scale</div>
+        <div class="tl-sub">Headmaster referral program (1 month free per school referred). Target private school associations in Accra & Kumasi. 50 schools.</div>
+      </div>
+      <div class="tl-phase">
+        <div class="tl-dot" style="background:rgba(206,17,38,.15); border-color:#F87171; color:#F87171;">3</div>
+        <div class="tl-tag"><span class="badge badge-red">Months 19–36</span></div>
+        <div class="tl-title">Regional Expansion</div>
+        <div class="tl-sub">Partner with GES regional offices. Target all 16 regions. Introduce reseller agents per district. 500 schools.</div>
+      </div>
+    </div>
+
+    <div class="card-grid col3" style="gap:14px;">
+      <div class="card" style="padding:18px 20px;">
+        <div class="eyebrow" style="margin-bottom:10px;">Channel Mix</div>
+        <ul class="check-list">
+          <li><span class="icon">✓</span><span>Direct outreach to private school heads</span></li>
+          <li><span class="icon">✓</span><span>Ghana Private Schools Association</span></li>
+          <li><span class="icon">✓</span><span>Facebook groups for Ghanaian educators</span></li>
+          <li><span class="icon">✓</span><span>Whatsapp community marketing</span></li>
+        </ul>
+      </div>
+      <div class="card" style="padding:18px 20px;">
+        <div class="eyebrow" style="margin-bottom:10px;">Conversion Strategy</div>
+        <ul class="check-list">
+          <li><span class="icon">✓</span><span>Free 30-day trial — full feature access</span></li>
+          <li><span class="icon">✓</span><span>Data migration assistance (we import from Excel)</span></li>
+          <li><span class="icon">✓</span><span>In-person onboarding in Accra</span></li>
+          <li><span class="icon">✓</span><span>Pay by Mobile Money accepted</span></li>
+        </ul>
+      </div>
+      <div class="card" style="padding:18px 20px;">
+        <div class="eyebrow" style="margin-bottom:10px;">Retention Engine</div>
+        <ul class="check-list">
+          <li><span class="icon">✓</span><span>Historical data lock-in (years of records)</span></li>
+          <li><span class="icon">✓</span><span>Term-end report card season drives urgency</span></li>
+          <li><span class="icon">✓</span><span>WhatsApp support during school hours</span></li>
+          <li><span class="icon">✓</span><span>Annual feature releases announced at start of term</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════
+     SLIDE 11 — FINANCIAL PROJECTIONS
+════════════════════════════════════════════════════ -->
+<section class="slide" data-index="10">
+  <div style="width:100%; max-width:960px;">
+    <div class="eyebrow">Financial Projections</div>
+    <div class="headline" style="margin-bottom:8px;">Path to <span class="accent">GHS 1.3M</span> ARR by Year 3</div>
+    <div class="divider"></div>
+
+    <div class="card-grid col3" style="margin-bottom:18px;">
+      <div class="card" style="text-align:center; border-color:rgba(16,185,129,.2);">
+        <div style="font-size:11px; color:var(--muted); margin-bottom:6px; text-transform:uppercase; font-weight:700; letter-spacing:.1em;">Year 1</div>
+        <div style="font-size:32px; font-weight:900; color:var(--green);">GHS 127K</div>
+        <div style="font-size:11px; color:var(--muted); margin-top:4px;">28 schools avg. × GHS 850 × 3 terms</div>
+        <div style="margin-top:10px; height:2px; background:var(--card2); border-radius:1px; overflow:hidden;">
+          <div style="width:10%; height:100%; background:var(--green);"></div>
+        </div>
+        <div style="font-size:10px; color:var(--muted); margin-top:4px;">10% of SOM</div>
+      </div>
+      <div class="card" style="text-align:center; border-color:rgba(245,158,11,.3);">
+        <div style="font-size:11px; color:var(--muted); margin-bottom:6px; text-transform:uppercase; font-weight:700; letter-spacing:.1em;">Year 2</div>
+        <div style="font-size:32px; font-weight:900; color:var(--gold);">GHS 510K</div>
+        <div style="font-size:11px; color:var(--muted); margin-top:4px;">112 schools avg. × GHS 850 × 3 terms</div>
+        <div style="margin-top:10px; height:2px; background:var(--card2); border-radius:1px; overflow:hidden;">
+          <div style="width:40%; height:100%; background:var(--gold);"></div>
+        </div>
+        <div style="font-size:10px; color:var(--muted); margin-top:4px;">40% of SOM</div>
+      </div>
+      <div class="card" style="text-align:center; border-color:rgba(16,185,129,.4); background:linear-gradient(180deg,rgba(16,185,129,.05) 0%,var(--card) 100%);">
+        <div style="font-size:11px; color:var(--muted); margin-bottom:6px; text-transform:uppercase; font-weight:700; letter-spacing:.1em;">Year 3</div>
+        <div style="font-size:32px; font-weight:900; color:var(--green);">GHS 1.35M</div>
+        <div style="font-size:11px; color:var(--muted); margin-top:4px;">530 schools avg. × GHS 850 × 3 terms</div>
+        <div style="margin-top:10px; height:2px; background:var(--card2); border-radius:1px; overflow:hidden;">
+          <div style="width:100%; height:100%; background:var(--green);"></div>
+        </div>
+        <div style="font-size:10px; color:var(--muted); margin-top:4px;">100% of SOM target</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:20px 24px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:12px;">
+        <div class="eyebrow" style="margin:0;">Revenue Growth (GHS '000)</div>
+        <div style="font-size:11px; color:var(--muted);">Conservative estimate — no upsell included</div>
+      </div>
+      <div class="proj-bars">
+        <div class="proj-col">
+          <div class="proj-val" style="color:var(--green);">127K</div>
+          <div class="proj-bar" style="height:36px; background:linear-gradient(180deg,var(--green),rgba(16,185,129,.4));"></div>
+          <div class="proj-lbl">Y1</div>
+        </div>
+        <div class="proj-col">
+          <div class="proj-val" style="color:var(--gold);">510K</div>
+          <div class="proj-bar" style="height:72px; background:linear-gradient(180deg,var(--gold),rgba(245,158,11,.4));"></div>
+          <div class="proj-lbl">Y2</div>
+        </div>
+        <div class="proj-col">
+          <div class="proj-val" style="color:var(--green);">1.35M</div>
+          <div class="proj-bar" style="height:120px; background:linear-gradient(180deg,var(--green),rgba(16,185,129,.4));"></div>
+          <div class="proj-lbl">Y3</div>
+        </div>
+        <div class="proj-col" style="border-left:1px solid var(--border); padding-left:20px; text-align:left; flex:2;">
+          <div style="font-size:12px; color:var(--muted); line-height:1.7;">
+            <div>📈 <strong style="color:var(--text);">4× growth</strong> Y1→Y2 (word-of-mouth + referral program)</div>
+            <div>📈 <strong style="color:var(--text);">2.6× growth</strong> Y2→Y3 (regional expansion)</div>
+            <div>💰 <strong style="color:var(--text);">Break-even</strong> at ~40 schools</div>
+            <div>🎯 <strong style="color:var(--text);">Gross margin</strong> ~82% at 100+ schools</div>
+            <div>🔄 Upsell to Pro tier adds <strong style="color:var(--green);">+41%</strong> ARPU</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════
+     SLIDE 12 — USE OF FUNDS
+════════════════════════════════════════════════════ -->
+<section class="slide" data-index="11">
+  <div style="width:100%; max-width:900px;">
+    <div class="eyebrow">Use of Funds</div>
+    <div class="headline" style="margin-bottom:8px;">How We Deploy <span class="gold">GHS 50,000</span></div>
+    <div class="divider"></div>
+    <p class="sub" style="margin-bottom:28px;">
+      Every cedi is allocated to generating the first 50 paying schools and reaching cash-flow positive within 12 months.
+    </p>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px; align-items:center;">
+      <div>
+        <div class="fund-row">
+          <div class="fund-label">
+            <span>🚀 Sales & Marketing (outreach, demos)</span>
+            <span class="pct">40% · GHS 20K</span>
+          </div>
+          <div class="fund-track">
+            <div class="fund-fill" style="width:40%; background:var(--green);"></div>
+          </div>
+        </div>
+        <div class="fund-row">
+          <div class="fund-label">
+            <span>⚙️ Infrastructure & Hosting (cloud servers)</span>
+            <span class="pct">20% · GHS 10K</span>
+          </div>
+          <div class="fund-track">
+            <div class="fund-fill" style="width:20%; background:var(--gold);"></div>
+          </div>
+        </div>
+        <div class="fund-row">
+          <div class="fund-label">
+            <span>🧑‍💻 Product Development (features, mobile)</span>
+            <span class="pct">20% · GHS 10K</span>
+          </div>
+          <div class="fund-track">
+            <div class="fund-fill" style="width:20%; background:#60A5FA;"></div>
+          </div>
+        </div>
+        <div class="fund-row">
+          <div class="fund-label">
+            <span>🛠️ Operations & Support (onboarding team)</span>
+            <span class="pct">12% · GHS 6K</span>
+          </div>
+          <div class="fund-track">
+            <div class="fund-fill" style="width:12%; background:#A78BFA;"></div>
+          </div>
+        </div>
+        <div class="fund-row">
+          <div class="fund-label">
+            <span>🔒 Legal, Compliance & Contingency</span>
+            <span class="pct">8% · GHS 4K</span>
+          </div>
+          <div class="fund-track">
+            <div class="fund-fill" style="width:8%; background:var(--muted);"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:24px;">
+        <div class="eyebrow" style="margin-bottom:14px;">12-Month Milestones</div>
+        <ul class="check-list">
+          <li><span class="icon">✓</span><span><strong>Month 2</strong> — 5 pilot schools onboarded (free)</span></li>
+          <li><span class="icon">✓</span><span><strong>Month 4</strong> — First 10 paying schools</span></li>
+          <li><span class="icon">✓</span><span><strong>Month 6</strong> — Mobile app beta (iOS + Android)</span></li>
+          <li><span class="icon">✓</span><span><strong>Month 8</strong> — 30 paying schools, referral program live</span></li>
+          <li><span class="icon">✓</span><span><strong>Month 10</strong> — Cash-flow positive</span></li>
+          <li><span class="icon">✓</span><span><strong>Month 12</strong> — 50 schools, seed round ready</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════
+     SLIDE 13 — WHY WE WIN
+════════════════════════════════════════════════════ -->
+<section class="slide" data-index="12">
+  <div style="width:100%; max-width:960px;">
+    <div class="eyebrow">Competitive Advantages</div>
+    <div class="headline" style="margin-bottom:8px;">Why <span class="accent">SchoolMS</span> Will Win Ghana</div>
+    <div class="divider"></div>
+
+    <div class="adv-grid" style="margin-top:20px;">
+      <div class="adv-card">
+        <div class="adv-icon">🇬🇭</div>
+        <div>
+          <div class="adv-title">Deeply Ghana-Native</div>
+          <div class="adv-body">GES grading, BECE aggregates, Ghana term calendar, GHS currency, Paystack + Moolre payments. Nothing was bolted on — it's all built in. Competitors would need 12+ months to reach feature parity.</div>
+        </div>
+      </div>
+      <div class="adv-card">
+        <div class="adv-icon">⚡</div>
+        <div>
+          <div class="adv-title">Production-Ready Today</div>
+          <div class="adv-body">545 automated tests, CI/CD pipeline, PHPStan static analysis, Sentry error monitoring, Horizon queue system, and full OpenAPI spec. This is not a prototype — it's deployable software.</div>
+        </div>
+      </div>
+      <div class="adv-card">
+        <div class="adv-icon">🔒</div>
+        <div>
+          <div class="adv-title">Enterprise Security</div>
+          <div class="adv-body">TOTP two-factor authentication, HMAC webhook verification, row-level tenant isolation, soft deletes, audit logs on every record change, and rate limiting on all sensitive endpoints.</div>
+        </div>
+      </div>
+      <div class="adv-card">
+        <div class="adv-icon">📱</div>
+        <div>
+          <div class="adv-title">Mobile-First Reality</div>
+          <div class="adv-body">Parent portal requires no app download — works on any browser including 2G phones. Teacher portal optimized for mobile entry. REST API ready for a native app the moment budget allows.</div>
+        </div>
+      </div>
+      <div class="adv-card">
+        <div class="adv-icon">💸</div>
+        <div>
+          <div class="adv-title">Defensible Pricing</div>
+          <div class="adv-body">GHS 500–1,200/term is 0.1–0.3% of a typical private school's annual fee income from 200 students. The ROI (saved admin time + reduced fee leakage) pays back in Week 1.</div>
+        </div>
+      </div>
+      <div class="adv-card">
+        <div class="adv-icon">🔁</div>
+        <div>
+          <div class="adv-title">High Switching Cost</div>
+          <div class="adv-body">After one term, a school's full student database, attendance history, fee records, and report cards live in SchoolMS. Migration is painful. Renewals become the path of least resistance.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════
+     SLIDE 14 — TEAM
+════════════════════════════════════════════════════ -->
+<section class="slide" data-index="13">
+  <div style="width:100%; max-width:900px;">
+    <div class="eyebrow">The Team</div>
+    <div class="headline" style="margin-bottom:8px;">Built by People Who <span class="accent">Know Ghana</span></div>
+    <div class="divider"></div>
+    <p class="sub" style="margin-bottom:28px;">
+      A focused founding team with the technical depth to build and the local knowledge to sell.
+    </p>
+
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-avatar" style="background:rgba(16,185,129,.15); color:var(--green);">👨‍💻</div>
+        <div class="team-name">Founder / CTO</div>
+        <div class="team-role">Full-Stack Engineer</div>
+        <div class="team-desc">Built SchoolMS end-to-end: Laravel backend, multi-tenant architecture, biometric integration, payment gateways, and 545-test CI pipeline. Deep PHP/Laravel expertise.</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar" style="background:rgba(245,158,11,.15); color:var(--gold);">📣</div>
+        <div class="team-name">Co-Founder / CEO</div>
+        <div class="team-role">Sales & Operations</div>
+        <div class="team-desc">Deep network in Greater Accra private school community. Former school administrator. Understands the daily pain points from the inside — not from market research.</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar" style="background:rgba(96,165,250,.15); color:#60A5FA;">🎓</div>
+        <div class="team-name">Advisor</div>
+        <div class="team-role">Education Sector</div>
+        <div class="team-desc">20+ years in Ghana's education system. Connections to GES regional offices and private school associations. Guiding curriculum alignment and regulatory strategy.</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px; padding:18px 24px; display:flex; gap:24px; align-items:center;">
+      <span style="font-size:24px;">💡</span>
+      <div>
+        <div style="font-size:14px; font-weight:700; margin-bottom:4px;">We're actively hiring for Cohort 1</div>
+        <div style="font-size:13px; color:var(--muted);">Looking for: one part-time Customer Success rep (Accra-based) and one UI/UX contractor for the mobile app. This raise funds both hires in H2.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════
+     SLIDE 15 — THE ASK
+════════════════════════════════════════════════════ -->
+<section class="slide slide-ask" data-index="14">
+  <div style="width:100%; max-width:900px; text-align:center;">
+    <div class="eyebrow">The Ask</div>
+    <div class="headline" style="margin-bottom:16px; font-size:clamp(24px,3.5vw,48px);">
+      <span class="gold">GHS 25,000 – 50,000</span><br>for <span class="accent">10–15%</span> Equity
+    </div>
+
+    <div style="display:flex; justify-content:center; gap:24px; flex-wrap:wrap; margin-bottom:32px;">
+      <div class="stat-pill" style="min-width:160px;">
+        <div class="num" style="color:var(--gold);">GHS 50K</div>
+        <div class="lbl">Maximum Raise</div>
+      </div>
+      <div class="stat-pill" style="min-width:160px;">
+        <div class="num">15%</div>
+        <div class="lbl">Max Equity Offered</div>
+      </div>
+      <div class="stat-pill" style="min-width:160px;">
+        <div class="num" style="color:var(--green);">GHS 333K</div>
+        <div class="lbl">Implied Valuation</div>
+      </div>
+      <div class="stat-pill" style="min-width:160px;">
+        <div class="num">12 mo</div>
+        <div class="lbl">Runway</div>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:center; align-items:center; gap:40px; margin-bottom:32px; flex-wrap:wrap;">
+      <div class="donut-wrap">
+        <svg width="140" height="140" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="54" fill="none" stroke="rgba(55,65,81,.6)" stroke-width="16"/>
+          <!-- Investor slice: 15% = 0.15 * 339.3 = 50.9 -->
+          <circle cx="70" cy="70" r="54" fill="none" stroke="var(--gold)" stroke-width="16"
+                  stroke-dasharray="50.9 288.4" stroke-linecap="round"/>
+          <!-- Founder slice: 85% = 288.4 -->
+        </svg>
+        <div class="donut-label">15%<span>investors</span></div>
+      </div>
+      <div style="text-align:left;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <div style="width:12px; height:12px; border-radius:2px; background:var(--gold);"></div>
+          <span style="font-size:13px;"><strong>15%</strong> — Investors (this round)</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+          <div style="width:12px; height:12px; border-radius:2px; background:rgba(55,65,81,.8);"></div>
+          <span style="font-size:13px;"><strong>85%</strong> — Founders &amp; future pool</span>
+        </div>
+        <div style="font-size:12px; color:var(--muted); max-width:280px; line-height:1.6;">
+          Simple equity deal. No convertible note complexity. Pro-rata rights on the next round. Board observer seat for investments ≥ GHS 25K.
+        </div>
+      </div>
+    </div>
+
+    <div class="card-grid col3" style="max-width:680px; margin:0 auto;">
+      <div class="card" style="padding:16px; text-align:center;">
+        <div style="font-size:20px; margin-bottom:6px;">🤝</div>
+        <div style="font-size:12px; font-weight:700; margin-bottom:4px;">What You Get</div>
+        <div style="font-size:11px; color:var(--muted);">Equity stake, quarterly updates, early access to features, and co-investment rights</div>
+      </div>
+      <div class="card" style="padding:16px; text-align:center;">
+        <div style="font-size:20px; margin-bottom:6px;">📆</div>
+        <div style="font-size:12px; font-weight:700; margin-bottom:4px;">Timeline</div>
+        <div style="font-size:11px; color:var(--muted);">Closing this round before Term 3 2026 begins — funds deployed by Sept 2026</div>
+      </div>
+      <div class="card" style="padding:16px; text-align:center;">
+        <div style="font-size:20px; margin-bottom:6px;">📊</div>
+        <div style="font-size:12px; font-weight:700; margin-bottom:4px;">Exit Path</div>
+        <div style="font-size:11px; color:var(--muted);">Regional expansion → Series A → strategic acquisition by EdTech or fintech player</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════
+     SLIDE 16 — CLOSE
+════════════════════════════════════════════════════ -->
+<section class="slide slide-cover" data-index="15">
+  <div style="text-align:center; max-width:720px;">
+    <div class="flag-stripe" style="margin:0 auto 28px;">
+      <span class="r"></span><span class="g"></span><span class="gr"></span>
+    </div>
+
+    <div style="font-size:40px; font-weight:900; letter-spacing:-.03em; margin-bottom:4px;">
+      School<span style="color:var(--green);">MS</span>
+    </div>
+    <div class="eyebrow" style="margin-bottom:28px;">Ghana's School Management Platform</div>
+
+    <div class="headline" style="font-size:clamp(20px,3vw,38px); margin-bottom:20px; line-height:1.25;">
+      35,000 schools. <span class="accent">Zero</span> modern tools.<br>
+      Until <span class="gold">now.</span>
+    </div>
+
+    <p class="sub" style="text-align:center; margin:0 auto 36px; font-size:16px;">
+      Join us in digitising Ghana's schools — one headmaster, one term, one school at a time.
+    </p>
+
+    <div class="card" style="max-width:480px; margin:0 auto 32px; padding:24px 28px; text-align:left;">
+      <div class="eyebrow" style="margin-bottom:16px;">Get In Touch</div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; align-items:center; gap:12px; font-size:14px;">
+          <span style="font-size:18px;">📧</span>
+          <span style="color:var(--muted);">invest@schoolms.com.gh</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; font-size:14px;">
+          <span style="font-size:18px;">📱</span>
+          <span style="color:var(--muted);">+233 XX XXX XXXX</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; font-size:14px;">
+          <span style="font-size:18px;">🌐</span>
+          <span style="color:var(--green);">www.schoolms.com.gh</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; font-size:14px;">
+          <span style="font-size:18px;">📍</span>
+          <span style="color:var(--muted);">Accra, Ghana 🇬🇭</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <div class="badge badge-green" style="font-size:12px; padding:6px 14px;">✓ Live Demo Available</div>
+      <div class="badge badge-gold" style="font-size:12px; padding:6px 14px;">✓ Code on GitHub</div>
+      <div class="badge" style="background:rgba(255,255,255,.07); color:var(--muted); font-size:12px; padding:6px 14px;">✓ One-Pager on Request</div>
+    </div>
+  </div>
+</section>
+
+</div><!-- #deck -->
+
+<script>
+  const TOTAL = 16;
+  let current = 0;
+  let animating = false;
+
+  const slides  = document.querySelectorAll('.slide');
+  const dotsEl  = document.getElementById('dots');
+  const progEl  = document.getElementById('progress');
+  const countEl = document.getElementById('counter');
+
+  // Build dots
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  }
+
+  function render(next, prev) {
+    slides.forEach(s => {
+      s.classList.remove('active', 'exit-left');
+    });
+    if (prev !== undefined && prev !== next) {
+      slides[prev].classList.add('exit-left');
+    }
+    slides[next].classList.add('active');
+
+    dotsEl.querySelectorAll('.dot').forEach((d, i) => {
+      d.classList.toggle('active', i === next);
+    });
+
+    const pct = TOTAL > 1 ? ((next + 1) / TOTAL * 100) : 100;
+    progEl.style.width = pct + '%';
+    countEl.textContent = (next + 1) + ' / ' + TOTAL;
+  }
+
+  function goTo(idx) {
+    if (idx === current || animating) return;
+    animating = true;
+    const prev = current;
+    current = Math.max(0, Math.min(TOTAL - 1, idx));
+    render(current, prev);
+    setTimeout(() => { animating = false; }, 500);
+  }
+
+  function go(dir) { goTo(current + dir); }
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); go(1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); go(-1); }
+    if (e.key === 'Home') goTo(0);
+    if (e.key === 'End')  goTo(TOTAL - 1);
+  });
+
+  // Touch swipe
+  let touchX = null;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', e => {
+    if (touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+    touchX = null;
+  }, { passive: true });
+
+  // Click anywhere on slide to advance (except controls)
+  document.getElementById('deck').addEventListener('click', e => {
+    if (e.target.closest('#prev, #next, #dots, a, button')) return;
+    go(1);
+  });
+
+  render(0);
+</script>
+</body>
+</html>

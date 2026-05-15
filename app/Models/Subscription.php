@@ -6,22 +6,26 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+// SubscriptionPackage resolved via belongsTo — no explicit import needed (same namespace)
 
 class Subscription extends Model
 {
     protected $fillable = [
         'tenant_id', 'academic_year_id', 'term_id', 'plan_id',
+        'package_id', 'student_count', 'price_per_student',
         'amount', 'start_date', 'end_date', 'grace_ends_at',
         'status', 'is_trial', 'activated_at', 'locked_at',
     ];
 
     protected $casts = [
-        'start_date'    => 'date',
-        'end_date'      => 'date',
-        'grace_ends_at' => 'datetime',
-        'activated_at'  => 'datetime',
-        'locked_at'     => 'datetime',
-        'is_trial'      => 'boolean',
+        'start_date'       => 'date',
+        'end_date'         => 'date',
+        'grace_ends_at'    => 'datetime',
+        'activated_at'     => 'datetime',
+        'locked_at'        => 'datetime',
+        'is_trial'         => 'boolean',
+        'student_count'    => 'integer',
+        'price_per_student'=> 'decimal:2',
     ];
 
     // Status constants
@@ -35,6 +39,12 @@ class Subscription extends Model
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
+    }
+
+    /** @return BelongsTo<SubscriptionPackage, Subscription> */
+    public function package(): BelongsTo
+    {
+        return $this->belongsTo(SubscriptionPackage::class, 'package_id');
     }
 
     /** @return BelongsTo<AcademicTerm, Subscription> */

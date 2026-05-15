@@ -4,25 +4,7 @@
 @section('page-title', 'Settings')
 
 @section('content')
-{{-- Sub-navigation --}}
-<div class="flex gap-1 mb-6 border-b border-gray-200 -mt-2 flex-wrap">
-  <a href="{{ route('admin.settings.school') }}"
-     class="px-4 py-2 text-sm font-medium border-b-2 border-blue-600 text-blue-600">
-    School Profile
-  </a>
-  <a href="{{ route('admin.settings.grading') }}"
-     class="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700">
-    Grading
-  </a>
-  <a href="{{ route('admin.settings.website') }}"
-     class="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700">
-    Website
-  </a>
-  <a href="{{ route('admin.settings.account') }}"
-     class="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700">
-    Account
-  </a>
-</div>
+@include('admin.settings._nav')
 
 <div class="max-w-2xl">
   <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">

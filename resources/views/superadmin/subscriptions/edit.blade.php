@@ -25,7 +25,26 @@
       </div>
     @endif
 
-    <form method="POST" action="{{ route('superadmin.subscriptions.update', $subscription) }}" class="space-y-4">
+    @php
+      // Build a JS-safe map of package_id → {price, min} for Alpine auto-calc
+      $pkgMap = $packages->mapWithKeys(fn ($p) => [
+          $p->id => ['price' => (float)$p->price_per_student, 'min' => $p->min_students]
+      ])->toJson();
+    @endphp
+
+    <form method="POST" action="{{ route('superadmin.subscriptions.update', $subscription) }}" class="space-y-4"
+          x-data="{
+            packageId: '{{ old('package_id', $subscription->package_id ?? '') }}',
+            students:  {{ old('student_count', $studentCount) }},
+            manualAmount: {{ old('amount', $subscription->amount) }},
+            pkgMap: {{ $pkgMap }},
+            get pkg() { return this.pkgMap[this.packageId] ?? null; },
+            get calculatedAmount() {
+              if (! this.pkg) return this.manualAmount;
+              const billable = Math.max(this.students, this.pkg.min);
+              return (billable * this.pkg.price).toFixed(2);
+            }
+          }">
       @csrf @method('PUT')
 
       {{-- Status --}}
@@ -39,12 +58,38 @@
         </select>
       </div>
 
-      {{-- Plan --}}
+      {{-- Package (new per-student pricing) --}}
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Plan</label>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Pricing Package</label>
+        <select name="package_id" x-model="packageId"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+          <option value="">— None / Manual Amount —</option>
+          @foreach($packages as $pkg)
+            <option value="{{ $pkg->id }}">
+              {{ $pkg->name }} — {{ $pkg->priceLabel() }} (min {{ $pkg->min_students }} students)
+            </option>
+          @endforeach
+        </select>
+        <p class="mt-1 text-xs text-gray-400">Selecting a package auto-calculates the amount below.</p>
+      </div>
+
+      {{-- Student count (shown when package is selected) --}}
+      <div x-show="pkg" x-cloak>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Active Student Count</label>
+        <input type="number" name="student_count" x-model.number="students" min="0" max="99999"
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+        <p class="mt-1 text-xs text-gray-400" x-show="pkg">
+          Billable: <strong x-text="Math.max(students, pkg?.min ?? 0)"></strong>
+          (package minimum: <span x-text="pkg?.min"></span>)
+        </p>
+      </div>
+
+      {{-- Legacy plan (kept for old records) --}}
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Legacy Plan <span class="text-gray-400 font-normal">(old flat-rate)</span></label>
         <select name="plan_id"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
-          <option value="">— None / Custom —</option>
+          <option value="">— None —</option>
           @foreach($plans as $id => $plan)
             <option value="{{ $id }}" {{ old('plan_id', $subscription->plan_id) === $id ? 'selected' : '' }}>
               {{ ucfirst($id) }} — GHS {{ number_format($plan['amount'], 2) }}
@@ -53,12 +98,15 @@
         </select>
       </div>
 
-      {{-- Amount --}}
+      {{-- Amount (auto-filled when package chosen, manual otherwise) --}}
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Amount (GHS) *</label>
-        <input type="number" name="amount" step="0.01" min="0"
-               value="{{ old('amount', $subscription->amount) }}" required
+        <input type="number" name="amount" step="0.01" min="0" required
+               :value="calculatedAmount"
                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+        <p class="mt-1 text-xs text-gray-400" x-show="pkg">
+          Auto-calculated from package × student count. You can still override manually.
+        </p>
       </div>
 
       {{-- End Date --}}
