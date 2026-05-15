@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Website\LessonNotePortalController;
 use App\Http\Controllers\Website\ParentPortalController;
 use App\Http\Controllers\Website\TeacherPortalController;
 use App\Http\Controllers\Website\WebsiteController;
@@ -40,6 +41,26 @@ Route::prefix('teacher')->group(function () {
         Route::get('/remarks',       [TeacherPortalController::class, 'remarksIndex']) ->name('teacher.portal.remarks');
         Route::get('/remarks/edit',  [TeacherPortalController::class, 'remarksEdit'])  ->name('teacher.portal.remarks.edit');
         Route::put('/remarks',       [TeacherPortalController::class, 'remarksUpdate'])->name('teacher.portal.remarks.update');
+
+        // ── Lesson Notes ──────────────────────────────────────────────────────
+        Route::get   ('/lesson-notes',                              [LessonNotePortalController::class, 'notesIndex'])            ->name('teacher.portal.lesson-notes.index');
+        Route::get   ('/lesson-notes/create',                       [LessonNotePortalController::class, 'notesCreate'])           ->name('teacher.portal.lesson-notes.create');
+        Route::post  ('/lesson-notes',                              [LessonNotePortalController::class, 'notesStore'])            ->name('teacher.portal.lesson-notes.store');
+        Route::get   ('/lesson-notes/{id}',                         [LessonNotePortalController::class, 'notesShow'])             ->name('teacher.portal.lesson-notes.show');
+        Route::get   ('/lesson-notes/{id}/edit',                    [LessonNotePortalController::class, 'notesEdit'])             ->name('teacher.portal.lesson-notes.edit');
+        Route::put   ('/lesson-notes/{id}',                         [LessonNotePortalController::class, 'notesUpdate'])           ->name('teacher.portal.lesson-notes.update');
+        Route::post  ('/lesson-notes/{id}/submit',                  [LessonNotePortalController::class, 'notesSubmit'])           ->name('teacher.portal.lesson-notes.submit');
+        Route::delete('/lesson-notes/{id}',                         [LessonNotePortalController::class, 'notesDestroy'])          ->name('teacher.portal.lesson-notes.destroy');
+        Route::delete('/lesson-notes/{noteId}/attachments/{attId}', [LessonNotePortalController::class, 'notesDeleteAttachment']) ->name('teacher.portal.lesson-notes.attachment.destroy');
+
+        // ── Schemes of Work ───────────────────────────────────────────────────
+        Route::get   ('/schemes',          [LessonNotePortalController::class, 'schemesIndex'])   ->name('teacher.portal.schemes.index');
+        Route::get   ('/schemes/create',   [LessonNotePortalController::class, 'schemesCreate'])  ->name('teacher.portal.schemes.create');
+        Route::post  ('/schemes',          [LessonNotePortalController::class, 'schemesStore'])   ->name('teacher.portal.schemes.store');
+        Route::get   ('/schemes/{id}',     [LessonNotePortalController::class, 'schemesShow'])    ->name('teacher.portal.schemes.show');
+        Route::get   ('/schemes/{id}/edit',[LessonNotePortalController::class, 'schemesEdit'])    ->name('teacher.portal.schemes.edit');
+        Route::put   ('/schemes/{id}',     [LessonNotePortalController::class, 'schemesUpdate'])  ->name('teacher.portal.schemes.update');
+        Route::delete('/schemes/{id}',     [LessonNotePortalController::class, 'schemesDestroy']) ->name('teacher.portal.schemes.destroy');
     });
 });
 

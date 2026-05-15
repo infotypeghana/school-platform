@@ -6,7 +6,9 @@ use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\BiometricController;
 use App\Http\Controllers\Admin\AssessmentController;
+use App\Http\Controllers\Admin\CurriculumController;
 use App\Http\Controllers\Admin\ImportController;
+use App\Http\Controllers\Admin\LessonNoteController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\AttendanceController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -220,3 +222,20 @@ Route::post  ('/biometric/{device}/sync',                     [BiometricControll
 Route::get   ('/biometric/{device}/enroll',                   [BiometricController::class, 'enroll'])         ->name('admin.biometric.enroll');
 Route::post  ('/biometric/{device}/enroll',                   [BiometricController::class, 'storeEnrollment'])->name('admin.biometric.enroll.store');
 Route::delete('/biometric/enrollments/{enrollment}',          [BiometricController::class, 'destroyEnrollment'])->name('admin.biometric.enroll.destroy');
+
+// ── Lesson Notes (admin review) ───────────────────────────────────────────────
+Route::get  ('/lesson-notes',                      [LessonNoteController::class, 'index'])          ->name('admin.lesson-notes.index');
+Route::get  ('/lesson-notes/schemes',              [LessonNoteController::class, 'schemes'])         ->name('admin.lesson-notes.schemes');
+Route::get  ('/lesson-notes/schemes/{id}',         [LessonNoteController::class, 'schemeShow'])      ->name('admin.lesson-notes.scheme-show');
+Route::get  ('/lesson-notes/{id}',                 [LessonNoteController::class, 'show'])            ->name('admin.lesson-notes.show');
+Route::post ('/lesson-notes/{id}/approve',         [LessonNoteController::class, 'approve'])         ->name('admin.lesson-notes.approve');
+Route::post ('/lesson-notes/{id}/revision',        [LessonNoteController::class, 'requestRevision']) ->name('admin.lesson-notes.revision');
+
+// ── Curriculum Management ─────────────────────────────────────────────────────
+Route::get   ('/curriculum',                                [CurriculumController::class, 'index'])            ->name('admin.curriculum.index');
+Route::post  ('/curriculum/strands',                        [CurriculumController::class, 'storeStrand'])      ->name('admin.curriculum.strands.store');
+Route::put   ('/curriculum/strands/{id}',                   [CurriculumController::class, 'updateStrand'])     ->name('admin.curriculum.strands.update');
+Route::delete('/curriculum/strands/{id}',                   [CurriculumController::class, 'destroyStrand'])    ->name('admin.curriculum.strands.destroy');
+Route::post  ('/curriculum/sub-strands',                    [CurriculumController::class, 'storeSubStrand'])   ->name('admin.curriculum.sub-strands.store');
+Route::put   ('/curriculum/sub-strands/{id}',               [CurriculumController::class, 'updateSubStrand'])  ->name('admin.curriculum.sub-strands.update');
+Route::delete('/curriculum/sub-strands/{id}',               [CurriculumController::class, 'destroySubStrand']) ->name('admin.curriculum.sub-strands.destroy');

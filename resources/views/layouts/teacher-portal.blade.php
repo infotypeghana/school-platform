@@ -64,6 +64,16 @@
                         Remarks
                     </a>
                     @endif
+                    <a href="{{ route('teacher.portal.lesson-notes.index') }}"
+                       class="px-3 py-1.5 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors
+                              {{ request()->routeIs('teacher.portal.lesson-notes*') ? 'bg-blue-50 text-blue-700 font-medium' : '' }}">
+                        Lesson Notes
+                    </a>
+                    <a href="{{ route('teacher.portal.schemes.index') }}"
+                       class="px-3 py-1.5 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors
+                              {{ request()->routeIs('teacher.portal.schemes*') ? 'bg-blue-50 text-blue-700 font-medium' : '' }}">
+                        Schemes
+                    </a>
                 </div>
 
                 {{-- Teacher dropdown --}}
