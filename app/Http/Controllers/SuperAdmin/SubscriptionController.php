@@ -5,7 +5,9 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SuperAdmin\UpdateSubscriptionRequest;
 use App\Models\AcademicTerm;
+use App\Models\Student;
 use App\Models\Subscription;
+use App\Models\SubscriptionPackage;
 use App\Services\SubscriptionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -43,10 +45,22 @@ class SubscriptionController extends Controller
 
     public function edit(Subscription $subscription): View
     {
-        $terms = AcademicTerm::with('academicYear')->orderByDesc('id')->get();
-        $plans = config('billing.plans', []);
+        $terms    = AcademicTerm::with('academicYear')->orderByDesc('id')->get();
+        $plans    = config('billing.plans', []);
+        $packages = SubscriptionPackage::orderBy('sort_order')->get();
 
-        return view('superadmin.subscriptions.edit', compact('subscription', 'terms', 'plans'));
+        // Pre-compute student count for the tenant so the edit view can auto-fill
+        $studentCount = $subscription->student_count
+            ?? ($subscription->tenant_id
+                ? Student::withoutGlobalScopes()
+                    ->where('tenant_id', $subscription->tenant_id)
+                    ->where('status', 'active')
+                    ->count()
+                : 0);
+
+        return view('superadmin.subscriptions.edit', compact(
+            'subscription', 'terms', 'plans', 'packages', 'studentCount'
+        ));
     }
 
     public function update(UpdateSubscriptionRequest $request, Subscription $subscription): RedirectResponse

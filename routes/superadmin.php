@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\TwoFactorController;
+use App\Http\Controllers\SuperAdmin\PackageController;
 use App\Http\Controllers\SuperAdmin\PaymentController;
 use App\Http\Controllers\SuperAdmin\SubscriptionController;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +30,18 @@ Route::post('/subscriptions/{subscription}/extend-grace', [SubscriptionControlle
     ->name('superadmin.subscriptions.extend-grace');
 
 Route::get('/payments', [PaymentController::class, 'index'])->name('superadmin.payments');
+
+// ── Subscription Packages ─────────────────────────────────────────────────────
+Route::resource('/packages', PackageController::class)
+    ->names([
+        'index'   => 'superadmin.packages',
+        'create'  => 'superadmin.packages.create',
+        'store'   => 'superadmin.packages.store',
+        'edit'    => 'superadmin.packages.edit',
+        'update'  => 'superadmin.packages.update',
+        'destroy' => 'superadmin.packages.destroy',
+    ])
+    ->except(['show']);
 
 // ── Two-Factor Authentication ─────────────────────────────────────────────────
 Route::get ('/settings/2fa',         [TwoFactorController::class, 'showSetup'])    ->name('superadmin.2fa.setup');

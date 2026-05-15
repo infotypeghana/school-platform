@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateSchoolProfileRequest;
+use App\Models\AcademicTerm;
 use App\Services\GradeCalculator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -165,6 +166,41 @@ class SettingsController extends Controller
         $tenant->update(['website_content' => $merged]);
 
         return back()->with('success', 'Website content updated successfully.');
+    }
+
+    // ── Academic Calendar ─────────────────────────────────────────────────────
+
+    public function calendar(): View
+    {
+        $tenant = app('currentTenant');
+
+        // All terms grouped by academic year, newest year first
+        $years = \App\Models\AcademicYear::with(['terms' => fn ($q) => $q->orderBy('term_number')])
+            ->latest('id')
+            ->get();
+
+        $currentTermId = $tenant->current_term_id;
+
+        return view('admin.settings.calendar', compact('tenant', 'years', 'currentTermId'));
+    }
+
+    public function updateCalendar(Request $request): RedirectResponse
+    {
+        $tenant = app('currentTenant');
+
+        $data = $request->validate([
+            'current_term_id' => ['nullable', 'integer', 'exists:academic_terms,id'],
+        ]);
+
+        $tenant->update(['current_term_id' => $data['current_term_id'] ?: null]);
+
+        if ($data['current_term_id']) {
+            $term = AcademicTerm::with('academicYear')->find($data['current_term_id']);
+            $label = $term ? "{$term->term_name} — {$term->academicYear?->year_label}" : 'selected term';
+            return back()->with('success', "Active term set to {$label}.");
+        }
+
+        return back()->with('success', 'Calendar reset — will follow the global active term.');
     }
 
     // ── Account Settings ──────────────────────────────────────────────────────

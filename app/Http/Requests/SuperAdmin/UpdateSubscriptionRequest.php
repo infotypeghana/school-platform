@@ -16,18 +16,20 @@ class UpdateSubscriptionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status'        => ['required', Rule::in([
+            'status'            => ['required', Rule::in([
                 Subscription::STATUS_TRIAL,
                 Subscription::STATUS_ACTIVE,
                 Subscription::STATUS_GRACE,
                 Subscription::STATUS_LOCKED,
                 Subscription::STATUS_SUSPENDED,
             ])],
-            'plan_id'       => ['nullable', 'string', 'max:50'],
-            'amount'        => ['required', 'numeric', 'min:0'],
-            'end_date'      => ['required', 'date'],
-            'grace_ends_at' => ['nullable', 'date'],
-            'is_trial'      => ['nullable', 'boolean'],
+            'plan_id'           => ['nullable', 'string', 'max:50'],
+            'package_id'        => ['nullable', 'integer', 'exists:subscription_packages,id'],
+            'student_count'     => ['nullable', 'integer', 'min:0'],
+            'amount'            => ['required', 'numeric', 'min:0'],
+            'end_date'          => ['required', 'date'],
+            'grace_ends_at'     => ['nullable', 'date'],
+            'is_trial'          => ['nullable', 'boolean'],
         ];
     }
 }

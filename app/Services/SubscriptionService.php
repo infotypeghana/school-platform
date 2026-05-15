@@ -4,7 +4,9 @@ namespace App\Services;
 
 use App\Models\AcademicTerm;
 use App\Models\Payment;
+use App\Models\Student;
 use App\Models\Subscription;
+use App\Models\SubscriptionPackage;
 use App\Models\Tenant;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -41,7 +43,9 @@ class SubscriptionService
 
     public function createTrialSubscription(Tenant $tenant): Subscription
     {
-        $term = AcademicTerm::current();
+        // For trial creation there is no tenant in the container yet, so
+        // AcademicTerm::current() will use the global is_current flag — correct.
+        $term = AcademicTerm::where('is_current', true)->first();
 
         abort_unless($term !== null, 500, 'No current academic term configured.');
 
@@ -49,7 +53,7 @@ class SubscriptionService
             'tenant_id'       => $tenant->id,
             'academic_year_id'=> $term->academic_year_id,
             'term_id'         => $term->id,
-            'amount'          => 0,
+            'amount'          => 0,          // trials are always free
             'start_date'      => Carbon::today(),
             'end_date'        => $term->end_date,
             'grace_ends_at'   => $term->graceEndsAt(),
@@ -61,6 +65,27 @@ class SubscriptionService
         $this->flushCache($tenant);
 
         return $subscription;
+    }
+
+    /**
+     * Calculate the invoice amount for a tenant based on a package and their
+     * current active student count.  Respects the package's minimum-students floor.
+     */
+    public function calculateInvoiceAmount(Tenant $tenant, SubscriptionPackage $package): array
+    {
+        $studentCount = Student::withoutGlobalScopes()
+            ->where('tenant_id', $tenant->id)
+            ->where('status', 'active')
+            ->count();
+
+        $amount = $package->calculateAmount($studentCount);
+
+        return [
+            'student_count'     => $studentCount,
+            'billable_students' => max($studentCount, $package->min_students),
+            'price_per_student' => (float) $package->price_per_student,
+            'amount'            => $amount,
+        ];
     }
 
     public function activateFromPayment(Payment $payment): void

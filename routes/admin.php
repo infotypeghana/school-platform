@@ -46,6 +46,8 @@ Route::get   ('/settings/website',          [SettingsController::class, 'website
 Route::put   ('/settings/website',          [SettingsController::class, 'updateWebsiteContent']) ->name('admin.settings.website.update');
 Route::get   ('/settings/account',          [SettingsController::class, 'account'])        ->name('admin.settings.account');
 Route::put   ('/settings/account',          [SettingsController::class, 'updateAccount'])  ->name('admin.settings.account.update');
+Route::get   ('/settings/calendar',         [SettingsController::class, 'calendar'])       ->name('admin.settings.calendar');
+Route::put   ('/settings/calendar',         [SettingsController::class, 'updateCalendar']) ->name('admin.settings.calendar.update');
 
 // ── Backup / Full Data Export ─────────────────────────────────────────────────
 Route::get ('/backup',                   [BackupController::class, 'index'])    ->name('admin.backup.index');
