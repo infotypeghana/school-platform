@@ -17,38 +17,53 @@ class WebsiteController extends Controller
 {
     public function home(): View
     {
-        return view('website.home');
+        $tenant = app('currentTenant');
+        $wc     = $tenant?->website_content ?? [];
+        return view('website.home', compact('tenant', 'wc'));
     }
 
     public function about(): View
     {
-        return view('website.about');
+        $tenant = app('currentTenant');
+        $wc     = $tenant?->website_content ?? [];
+        return view('website.about', compact('tenant', 'wc'));
     }
 
     public function academics(): View
     {
-        return view('website.academics');
+        $tenant = app('currentTenant');
+        $wc     = $tenant?->website_content ?? [];
+        return view('website.academics', compact('tenant', 'wc'));
     }
 
     public function news(): View
     {
-        return view('website.news');
+        $tenant = app('currentTenant');
+        $wc     = $tenant?->website_content ?? [];
+        return view('website.news', compact('tenant', 'wc'));
     }
 
     public function gallery(): View
     {
-        return view('website.gallery');
+        $tenant        = app('currentTenant');
+        $wc            = $tenant?->website_content ?? [];
+        $galleryImages = $wc['gallery_images'] ?? [];
+        return view('website.gallery', compact('tenant', 'wc', 'galleryImages'));
     }
 
     public function contact(): View
     {
-        return view('website.contact');
+        $tenant = app('currentTenant');
+        $wc     = $tenant?->website_content ?? [];
+        return view('website.contact', compact('tenant', 'wc'));
     }
 
     public function admissions(): View
     {
-        $term = AcademicTerm::current();
-        return view('website.admissions', compact('term'));
+        $tenant = app('currentTenant');
+        $wc     = $tenant?->website_content ?? [];
+        $term   = AcademicTerm::current();
+        return view('website.admissions', compact('tenant', 'wc', 'term'));
     }
 
     /**

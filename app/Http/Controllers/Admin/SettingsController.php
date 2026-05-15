@@ -109,6 +109,64 @@ class SettingsController extends Controller
         return back()->with('success', 'Grading settings reset to the GES standard scale.');
     }
 
+    // ── Website Content ───────────────────────────────────────────────────────
+
+    public function websiteContent(): View
+    {
+        $tenant = app('currentTenant');
+        return view('admin.settings.website', compact('tenant'));
+    }
+
+    public function updateWebsiteContent(Request $request): RedirectResponse
+    {
+        $tenant = app('currentTenant');
+
+        $data = $request->validate([
+            'hero_tagline'      => 'nullable|string|max:150',
+            'hero_subtitle'     => 'nullable|string|max:300',
+            'established_year'  => 'nullable|string|max:10',
+            'stats_students'    => 'nullable|string|max:20',
+            'stats_staff'       => 'nullable|string|max:20',
+            'stats_classes'     => 'nullable|string|max:20',
+            'stats_bece_rate'   => 'nullable|string|max:10',
+            'about_intro'       => 'nullable|string|max:2000',
+            'mission'           => 'nullable|string|max:1000',
+            'vision'            => 'nullable|string|max:1000',
+            'admissions_open'   => 'nullable|boolean',
+            'admissions_note'   => 'nullable|string|max:500',
+            'footer_tagline'    => 'nullable|string|max:200',
+        ]);
+
+        // Merge new values with existing so un-submitted fields aren't lost
+        $existing = $tenant->website_content ?? [];
+        $merged   = array_merge($existing, array_filter($data, fn ($v) => $v !== null));
+        $merged['admissions_open'] = $request->boolean('admissions_open');
+
+        // Handle gallery image uploads
+        $gallery = $existing['gallery_images'] ?? [];
+        if ($request->hasFile('gallery_images')) {
+            foreach ($request->file('gallery_images') as $file) {
+                $path    = $file->store('gallery', 'public');
+                $gallery[] = $path;
+            }
+        }
+
+        // Handle gallery image removals
+        $remove = $request->input('remove_gallery', []);
+        if (!empty($remove)) {
+            foreach ($remove as $path) {
+                Storage::disk('public')->delete($path);
+            }
+            $gallery = array_values(array_filter($gallery, fn ($p) => !in_array($p, $remove)));
+        }
+
+        $merged['gallery_images'] = $gallery;
+
+        $tenant->update(['website_content' => $merged]);
+
+        return back()->with('success', 'Website content updated successfully.');
+    }
+
     // ── Account Settings ──────────────────────────────────────────────────────
 
     public function account(): View
