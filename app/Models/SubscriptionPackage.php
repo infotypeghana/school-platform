@@ -24,7 +24,6 @@ class SubscriptionPackage extends Model
 
     // ── Relationships ─────────────────────────────────────────────────────────
 
-    /** @return HasMany<Subscription, SubscriptionPackage> */
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class, 'package_id');
