@@ -109,7 +109,7 @@ class FeedingController extends Controller
 
         $selectedTermId  = $request->integer('term_id', $currentTerm?->id ?? 0);
         $selectedClassId = $request->integer('class_id');
-        $selectedStatus  = $request->string('status');
+        $selectedStatus  = (string) $request->input('status', '');
 
         $query = FeedingFee::with(['student', 'schoolClass', 'term'])
             ->where('term_id', $selectedTermId);
