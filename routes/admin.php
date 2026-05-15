@@ -39,6 +39,8 @@ Route::put   ('/settings',                  [SettingsController::class, 'updateS
 Route::get   ('/settings/grading',          [SettingsController::class, 'grading'])        ->name('admin.settings.grading');
 Route::put   ('/settings/grading',          [SettingsController::class, 'updateGrading'])  ->name('admin.settings.grading.update');
 Route::delete('/settings/grading/reset',    [SettingsController::class, 'resetGrading'])   ->name('admin.settings.grading.reset');
+Route::get   ('/settings/website',          [SettingsController::class, 'websiteContent'])       ->name('admin.settings.website');
+Route::put   ('/settings/website',          [SettingsController::class, 'updateWebsiteContent']) ->name('admin.settings.website.update');
 Route::get   ('/settings/account',          [SettingsController::class, 'account'])        ->name('admin.settings.account');
 Route::put   ('/settings/account',          [SettingsController::class, 'updateAccount'])  ->name('admin.settings.account.update');
 

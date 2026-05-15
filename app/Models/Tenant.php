@@ -14,13 +14,22 @@ class Tenant extends Model
     protected $fillable = [
         'uuid', 'slug', 'name', 'logo', 'address', 'phone', 'email',
         'domain', 'status', 'trial_ends_at', 'primary_color',
-        'contact_phone', 'contact_email', 'grading_settings',
+        'contact_phone', 'contact_email', 'grading_settings', 'website_content',
     ];
 
     protected $casts = [
-        'trial_ends_at'    => 'datetime',
+        'trial_ends_at'   => 'datetime',
         'grading_settings' => 'array',
+        'website_content'  => 'array',
     ];
+
+    /**
+     * Get a website_content field with a fallback default.
+     */
+    public function wc(string $key, mixed $default = ''): mixed
+    {
+        return $this->website_content[$key] ?? $default;
+    }
 
     public function subscriptions(): HasMany
     {
