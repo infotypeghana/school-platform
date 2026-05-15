@@ -89,6 +89,11 @@ class Student extends Model
         return $this->hasMany(FeedingFee::class);
     }
 
+    public function promotions(): HasMany
+    {
+        return $this->hasMany(Promotion::class)->orderBy('created_at');
+    }
+
     public function getFullNameAttribute(): string
     {
         return "{$this->first_name} {$this->last_name}";

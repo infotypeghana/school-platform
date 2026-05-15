@@ -168,6 +168,36 @@
       @endif
     </div>
 
+    {{-- Promotion History --}}
+    @if($student->promotions->isNotEmpty())
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-700">Class History</h3>
+        <span class="text-xs text-gray-400">{{ $student->promotions->count() }} record(s)</span>
+      </div>
+      <div class="divide-y divide-gray-50">
+        @foreach($student->promotions as $p)
+        <div class="px-5 py-3 flex items-center justify-between gap-3">
+          <div>
+            <p class="text-sm text-gray-800">{{ $p->movementLabel() }}</p>
+            <p class="text-xs text-gray-400">
+              {{ $p->academicYear?->year_label ?? '—' }}
+              @if($p->promotedBy) · by {{ $p->promotedBy->name }} @endif
+              · {{ $p->created_at->format('d M Y') }}
+            </p>
+            @if($p->notes)
+              <p class="text-xs text-gray-500 italic mt-0.5">{{ $p->notes }}</p>
+            @endif
+          </div>
+          <span class="flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $p->actionBadgeClass() }}">
+            {{ $p->actionLabel() }}
+          </span>
+        </div>
+        @endforeach
+      </div>
+    </div>
+    @endif
+
     {{-- Fees --}}
     <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
       <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">

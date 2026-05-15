@@ -62,6 +62,7 @@ Route::post('/settings/2fa/disable',   [TwoFactorController::class, 'disable']) 
 Route::get ('/students/promotion',         [PromotionController::class, 'index'])   ->name('admin.promotion');
 Route::post('/students/promotion/preview', [PromotionController::class, 'preview']) ->name('admin.promotion.preview');
 Route::post('/students/promotion/execute', [PromotionController::class, 'execute']) ->name('admin.promotion.execute');
+Route::get ('/students/promotion/history', [PromotionController::class, 'history']) ->name('admin.promotion.history');
 
 // ── Students ─────────────────────────────────────────────────────────────────
 Route::get   ('/students',                        [StudentController::class, 'index'])          ->name('admin.students');
