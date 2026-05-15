@@ -26,11 +26,13 @@ class Payment extends Model
     const GATEWAY_PAYSTACK = 'paystack';
     const GATEWAY_MOOLRE   = 'moolre';
 
+    /** @return BelongsTo<Tenant, Payment> */
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
     }
 
+    /** @return BelongsTo<Subscription, Payment> */
     public function subscription(): BelongsTo
     {
         return $this->belongsTo(Subscription::class);

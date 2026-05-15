@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Webhooks;
 
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
+use App\Models\Subscription;
 use App\Models\Tenant;
 use App\Notifications\SubscriptionExpiryNotification;
 use App\Services\SubscriptionService;
@@ -62,7 +63,7 @@ class PaystackWebhookController extends Controller
         try {
             $tenant       = $payment->tenant;
             $subscription = $payment->subscription;
-            if ($tenant && $subscription) {
+            if ($tenant instanceof Tenant && $subscription instanceof Subscription) {
                 $tenant->notify(new SubscriptionExpiryNotification($subscription, 'payment_confirmed'));
             }
         } catch (\Throwable $e) {

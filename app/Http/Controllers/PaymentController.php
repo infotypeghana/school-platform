@@ -27,7 +27,7 @@ class PaymentController extends Controller
         $tenant       = Tenant::where('slug', $slug)->firstOrFail();
         $subscription = $this->subscriptionService->getCurrentSubscription($tenant);
 
-        abort_unless($subscription, 404, 'No active subscription found for this school.');
+        abort_unless($subscription !== null, 404, 'No active subscription found for this school.');
 
         // Don't create duplicate pending payments for the same subscription
         $payment = Payment::where('subscription_id', $subscription->id)

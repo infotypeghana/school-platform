@@ -31,11 +31,13 @@ class Subscription extends Model
     const STATUS_LOCKED  = 'locked';
     const STATUS_SUSPENDED = 'suspended';
 
+    /** @return BelongsTo<Tenant, Subscription> */
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
     }
 
+    /** @return BelongsTo<AcademicTerm, Subscription> */
     public function term(): BelongsTo
     {
         return $this->belongsTo(AcademicTerm::class, 'term_id');

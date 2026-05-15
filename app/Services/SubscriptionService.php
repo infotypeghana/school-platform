@@ -43,7 +43,7 @@ class SubscriptionService
     {
         $term = AcademicTerm::current();
 
-        abort_unless($term, 500, 'No current academic term configured.');
+        abort_unless($term !== null, 500, 'No current academic term configured.');
 
         $subscription = Subscription::create([
             'tenant_id'       => $tenant->id,
@@ -93,8 +93,9 @@ class SubscriptionService
             ->whereHas('term', fn ($q) => $q->whereDate('end_date', '<', Carbon::today()))
             ->each(function (Subscription $sub) use (&$count) {
                 $sub->transitionToGrace();
-                if ($sub->tenant) {
-                    $this->flushCache($sub->tenant);
+                $tenant = $sub->tenant;
+                if ($tenant) {
+                    $this->flushCache($tenant);
                 }
                 $count++;
 
@@ -115,8 +116,9 @@ class SubscriptionService
             ->where('grace_ends_at', '<', now())
             ->each(function (Subscription $sub) use (&$count) {
                 $sub->transitionToLocked();
-                if ($sub->tenant) {
-                    $this->flushCache($sub->tenant);
+                $tenant = $sub->tenant;
+                if ($tenant) {
+                    $this->flushCache($tenant);
                 }
                 $count++;
 

@@ -121,7 +121,7 @@ class FeeController extends Controller
 
         // Auto-assign receipt number on first payment
         if (! $fee->receipt_number) {
-            $updates['receipt_number'] = 'RCT-' . now()->format('Ymd') . '-' . str_pad($fee->id, 5, '0', STR_PAD_LEFT);
+            $updates['receipt_number'] = 'RCT-' . now()->format('Ymd') . '-' . str_pad((string) $fee->id, 5, '0', STR_PAD_LEFT);
         }
 
         $fee->update($updates);
@@ -173,7 +173,7 @@ class FeeController extends Controller
         // Ensure receipt number exists
         if (! $fee->receipt_number) {
             $fee->update([
-                'receipt_number' => 'RCT-' . now()->format('Ymd') . '-' . str_pad($fee->id, 5, '0', STR_PAD_LEFT),
+                'receipt_number' => 'RCT-' . now()->format('Ymd') . '-' . str_pad((string) $fee->id, 5, '0', STR_PAD_LEFT),
             ]);
             $fee->refresh();
         }

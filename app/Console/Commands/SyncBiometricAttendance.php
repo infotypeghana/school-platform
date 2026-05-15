@@ -35,6 +35,7 @@ class SyncBiometricAttendance extends Command
             $query->where('id', $deviceId);
         }
 
+        /** @var \Illuminate\Database\Eloquent\Collection<int, BiometricDevice> $devices */
         $devices = $query->get();
 
         if ($devices->isEmpty()) {
