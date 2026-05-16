@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Notifications\SchoolApprovedNotification;
+use App\Notifications\SchoolRegistrationVerifyEmail;
 use App\Services\SubscriptionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
@@ -16,6 +18,9 @@ use Illuminate\View\View;
 
 class TenantRegistrationController extends Controller
 {
+    /** How long the pending-verification cache entry lives (minutes). */
+    private const VERIFY_TTL = 60;
+
     // ── Show registration form ────────────────────────────────────────────────
 
     public function showForm(): View
@@ -25,6 +30,13 @@ class TenantRegistrationController extends Controller
 
     // ── Handle form submission ────────────────────────────────────────────────
 
+    /**
+     * Phase 1 — Validate and send verification email.
+     *
+     * The tenant record is NOT created yet.  The validated data is stored in
+     * the cache against a random token and a verification link is emailed to
+     * contact_email.  This prevents junk registrations with fake addresses.
+     */
     public function submit(Request $request): RedirectResponse
     {
         $data = $request->validate([
@@ -38,8 +50,55 @@ class TenantRegistrationController extends Controller
             'address'            => ['nullable', 'string', 'max:255'],
         ]);
 
-        $slug  = Str::slug($data['school_name']) . '-' . Str::random(4);
+        // Store validated data in cache keyed by a one-time token
         $token = Str::random(64);
+        Cache::put("school_reg:{$token}", $data, now()->addMinutes(self::VERIFY_TTL));
+
+        // Build the verification URL and send the email via an on-demand notification
+        // (no User model required — the recipient is just an email address at this stage)
+        $verifyUrl = route('register.school.verify', ['token' => $token]);
+
+        Notification::route('mail', $data['contact_email'])
+            ->notify(new SchoolRegistrationVerifyEmail(
+                $data['contact_name'],
+                $data['school_name'],
+                $verifyUrl,
+            ));
+
+        return redirect()->route('register.school.check-email');
+    }
+
+    // ── Check-email page (shown after form submit) ─────────────────────────────
+
+    public function checkEmail(): View
+    {
+        return view('auth.register-school-check-email');
+    }
+
+    // ── Phase 2 — Verify email and create pending tenant ──────────────────────
+
+    /**
+     * GET /register/school/verify/{token}
+     *
+     * Retrieves the cached registration data, creates the pending Tenant, and
+     * notifies super admins — only once the applicant has clicked their link.
+     */
+    public function verify(string $token): RedirectResponse|View
+    {
+        $data = Cache::pull("school_reg:{$token}");
+
+        if (! $data) {
+            // Token expired or already used
+            return view('auth.register-school-verify-expired');
+        }
+
+        // Guard against duplicate submissions (e.g. link clicked twice)
+        if (Tenant::where('contact_email', $data['contact_email'])->exists()) {
+            return redirect()->route('register.school.done');
+        }
+
+        $slug   = Str::slug($data['school_name']) . '-' . Str::random(4);
+        $regToken = Str::random(64);
 
         $tenant = Tenant::create([
             'name'               => $data['school_name'],
@@ -56,10 +115,10 @@ class TenantRegistrationController extends Controller
             'phone'              => $data['contact_phone'],
             'status'             => 'pending',
             'registered_at'      => now(),
-            'registration_token' => $token,
+            'registration_token' => $regToken,
         ]);
 
-        // Notify all super admins about the new registration
+        // Notify all super admins about the verified registration
         $superAdmins = User::where('role', 'super_admin')->get();
         Notification::send($superAdmins, new \App\Notifications\NewSchoolRegistrationNotification($tenant));
 

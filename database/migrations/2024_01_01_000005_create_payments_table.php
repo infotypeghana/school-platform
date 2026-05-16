@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tenant_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('subscription_id')->constrained();
+            $table->foreignId('subscription_id')->nullable()->constrained()->nullOnDelete();
             $table->decimal('amount', 10, 2);
             $table->string('currency', 3)->default('GHS');
             $table->enum('gateway', ['paystack', 'moolre']);

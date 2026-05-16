@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Jobs\SendSmsJob;
 use App\Models\Attendance;
 use App\Models\Fee;
 use App\Models\SchoolClass;
@@ -9,6 +10,7 @@ use App\Models\SmsLog;
 use App\Models\Student;
 use App\Services\SmsService;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 
 class SmsTest extends AdminTestCase
 {
@@ -132,6 +134,151 @@ class SmsTest extends AdminTestCase
         ]);
 
         $this->assertSame($before, SmsLog::count());
+    }
+
+    // ── Broadcast ─────────────────────────────────────────────────────────────
+
+    public function test_broadcast_requires_audience_message_and_channel(): void
+    {
+        $this->asAdmin()->post('/sms/broadcast', [])
+            ->assertSessionHasErrors(['audience', 'message', 'channel']);
+    }
+
+    public function test_broadcast_all_parents_dispatches_one_job_per_guardian(): void
+    {
+        Queue::fake();
+
+        $class = SchoolClass::factory()->create(['tenant_id' => $this->tenant->id]);
+
+        Student::factory()->create([
+            'tenant_id'       => $this->tenant->id,
+            'school_class_id' => $class->id,
+            'guardian_phone'  => '0241111111',
+            'status'          => 'active',
+        ]);
+        Student::factory()->create([
+            'tenant_id'       => $this->tenant->id,
+            'school_class_id' => $class->id,
+            'guardian_phone'  => '0242222222',
+            'status'          => 'active',
+        ]);
+
+        $this->asAdmin()->post('/sms/broadcast', [
+            'audience' => 'all_parents',
+            'message'  => 'School resumes Monday. Please ensure fees are paid.',
+            'channel'  => 'sms',
+        ])->assertRedirect()->assertSessionHas('success');
+
+        Queue::assertPushed(SendSmsJob::class, 2);
+    }
+
+    public function test_broadcast_deduplicates_same_phone_number(): void
+    {
+        Queue::fake();
+
+        $class = SchoolClass::factory()->create(['tenant_id' => $this->tenant->id]);
+
+        // Two students sharing the same guardian phone
+        Student::factory()->count(2)->create([
+            'tenant_id'       => $this->tenant->id,
+            'school_class_id' => $class->id,
+            'guardian_phone'  => '0243333333',
+            'status'          => 'active',
+        ]);
+
+        $this->asAdmin()->post('/sms/broadcast', [
+            'audience' => 'all_parents',
+            'message'  => 'Reminder: PTA meeting tomorrow at 9am.',
+            'channel'  => 'sms',
+        ]);
+
+        // Only one job dispatched despite two students
+        Queue::assertPushed(SendSmsJob::class, 1);
+    }
+
+    public function test_broadcast_class_audience_only_targets_that_class(): void
+    {
+        Queue::fake();
+
+        $classA = SchoolClass::factory()->create(['tenant_id' => $this->tenant->id]);
+        $classB = SchoolClass::factory()->create(['tenant_id' => $this->tenant->id]);
+
+        Student::factory()->create([
+            'tenant_id'       => $this->tenant->id,
+            'school_class_id' => $classA->id,
+            'guardian_phone'  => '0244444444',
+            'status'          => 'active',
+        ]);
+        Student::factory()->create([
+            'tenant_id'       => $this->tenant->id,
+            'school_class_id' => $classB->id,
+            'guardian_phone'  => '0245555555',
+            'status'          => 'active',
+        ]);
+
+        $this->asAdmin()->post('/sms/broadcast', [
+            'audience' => "class:{$classA->id}",
+            'message'  => 'Basic 4 outing trip is tomorrow.',
+            'channel'  => 'sms',
+        ]);
+
+        // Only one job for classA's guardian
+        Queue::assertPushed(SendSmsJob::class, 1);
+    }
+
+    public function test_broadcast_returns_error_when_no_recipients_found(): void
+    {
+        Queue::fake();
+
+        // No students in the database → no phones
+        $this->asAdmin()->post('/sms/broadcast', [
+            'audience' => 'all_parents',
+            'message'  => 'Hello parents.',
+            'channel'  => 'sms',
+        ])->assertRedirect()->assertSessionHas('error');
+
+        Queue::assertNothingPushed();
+    }
+
+    public function test_broadcast_overdue_fees_targets_correct_students(): void
+    {
+        Queue::fake();
+
+        $class = SchoolClass::factory()->create(['tenant_id' => $this->tenant->id]);
+
+        $studentOwing = Student::factory()->create([
+            'tenant_id'       => $this->tenant->id,
+            'school_class_id' => $class->id,
+            'guardian_phone'  => '0246666666',
+            'status'          => 'active',
+        ]);
+        $studentClear = Student::factory()->create([
+            'tenant_id'       => $this->tenant->id,
+            'school_class_id' => $class->id,
+            'guardian_phone'  => '0247777777',
+            'status'          => 'active',
+        ]);
+
+        // Only the first student has an outstanding balance
+        Fee::create([
+            'tenant_id'   => $this->tenant->id,
+            'student_id'  => $studentOwing->id,
+            'term_id'     => $this->term->id,
+            'fee_type'    => 'Tuition',
+            'amount'      => 300,
+            'amount_paid' => 0,
+            'balance'     => 300,
+            'status'      => 'unpaid',
+            'due_date'    => now()->addDays(7)->toDateString(),
+        ]);
+
+        $this->asAdmin()->post('/sms/broadcast', [
+            'audience' => 'overdue_fees',
+            'message'  => 'Reminder: Please clear your ward\'s outstanding fees.',
+            'channel'  => 'sms',
+        ]);
+
+        Queue::assertPushed(SendSmsJob::class, 1);
     }
 
     // ── Phone normalisation ───────────────────────────────────────────────────

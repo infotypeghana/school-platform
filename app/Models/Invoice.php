@@ -115,15 +115,24 @@ class Invoice extends Model
 
     /**
      * Generate the next sequential invoice number for the current year.
-     * Must be called inside a DB transaction to be race-condition safe.
+     *
+     * MUST be called inside a DB transaction (InvoiceService wraps this).
+     * The pessimistic lock (SELECT … FOR UPDATE / LOCK IN SHARE MODE) ensures
+     * that concurrent transactions serialise on the max-row read, preventing
+     * two invoices from receiving the same number under high concurrency.
+     *
+     * SQLite does not support FOR UPDATE; lockForUpdate() falls back to a
+     * plain SELECT there (acceptable in tests / single-process dev).
      */
     public static function nextNumber(): string
     {
         $year   = now()->year;
         $prefix = "INV-{$year}-";
 
+        // Lock the latest matching row so concurrent transactions must wait.
         $max = (int) DB::table('invoices')
             ->where('invoice_number', 'like', $prefix . '%')
+            ->lockForUpdate()
             ->max(DB::raw('CAST(SUBSTR(invoice_number, ' . (strlen($prefix) + 1) . ') AS UNSIGNED)'));
 
         return $prefix . str_pad($max + 1, 4, '0', STR_PAD_LEFT);
