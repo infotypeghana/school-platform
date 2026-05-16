@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Media & Private Disk
+    |--------------------------------------------------------------------------
+    | media_disk  — used for public assets (logos, images). Set to "s3" in
+    |               production; files must be publicly readable.
+    | private_disk — used for internal files (exports, backups). Set to "s3"
+    |               in production with private bucket ACL.
+    */
+    'media_disk'   => env('MEDIA_DISK', 'public'),
+    'private_disk' => env('PRIVATE_DISK', 'local'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |

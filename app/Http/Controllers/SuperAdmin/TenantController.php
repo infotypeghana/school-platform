@@ -30,9 +30,10 @@ class TenantController extends Controller
     {
         $data = $request->validated();
 
+        $disk     = config('filesystems.media_disk', 'public');
         $logoPath = null;
         if ($request->hasFile('logo')) {
-            $logoPath = $request->file('logo')->store('logos', 'public');
+            $logoPath = $request->file('logo')->store('logos', $disk);
         }
 
         $tenant = Tenant::create([
@@ -67,19 +68,20 @@ class TenantController extends Controller
     {
         $data = $request->validated();
 
+        $disk = config('filesystems.media_disk', 'public');
+
         // Handle logo removal
         if ($request->boolean('remove_logo') && $tenant->logo) {
-            Storage::disk('public')->delete($tenant->logo);
+            Storage::disk($disk)->delete($tenant->logo);
             $data['logo'] = null;
         }
 
         // Handle logo upload
         if ($request->hasFile('logo')) {
-            // Delete old logo first
             if ($tenant->logo) {
-                Storage::disk('public')->delete($tenant->logo);
+                Storage::disk($disk)->delete($tenant->logo);
             }
-            $data['logo'] = $request->file('logo')->store('logos', 'public');
+            $data['logo'] = $request->file('logo')->store('logos', $disk);
         }
 
         $tenant->update([
@@ -97,7 +99,7 @@ class TenantController extends Controller
     {
         // Delete logo from storage before removing tenant
         if ($tenant->logo) {
-            Storage::disk('public')->delete($tenant->logo);
+            Storage::disk(config('filesystems.media_disk', 'public'))->delete($tenant->logo);
         }
 
         $tenant->delete();

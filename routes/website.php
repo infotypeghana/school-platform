@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FeePaymentController;
 use App\Http\Controllers\Website\LessonNotePortalController;
 use App\Http\Controllers\Website\ParentPortalController;
 use App\Http\Controllers\Website\TeacherPortalController;
@@ -23,6 +24,12 @@ Route::get ('/portal/dashboard',      [ParentPortalController::class, 'dashboard
 Route::post('/portal/switch-ward',    [ParentPortalController::class, 'switchWard'])   ->name('website.portal.switch-ward');
 Route::get ('/portal/add-ward',       [ParentPortalController::class, 'addWardForm'])  ->name('website.portal.add-ward');
 Route::post('/portal/logout',         [ParentPortalController::class, 'logout'])       ->name('website.portal.logout');
+
+// ── Online fee payment (parent portal → gateway → callback) ──────────────────
+Route::post('/portal/fees/{fee}/pay',        [FeePaymentController::class, 'initiate'])        ->name('fee.payment.initiate')
+    ->middleware('throttle:10,1');
+Route::get ('/payment/fee/callback/paystack',[FeePaymentController::class, 'paystackCallback'])->name('fee.payment.callback.paystack');
+Route::get ('/payment/fee/callback/moolre',  [FeePaymentController::class, 'moolreCallback'])  ->name('fee.payment.callback.moolre');
 
 // ── Teacher Portal ───────────────────────────────────────────────────────────
 Route::prefix('teacher')->group(function () {

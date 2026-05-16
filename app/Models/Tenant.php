@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 class Tenant extends Model
 {
@@ -15,14 +16,20 @@ class Tenant extends Model
     protected $fillable = [
         'uuid', 'slug', 'name', 'logo', 'address', 'phone', 'email',
         'domain', 'status', 'trial_ends_at', 'primary_color',
-        'contact_phone', 'contact_email', 'grading_settings', 'website_content',
+        'contact_phone', 'contact_email', 'contact_name',
+        'school_type', 'district', 'estimated_students',
+        'grading_settings', 'website_content',
         'current_term_id',
+        'registered_at', 'approved_at', 'approved_by', 'registration_token',
     ];
 
     protected $casts = [
-        'trial_ends_at'    => 'datetime',
-        'grading_settings' => 'array',
-        'website_content'  => 'array',
+        'trial_ends_at'      => 'datetime',
+        'registered_at'      => 'datetime',
+        'approved_at'        => 'datetime',
+        'estimated_students' => 'integer',
+        'grading_settings'   => 'array',
+        'website_content'    => 'array',
     ];
 
     /**
@@ -88,6 +95,11 @@ class Tenant extends Model
         return $this->hasMany(Payment::class);
     }
 
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
     public function isActive(): bool
     {
         return in_array($this->status, ['active', 'trial']);
@@ -107,6 +119,18 @@ class Tenant extends Model
     {
         $sub = $this->currentSubscription();
         return $sub ? $sub->status : 'none';
+    }
+
+    /**
+     * Public URL for the school logo, regardless of which disk it lives on.
+     */
+    public function logoUrl(): ?string
+    {
+        if (! $this->logo) {
+            return null;
+        }
+        $disk = config('filesystems.media_disk', 'public');
+        return Storage::disk($disk)->url($this->logo);
     }
 
     /**
