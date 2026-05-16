@@ -21,8 +21,11 @@ phpstan.neon
 *.DS_Store
 Thumbs.db
 
-# Docker source (not needed inside image)
-docker
+# Docker compose and Dockerfile itself (not needed in image)
+# NOTE: docker/ directory is intentionally NOT excluded here —
+# the Dockerfile COPYs docker/php/php.ini and docker/php/php-fpm.conf
+# into the image during the build stage. The docker/ directory is then
+# removed inside the image via `RUN rm -rf docker` in the production stage.
 docker-compose*.yml
 Dockerfile
 
