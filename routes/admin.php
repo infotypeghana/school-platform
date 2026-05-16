@@ -186,8 +186,10 @@ Route::delete('/timetables/{timetable}',                 [TimetableController::c
 Route::get   ('/timetables/subjects/{schoolClass}',      [TimetableController::class, 'subjectsForClass'])->name('admin.timetables.subjects');
 
 // ── SMS / WhatsApp ─────────────────────────────────────────────────────────────
-Route::get ('/sms',      [SmsController::class, 'index'])->name('admin.sms.index');
-Route::post('/sms/send', [SmsController::class, 'send']) ->name('admin.sms.send');
+Route::get ('/sms',               [SmsController::class, 'index'])    ->name('admin.sms.index');
+Route::post('/sms/send',          [SmsController::class, 'send'])     ->name('admin.sms.send');
+Route::post('/sms/broadcast',     [SmsController::class, 'broadcast'])->name('admin.sms.broadcast')
+    ->middleware('throttle:5,1');
 
 // ── Announcements ─────────────────────────────────────────────────────────────
 Route::get   ('/announcements',                      [AnnouncementController::class, 'index'])  ->name('admin.announcements.index');

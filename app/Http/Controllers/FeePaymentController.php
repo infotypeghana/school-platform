@@ -27,7 +27,7 @@ class FeePaymentController extends Controller
 
     // ── Initiate fee payment ──────────────────────────────────────────────────
 
-    public function initiate(Request $request, string $slug, Fee $fee)
+    public function initiate(Request $request, Fee $fee)
     {
         // Verify this fee belongs to the student in session
         $studentId = session('parent_portal_student_id');
@@ -80,7 +80,7 @@ class FeePaymentController extends Controller
 
     // ── Paystack callback ─────────────────────────────────────────────────────
 
-    public function paystackCallback(Request $request, string $slug)
+    public function paystackCallback(Request $request)
     {
         $reference = $request->query('reference') ?? $request->query('trxref');
         $payment   = Payment::where('reference', $reference)
@@ -108,7 +108,7 @@ class FeePaymentController extends Controller
 
     // ── Moolre callback ───────────────────────────────────────────────────────
 
-    public function moolreCallback(Request $request, string $slug)
+    public function moolreCallback(Request $request)
     {
         $reference = $request->query('reference');
         $payment   = Payment::where('reference', $reference)

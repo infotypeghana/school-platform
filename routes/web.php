@@ -28,10 +28,13 @@ Route::get('/health', HealthCheckController::class)
 | School Self-Registration — accessible on any domain (root or subdomain)
 |--------------------------------------------------------------------------
 */
-Route::get ('/register/school',      [TenantRegistrationController::class, 'showForm'])->name('register.school');
-Route::post('/register/school',      [TenantRegistrationController::class, 'submit'])  ->name('register.school.submit')
+Route::get ('/register/school',                [TenantRegistrationController::class, 'showForm'])  ->name('register.school');
+Route::post('/register/school',                [TenantRegistrationController::class, 'submit'])    ->name('register.school.submit')
     ->middleware('throttle:5,1');
-Route::get ('/register/school/done', [TenantRegistrationController::class, 'done'])   ->name('register.school.done');
+Route::get ('/register/school/check-email',    [TenantRegistrationController::class, 'checkEmail'])->name('register.school.check-email');
+Route::get ('/register/school/verify/{token}', [TenantRegistrationController::class, 'verify'])    ->name('register.school.verify')
+    ->middleware('throttle:10,1');
+Route::get ('/register/school/done',           [TenantRegistrationController::class, 'done'])      ->name('register.school.done');
 
 /*
 |--------------------------------------------------------------------------

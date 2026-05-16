@@ -1,4 +1,4 @@
-@extends('layouts.portal')
+@extends('layouts.website')
 
 @section('title', 'Payment Result')
 

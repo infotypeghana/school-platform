@@ -2,12 +2,21 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
+        // Make subscription_id nullable so fee payments don't require a subscription FK.
+        // MySQL needs a raw DROP FOREIGN KEY + MODIFY; SQLite silently ignores unsupported DDL.
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE payments DROP FOREIGN KEY payments_subscription_id_foreign');
+            DB::statement('ALTER TABLE payments MODIFY subscription_id BIGINT UNSIGNED NULL');
+            DB::statement('ALTER TABLE payments ADD CONSTRAINT payments_subscription_id_foreign FOREIGN KEY (subscription_id) REFERENCES subscriptions(id) ON DELETE SET NULL');
+        }
+
         Schema::table('payments', function (Blueprint $table) {
             // Link a payment to either a subscription (existing) or a fee (new)
             $table->foreignId('fee_id')->nullable()->after('subscription_id')
