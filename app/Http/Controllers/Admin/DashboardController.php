@@ -45,6 +45,17 @@ class DashboardController extends Controller
             $daysLeft     = max(0, (int) now()->diffInDays($term->end_date, false));
         }
 
+        // ── Onboarding checklist (shown until all steps complete) ────────────
+        $onboarding = null;
+        if ($stats['totalClasses'] === 0 || $stats['totalStudents'] === 0 || $stats['totalTeachers'] === 0) {
+            $onboarding = [
+                ['label' => 'School created',      'done' => true],
+                ['label' => 'Add school classes',  'done' => $stats['totalClasses'] > 0,  'route' => 'admin.classes'],
+                ['label' => 'Add teachers',        'done' => $stats['totalTeachers'] > 0, 'route' => 'admin.teachers'],
+                ['label' => 'Enrol first student', 'done' => $stats['totalStudents'] > 0, 'route' => 'admin.students'],
+            ];
+        }
+
         return view('admin.dashboard', [
             'term'              => $term,
             'totalStudents'     => $stats['totalStudents'],
@@ -54,6 +65,7 @@ class DashboardController extends Controller
             'pendingAdmissions' => $stats['pendingAdmissions'],
             'termProgress'      => $termProgress,
             'daysLeft'          => $daysLeft,
+            'onboarding'        => $onboarding,
         ]);
     }
 }

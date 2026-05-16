@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\Auth\TenantRegistrationController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Biometric\AdmsController;
 use App\Http\Controllers\HealthCheckController;
@@ -21,6 +22,16 @@ use Illuminate\Support\Facades\Route;
 Route::get('/health', HealthCheckController::class)
     ->middleware('throttle:60,1')
     ->name('health');
+
+/*
+|--------------------------------------------------------------------------
+| School Self-Registration — accessible on any domain (root or subdomain)
+|--------------------------------------------------------------------------
+*/
+Route::get ('/register/school',      [TenantRegistrationController::class, 'showForm'])->name('register.school');
+Route::post('/register/school',      [TenantRegistrationController::class, 'submit'])  ->name('register.school.submit')
+    ->middleware('throttle:5,1');
+Route::get ('/register/school/done', [TenantRegistrationController::class, 'done'])   ->name('register.school.done');
 
 /*
 |--------------------------------------------------------------------------

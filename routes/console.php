@@ -1,6 +1,7 @@
 <?php
 
 use App\Console\Commands\DatabaseBackupCommand;
+use App\Console\Commands\GenerateTermInvoicesCommand;
 use App\Console\Commands\SyncBiometricAttendance;
 use App\Jobs\CheckSubscriptionStatusJob;
 use Illuminate\Foundation\Inspiring;
@@ -52,6 +53,22 @@ Schedule::command(SyncBiometricAttendance::class)
 | Requires QUEUE_CONNECTION=redis in production.
 */
 Schedule::command('horizon:snapshot')->everyFiveMinutes();
+
+/*
+|--------------------------------------------------------------------------
+| Term Invoice Generation — 1st day of each month at 07:00 WAT
+|--------------------------------------------------------------------------
+| Generates subscription invoices for all active schools that have a
+| package attached and haven't been invoiced for the current term yet.
+| Run manually with: php artisan invoices:generate [--dry-run]
+*/
+Schedule::command(GenerateTermInvoicesCommand::class)
+    ->monthlyOn(1, '07:00')
+    ->timezone('Africa/Accra')
+    ->withoutOverlapping()
+    ->onFailure(function () {
+        \Illuminate\Support\Facades\Log::error('GenerateTermInvoicesCommand failed in scheduler.');
+    });
 
 /*
 |--------------------------------------------------------------------------

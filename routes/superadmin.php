@@ -1,12 +1,18 @@
 <?php
 
+use App\Http\Controllers\Auth\TenantRegistrationController;
 use App\Http\Controllers\Auth\TwoFactorController;
+use App\Http\Controllers\SuperAdmin\InvoiceController;
 use App\Http\Controllers\SuperAdmin\PackageController;
 use App\Http\Controllers\SuperAdmin\PaymentController;
 use App\Http\Controllers\SuperAdmin\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/dashboard', fn () => view('superadmin.dashboard'))->name('superadmin.dashboard');
+
+// Approve a pending school registration
+Route::post('/tenants/{tenant}/approve', [TenantRegistrationController::class, 'approve'])
+    ->name('superadmin.tenants.approve');
 Route::resource('/tenants',        \App\Http\Controllers\SuperAdmin\TenantController::class)
     ->names('superadmin.tenants');
 Route::resource('/academic-years', \App\Http\Controllers\SuperAdmin\AcademicYearController::class)
@@ -30,6 +36,13 @@ Route::post('/subscriptions/{subscription}/extend-grace', [SubscriptionControlle
     ->name('superadmin.subscriptions.extend-grace');
 
 Route::get('/payments', [PaymentController::class, 'index'])->name('superadmin.payments');
+
+// ── Invoices ──────────────────────────────────────────────────────────────────
+Route::get ('/invoices',                          [InvoiceController::class, 'index'])    ->name('superadmin.invoices');
+Route::post('/invoices/generate',                 [InvoiceController::class, 'generate']) ->name('superadmin.invoices.generate');
+Route::get ('/invoices/{invoice}',                [InvoiceController::class, 'show'])     ->name('superadmin.invoices.show');
+Route::post('/invoices/{invoice}/mark-paid',      [InvoiceController::class, 'markPaid']) ->name('superadmin.invoices.mark-paid');
+Route::post('/invoices/{invoice}/void',           [InvoiceController::class, 'void'])     ->name('superadmin.invoices.void');
 
 // ── Subscription Packages ─────────────────────────────────────────────────────
 Route::resource('/packages', PackageController::class)

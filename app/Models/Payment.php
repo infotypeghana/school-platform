@@ -8,10 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Payment extends Model
 {
     protected $fillable = [
-        'tenant_id', 'subscription_id', 'amount', 'currency',
+        'tenant_id', 'subscription_id', 'fee_id', 'payment_type',
+        'amount', 'currency',
         'gateway', 'reference', 'gateway_reference',
         'status', 'paid_at', 'webhook_received_at', 'metadata',
     ];
+
+    const TYPE_SUBSCRIPTION = 'subscription';
+    const TYPE_FEE          = 'fee';
 
     protected $casts = [
         'paid_at'              => 'datetime',
@@ -36,6 +40,11 @@ class Payment extends Model
     public function subscription(): BelongsTo
     {
         return $this->belongsTo(Subscription::class);
+    }
+
+    public function fee(): BelongsTo
+    {
+        return $this->belongsTo(Fee::class);
     }
 
     public function isSuccess(): bool

@@ -5,6 +5,42 @@
 
 @section('content')
 
+{{-- ── Onboarding checklist ─────────────────────────────────────────────────── --}}
+@if($onboarding)
+<div class="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-5">
+  <div class="flex items-center gap-3 mb-4">
+    <div class="h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+      </svg>
+    </div>
+    <div>
+      <p class="font-semibold text-blue-900 text-sm">Getting Started Checklist</p>
+      <p class="text-blue-600 text-xs">Complete these steps to set up your school</p>
+    </div>
+  </div>
+  <div class="space-y-2">
+    @foreach($onboarding as $step)
+      <div class="flex items-center gap-3">
+        @if($step['done'])
+          <div class="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <span class="text-sm text-gray-500 line-through">{{ $step['label'] }}</span>
+        @else
+          <div class="w-5 h-5 border-2 border-blue-300 rounded-full flex-shrink-0"></div>
+          <a href="{{ route($step['route']) }}" class="text-sm text-blue-700 font-medium hover:underline">
+            {{ $step['label'] }} →
+          </a>
+        @endif
+      </div>
+    @endforeach
+  </div>
+</div>
+@endif
+
 {{-- ── Stats row ──────────────────────────────────────────────────────────── --}}
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
 

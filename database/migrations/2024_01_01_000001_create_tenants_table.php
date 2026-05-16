@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('primary_color', 7)->default('#1a56db');
             $table->string('contact_phone')->nullable();
             $table->string('contact_email')->nullable();
-            $table->enum('status', ['active', 'trial', 'grace', 'locked', 'suspended'])->default('trial');
+            $table->enum('status', ['pending', 'active', 'trial', 'grace', 'locked', 'suspended'])->default('trial');
             $table->timestamp('trial_ends_at')->nullable();
             $table->timestamps();
             $table->softDeletes();

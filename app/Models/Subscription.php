@@ -68,6 +68,11 @@ class Subscription extends Model
         return $this->hasMany(SubscriptionNotification::class);
     }
 
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
     public function isAccessible(): bool
     {
         return in_array($this->status, [self::STATUS_TRIAL, self::STATUS_ACTIVE, self::STATUS_GRACE]);

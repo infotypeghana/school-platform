@@ -173,7 +173,16 @@
                     <span>Paid: GHS {{ number_format($fee->amount_paid, 2) }}</span>
                   </div>
                   @if($fee->balance > 0)
-                    <p class="text-xs text-red-600 mt-1 font-medium">Balance: GHS {{ number_format($fee->balance, 2) }}</p>
+                    <div class="flex items-center justify-between mt-2">
+                      <p class="text-xs text-red-600 font-medium">Balance: GHS {{ number_format($fee->balance, 2) }}</p>
+                      <form method="POST" action="{{ route('fee.payment.initiate', ['slug' => $tenant->slug, 'fee' => $fee->id]) }}">
+                        @csrf
+                        <button type="submit"
+                                class="text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-1 rounded-lg transition-colors">
+                          Pay Online
+                        </button>
+                      </form>
+                    </div>
                   @endif
                 </div>
               @endforeach

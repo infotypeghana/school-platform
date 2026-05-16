@@ -22,6 +22,48 @@
   <div class="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg px-4 py-3 text-sm">{{ session('success') }}</div>
 @endif
 
+{{-- Pending approval banner --}}
+@if($tenant->status === 'pending')
+  <div class="mb-5 bg-amber-50 border border-amber-200 rounded-xl p-5" x-data="{ open: false }">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <p class="font-semibold text-amber-800 text-sm">⏳ Awaiting Approval</p>
+        <p class="text-amber-700 text-xs mt-1">
+          Registered {{ $tenant->registered_at?->diffForHumans() ?? '' }} by
+          {{ $tenant->contact_name }} ({{ $tenant->contact_email }}).
+          District: {{ $tenant->district }} · Type: {{ ucfirst($tenant->school_type ?? '—') }} ·
+          Est. students: {{ number_format($tenant->estimated_students ?? 0) }}
+        </p>
+      </div>
+      <button @click="open = !open"
+              class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors whitespace-nowrap">
+        Approve School
+      </button>
+    </div>
+    <div x-show="open" x-cloak class="mt-4 pt-4 border-t border-amber-200">
+      <form method="POST" action="{{ route('superadmin.tenants.approve', $tenant) }}" class="flex flex-wrap gap-3 items-end">
+        @csrf
+        <div>
+          <label class="block text-xs font-medium text-amber-800 mb-1">
+            Set initial admin password <span class="text-red-500">*</span>
+          </label>
+          <input type="password" name="admin_password" required minlength="8"
+                 class="border border-amber-300 rounded-lg px-3 py-2 text-sm w-56 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                 placeholder="Min 8 characters">
+          @error('admin_password')
+            <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+          @enderror
+        </div>
+        <button type="submit"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors">
+          Confirm Approval & Send Credentials
+        </button>
+      </form>
+      <p class="text-xs text-amber-600 mt-2">Login credentials will be emailed to {{ $tenant->contact_email }}.</p>
+    </div>
+  </div>
+@endif
+
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
   {{-- Details --}}

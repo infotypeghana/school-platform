@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdmissionController;
+use App\Http\Controllers\Admin\BillingController;
 use App\Http\Controllers\Admin\AuditController;
 use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\AnnouncementController;
@@ -29,6 +30,9 @@ use Illuminate\Support\Facades\Route;
 
 // ── Dashboard ────────────────────────────────────────────────────────────────
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+
+// ── Billing (school's own invoices) ──────────────────────────────────────────
+Route::get('/billing', [BillingController::class, 'index'])->name('admin.billing');
 
 // ── API Documentation ─────────────────────────────────────────────────────────
 Route::get('/api-docs', fn () => redirect(url('/api/docs')))->name('admin.api.docs');
