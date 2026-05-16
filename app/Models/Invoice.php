@@ -56,7 +56,8 @@ class Invoice extends Model
 
     public function scopeOverdue(Builder $query): Builder
     {
-        return $query->pending()->where('due_date', '<', today());
+        // Inline the pending condition — chaining another local scope confuses PHPStan
+        return $query->whereIn('status', ['draft', 'sent'])->where('due_date', '<', today());
     }
 
     public function scopeForTenant(Builder $query, int $tenantId): Builder

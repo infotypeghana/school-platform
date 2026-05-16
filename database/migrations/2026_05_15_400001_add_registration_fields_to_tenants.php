@@ -2,12 +2,20 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
+        // Extend the status enum to allow 'pending' for self-registered schools awaiting approval.
+        // Raw statement required — Blueprint::enum() cannot modify an existing column.
+        // SQLite (tests) silently ignores MODIFY, so this is safe in all environments.
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE tenants MODIFY status ENUM('pending','active','trial','grace','locked','suspended') NOT NULL DEFAULT 'trial'");
+        }
+
         Schema::table('tenants', function (Blueprint $table) {
             // Contact person (school head / registrar)
             $table->string('contact_name')->nullable()->after('contact_email');
