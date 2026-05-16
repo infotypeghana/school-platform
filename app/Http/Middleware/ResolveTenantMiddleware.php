@@ -17,13 +17,21 @@ class ResolveTenantMiddleware
         // Expect: {slug}.platform.com OR admin.platform.com/{slug}
         $slug = $parts[0] ?? null;
 
-        if (! $slug || in_array($slug, ['www', 'superadmin', 'admin'])) {
+        if (! $slug) {
             abort(404, 'School not found.');
         }
 
-        $tenant = Tenant::where('slug', $slug)
-            ->orWhere('domain', $host)
+        // Try custom-domain lookup first so schools with vanity domains
+        // (including 'www.*' prefixes) resolve correctly before the slug
+        // reserved-word check eliminates 'www', 'admin', 'superadmin'.
+        $tenant = Tenant::where('domain', $host)
+            ->orWhere('slug', $slug)
             ->first();
+
+        // Guard reserved subdomains that are not school slugs
+        if (! $tenant && in_array($slug, ['www', 'superadmin', 'admin'])) {
+            abort(404, 'School not found.');
+        }
 
         if (! $tenant) {
             abort(404, 'School not found.');

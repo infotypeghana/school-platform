@@ -4,24 +4,36 @@ namespace App\Http\Controllers;
 
 use App\Models\Payment;
 use App\Models\Tenant;
+use App\Notifications\SubscriptionExpiryNotification;
+use App\Models\Subscription;
+use App\Services\PaymentGatewayService;
 use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
+/**
+ * Handles subscription payments from the public pay/{slug} flow.
+ *
+ * Gateway HTTP logic lives in PaymentGatewayService — this controller only
+ * orchestrates the payment lifecycle (create, redirect, verify, activate).
+ */
 class PaymentController extends Controller
 {
-    public function __construct(private SubscriptionService $subscriptionService) {}
+    public function __construct(
+        private PaymentGatewayService $gateway,
+        private SubscriptionService   $subscriptionService,
+    ) {}
 
-    // ── Static payment landing page (shown before redirect to gateway) ──────────
-    // Extracted from a closure so route:cache can serialize this route.
+    // ── Static payment landing page ───────────────────────────────────────────
+
     public function page(string $slug): \Illuminate\View\View
     {
         return view('payment.page', ['slug' => $slug]);
     }
 
-    // ── Initiate payment (redirect to gateway checkout) ───────────────────────
+    // ── Initiate payment ──────────────────────────────────────────────────────
+
     public function initiate(Request $request, string $slug)
     {
         $tenant       = Tenant::where('slug', $slug)->firstOrFail();
@@ -29,10 +41,12 @@ class PaymentController extends Controller
 
         abort_unless($subscription !== null, 404, 'No active subscription found for this school.');
 
-        // Don't create duplicate pending payments for the same subscription
+        // Deduplication — reuse an existing pending payment for the same subscription + gateway
+        $gatewayName = $this->gateway->defaultGateway();
+
         $payment = Payment::where('subscription_id', $subscription->id)
             ->where('status', Payment::STATUS_PENDING)
-            ->where('gateway', $this->defaultGateway())
+            ->where('gateway', $gatewayName)
             ->latest()
             ->first();
 
@@ -40,18 +54,28 @@ class PaymentController extends Controller
             $payment = Payment::create([
                 'tenant_id'       => $tenant->id,
                 'subscription_id' => $subscription->id,
+                'payment_type'    => Payment::TYPE_SUBSCRIPTION,  // ← always set
                 'amount'          => $subscription->amount,
-                'currency'        => 'GHS',
-                'gateway'         => $this->defaultGateway(),
+                'currency'        => config('billing.currency', 'GHS'),
+                'gateway'         => $gatewayName,
                 'reference'       => 'SMS-' . strtoupper(Str::random(12)),
                 'status'          => Payment::STATUS_PENDING,
             ]);
         }
 
-        $checkoutUrl = match ($payment->gateway) {
-            Payment::GATEWAY_MOOLRE => $this->initMoolre($payment, $tenant),
-            default                 => $this->initPaystack($payment, $tenant),
-        };
+        $callbackUrl = $payment->gateway === Payment::GATEWAY_MOOLRE
+            ? route('payment.callback.moolre')
+            : route('payment.callback.paystack');
+
+        $checkoutUrl = $this->gateway->checkoutUrl(
+            $payment,
+            $tenant,
+            $callbackUrl,
+            [
+                'subscription_id' => $subscription->id,
+                'cancel_action'   => route('payment.page', ['slug' => $tenant->slug]),
+            ],
+        );
 
         if (! $checkoutUrl) {
             return back()->with('error', 'Could not initiate payment. Please try again later.');
@@ -60,7 +84,8 @@ class PaymentController extends Controller
         return redirect()->away($checkoutUrl);
     }
 
-    // ── Paystack callback (user returns after payment) ─────────────────────────
+    // ── Paystack browser callback ─────────────────────────────────────────────
+
     public function paystackCallback(Request $request)
     {
         $reference = $request->query('reference') ?? $request->query('trxref');
@@ -84,8 +109,8 @@ class PaymentController extends Controller
             ]);
         }
 
-        // Webhook may not have fired yet — verify directly with Paystack API
-        $verified = $this->verifyPaystackTransaction($reference);
+        // Webhook may not have arrived yet — verify directly with Paystack
+        $verified = $this->gateway->verifyPaystack($reference);
 
         if ($verified && ($verified['data']['status'] ?? '') === 'success') {
             if (! $payment->isSuccess()) {
@@ -113,7 +138,8 @@ class PaymentController extends Controller
         ]);
     }
 
-    // ── Moolre callback (user returns after payment) ───────────────────────────
+    // ── Moolre browser callback ───────────────────────────────────────────────
+
     public function moolreCallback(Request $request)
     {
         $reference = $request->query('reference');
@@ -128,7 +154,6 @@ class PaymentController extends Controller
             return view('payment.callback', ['status' => 'error', 'message' => 'Payment record not found.']);
         }
 
-        // Already confirmed by webhook
         if ($payment->isSuccess()) {
             return view('payment.callback', [
                 'status'  => 'success',
@@ -137,8 +162,7 @@ class PaymentController extends Controller
             ]);
         }
 
-        // Verify directly with Moolre confirm endpoint
-        $verified = $this->verifyMoolreTransaction($reference);
+        $verified = $this->gateway->verifyMoolre($reference);
 
         if ($verified) {
             if (! $payment->isSuccess()) {
@@ -163,143 +187,5 @@ class PaymentController extends Controller
             'payment' => $payment,
             'tenant'  => $payment->tenant,
         ]);
-    }
-
-    // ── Moolre API initialization ─────────────────────────────────────────────
-    private function initMoolre(Payment $payment, Tenant $tenant): ?string
-    {
-        $accountNumber = config('services.moolre.account_number');
-        $publicKey     = config('services.moolre.public_key');
-        $baseUrl       = config('services.moolre.base_url');
-
-        if (! $accountNumber || ! $publicKey) {
-            Log::error('Moolre credentials not configured');
-            return null;
-        }
-
-        try {
-            $response = Http::withHeaders([
-                'X-Api-Pubkey' => $publicKey,
-                'Accept'       => 'application/json',
-            ])->post($baseUrl, [
-                'state'         => 'starter',
-                'accountnumber' => $accountNumber,
-                'reference'     => $payment->reference,
-                'email'         => $tenant->email,
-                'amount'        => (string) $payment->amount,
-                'currency'      => 'GHS',
-                'callback'      => route('payment.callback.moolre') . '?reference=' . $payment->reference,
-                'tx_source'     => 'schoolms',
-                'nonce_value'   => Str::random(16),
-            ]);
-
-            if ($response->successful() && $response->json('status') == 1) {
-                $authUrl = $response->json('data.authorization_url')
-                    ?? $response->json('authorization_url');
-
-                if ($authUrl) {
-                    return $authUrl;
-                }
-            }
-
-            Log::error('Moolre initialization failed', [
-                'response' => $response->json(),
-                'payment'  => $payment->reference,
-            ]);
-        } catch (\Throwable $e) {
-            Log::error('Moolre HTTP error: ' . $e->getMessage());
-        }
-
-        return null;
-    }
-
-    // ── Paystack API initialization ───────────────────────────────────────────
-    private function initPaystack(Payment $payment, Tenant $tenant): ?string
-    {
-        $secretKey = config('services.paystack.secret_key');
-
-        if (! $secretKey) {
-            Log::error('Paystack secret key not configured');
-            return null;
-        }
-
-        try {
-            $response = Http::withToken($secretKey)
-                ->post('https://api.paystack.co/transaction/initialize', [
-                    'email'        => $tenant->email,
-                    'amount'       => (int) ($payment->amount * 100), // convert GHS → pesewas
-                    'currency'     => 'GHS',
-                    'reference'    => $payment->reference,
-                    'callback_url' => route('payment.callback.paystack'),
-                    'metadata'     => [
-                        'tenant_id'       => $tenant->id,
-                        'subscription_id' => $payment->subscription_id,
-                        'school_name'     => $tenant->name,
-                        'cancel_action'   => route('payment.page', ['slug' => $tenant->slug]),
-                    ],
-                ]);
-
-            if ($response->successful() && $response->json('status')) {
-                return $response->json('data.authorization_url');
-            }
-
-            Log::error('Paystack initialization failed', [
-                'response' => $response->json(),
-                'payment'  => $payment->reference,
-            ]);
-        } catch (\Throwable $e) {
-            Log::error('Paystack HTTP error: ' . $e->getMessage());
-        }
-
-        return null;
-    }
-
-    // ── Verify Paystack transaction server-side ───────────────────────────────
-    private function verifyPaystackTransaction(string $reference): ?array
-    {
-        try {
-            $response = Http::withToken(config('services.paystack.secret_key'))
-                ->get("https://api.paystack.co/transaction/verify/{$reference}");
-
-            if ($response->successful()) {
-                return $response->json();
-            }
-        } catch (\Throwable $e) {
-            Log::error('Paystack verify error: ' . $e->getMessage());
-        }
-
-        return null;
-    }
-
-    // ── Verify Moolre transaction server-side ─────────────────────────────────
-    private function verifyMoolreTransaction(string $reference): ?array
-    {
-        $accountNumber = config('services.moolre.account_number');
-        $publicKey     = config('services.moolre.public_key');
-        $baseUrl       = config('services.moolre.base_url');
-
-        try {
-            $response = Http::withHeaders([
-                'X-Api-Pubkey' => $publicKey,
-                'Accept'       => 'application/json',
-            ])->post($baseUrl, [
-                'state'         => 'confirm',
-                'accountnumber' => $accountNumber,
-                'reference'     => $reference,
-            ]);
-
-            if ($response->successful() && $response->json('status') == 1) {
-                return $response->json('data') ?? $response->json();
-            }
-        } catch (\Throwable $e) {
-            Log::error('Moolre verify error: ' . $e->getMessage());
-        }
-
-        return null;
-    }
-
-    private function defaultGateway(): string
-    {
-        return config('billing.default_gateway', Payment::GATEWAY_PAYSTACK);
     }
 }

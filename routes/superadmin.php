@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\SuperAdmin\InvoiceController;
 use App\Http\Controllers\SuperAdmin\PackageController;
 use App\Http\Controllers\SuperAdmin\PaymentController;
+use App\Http\Controllers\SuperAdmin\SaasMetricsController;
 use App\Http\Controllers\SuperAdmin\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +37,10 @@ Route::post('/subscriptions/{subscription}/extend-grace', [SubscriptionControlle
     ->name('superadmin.subscriptions.extend-grace');
 
 Route::get('/payments', [PaymentController::class, 'index'])->name('superadmin.payments');
+
+// ── SaaS Metrics & Revenue Dashboard ─────────────────────────────────────────
+Route::get('/metrics',                    [SaasMetricsController::class, 'index'])       ->name('superadmin.metrics');
+Route::get('/metrics/tenant/{tenant}',    [SaasMetricsController::class, 'tenantUsage']) ->name('superadmin.metrics.tenant');
 
 // ── Invoices ──────────────────────────────────────────────────────────────────
 Route::get ('/invoices',                          [InvoiceController::class, 'index'])    ->name('superadmin.invoices');

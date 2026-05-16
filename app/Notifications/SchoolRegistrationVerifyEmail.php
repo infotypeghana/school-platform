@@ -33,13 +33,15 @@ class SchoolRegistrationVerifyEmail extends Notification implements ShouldQueue
 
     public function toMail(mixed $notifiable): MailMessage
     {
+        $appName = config('app.name');
+
         return (new MailMessage())
-            ->subject('Verify your school registration — SchoolMS Ghana')
+            ->subject("Verify your school registration — {$appName}")
             ->greeting("Hello {$this->contactName},")
-            ->line("Thank you for registering **{$this->schoolName}** on SchoolMS Ghana.")
+            ->line("Thank you for registering **{$this->schoolName}** on {$appName}.")
             ->line('Please click the button below to verify your email address and submit your application for review.')
             ->action('Verify Email Address', $this->verifyUrl)
             ->line('This link will expire in **60 minutes**. If you did not request this, you can safely ignore this email.')
-            ->salutation('The SchoolMS Ghana Team');
+            ->salutation("The {$appName} Team");
     }
 }

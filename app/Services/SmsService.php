@@ -12,8 +12,8 @@ class SmsService
     private string $clientId;
     private string $clientSecret;
     private string $senderId;
-    private string $baseUrl = 'https://smsc.hubtel.com/v1/messages/send';
-    private string $waUrl   = 'https://api.hubtel.com/v1/whatsapp/messages';
+    private string $baseUrl;
+    private string $waUrl;
 
     // ── Pre-approved WhatsApp template names (configure in Hubtel dashboard) ──
     // Template variables are positional: {{1}}, {{2}}, ...
@@ -30,6 +30,9 @@ class SmsService
         $this->clientId     = (string) config('services.hubtel.client_id', '');
         $this->clientSecret = (string) config('services.hubtel.client_secret', '');
         $this->senderId     = (string) config('services.hubtel.sender_id', 'SchoolMS');
+        // URLs sourced from config so sandbox/production switching needs no code change
+        $this->baseUrl      = (string) config('services.hubtel.sms_url', 'https://smsc.hubtel.com/v1/messages/send');
+        $this->waUrl        = (string) config('services.hubtel.wa_url',  'https://api.hubtel.com/v1/whatsapp/messages');
     }
 
     // ── Public API ────────────────────────────────────────────────────────────

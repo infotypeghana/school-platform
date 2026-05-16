@@ -128,16 +128,17 @@ class CheckSubscriptionStatusJob implements ShouldQueue
     private function buildSmsBody(Subscription $sub, string $type): string
     {
         $school = $sub->tenant?->name ?? 'your school';
+        $brand  = config('billing.sms_brand_prefix', config('app.name'));
 
         return match ($type) {
-            '14_days_before'     => "SchoolMS: {$school} subscription expires in 14 days. Renew now to avoid disruption.",
-            '7_days_before'      => "SchoolMS: {$school} subscription expires in 7 days. Please renew immediately.",
-            '2_days_before'      => "SchoolMS URGENT: {$school} subscription expires in 2 days!",
-            'expiry_day'         => "SchoolMS: {$school} subscription expires today. Renew now to keep access.",
-            'grace_3_days_left'  => "SchoolMS: {$school} is in grace period. 3 days left before lockout. Pay now.",
-            'grace_1_day_left'   => "SchoolMS URGENT: {$school} will be locked tomorrow. Renew immediately!",
-            'grace_expired_locked' => "SchoolMS: {$school} access has been locked due to non-payment. Contact support.",
-            default              => "SchoolMS: Action required for {$school} subscription.",
+            '14_days_before'       => "{$brand}: {$school} subscription expires in 14 days. Renew now to avoid disruption.",
+            '7_days_before'        => "{$brand}: {$school} subscription expires in 7 days. Please renew immediately.",
+            '2_days_before'        => "{$brand} URGENT: {$school} subscription expires in 2 days!",
+            'expiry_day'           => "{$brand}: {$school} subscription expires today. Renew now to keep access.",
+            'grace_3_days_left'    => "{$brand}: {$school} is in grace period. 3 days left before lockout. Pay now.",
+            'grace_1_day_left'     => "{$brand} URGENT: {$school} will be locked tomorrow. Renew immediately!",
+            'grace_expired_locked' => "{$brand}: {$school} access has been locked due to non-payment. Contact support.",
+            default                => "{$brand}: Action required for {$school} subscription.",
         };
     }
 }

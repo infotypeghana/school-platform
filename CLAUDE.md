@@ -272,13 +272,97 @@ Writes to `audit_logs` table on create/update/delete. Skipped in tests (`audit.e
 | GET /health | 60/min |
 | Payment initiate/page | 10/min |
 
+## Feature Gating System
+
+`app/Services/FeatureGate.php` — central entitlement service resolving per-plan feature access.
+
+- 33 features defined in `config/features.php` across 5 tiers: `trial < basic < standard < premium < enterprise`
+- Tier resolved from `subscription_packages.slug` (looks for 'enterprise'/'premium'/'standard'/'basic' in slug)
+- **Blade:** `@feature('sms_notifications') ... @endfeature`
+- **Route middleware:** `->middleware('feature:biometric')`
+- **Controller:** `app(FeatureGate::class)->require('api_access')` → 403 if not enabled
+- Cache: 10-minute TTL per `feature:{tenant_id}:{key}` — flushed on subscription change
+
+## Account Lockout
+
+`User::recordFailedLogin()` / `User::clearLoginAttempts()` — tracks failed login attempts.
+
+- Lock threshold: 5 failed attempts (`User::MAX_LOGIN_ATTEMPTS`)
+- Lock duration: 15 minutes (`User::LOCKOUT_MINUTES`)
+- Checked in `LoginController::login()` before `Auth::attempt()`
+- All failures logged via `StructuredLogger::security('login.failed', ...)`
+- Columns: `users.login_attempts` (tinyint), `users.locked_until` (timestamp nullable)
+
+## Structured Logging
+
+`app/Services/StructuredLogger.php` — enriches every log with tenant_id, user_id, IP, action.
+
+```php
+app(StructuredLogger::class)->info('student.created', ['student_id' => $id]);
+app(StructuredLogger::class)->security('login.failed', ['email' => $email]);
+```
+
+## Storage Service (Signed URLs)
+
+`app/Services/StorageService.php` — abstraction layer for all file operations.
+
+- `->upload($file, 'logos')` — tenant-namespaced path: `tenants/{id}/logos/`
+- `->signedUrl($path, 60)` — 60-min signed URL (S3 presigned or Laravel signed route)
+- `->assertOwnership($path)` — 403 if path doesn't belong to current tenant
+- Private file route: `GET /storage/signed/{path}` (named `storage.signed`)
+
+## White-Label System
+
+Per-tenant branding fields on `tenants` table:
+
+| Column | Purpose |
+|--------|---------|
+| `favicon` | File path (disk-agnostic, rendered via `faviconUrl()`) |
+| `secondary_color` | Hex color |
+| `font_family` | CSS font family string |
+| `sms_sender_id` | Max 11 chars — falls back to sanitised APP_NAME |
+| `email_from_name` | Outbound mail "From" name |
+| `email_from_address` | Outbound mail "From" address |
+| `email_header_color` | Email template header color |
+| `custom_domain` | Enterprise: custom domain (e.g. sms.myschool.edu.gh) |
+| `report_card_template` | `standard\|compact\|detailed` |
+| `login_welcome_text` | Login page custom message |
+| `login_bg_color` | Login page background color |
+
+## Payment Reconciliation
+
+`app/Services/ReconciliationService.php` + `php artisan payments:reconcile`
+
+- Detects: orphaned payments, duplicate references, unactivated subscriptions
+- `--heal` flag: auto-links orphaned payments to tenant's latest subscription
+- `--from=YYYY-MM-DD --to=YYYY-MM-DD` — custom date range
+- Scheduled weekly Sunday 04:00 WAT
+
 ## Database Backup
 
 `php artisan db:backup` — dumps MySQL to `storage/app/backups/db_<timestamp>.sql.gz`
 - Runs daily at 02:00 WAT via scheduler
-- Rotates files older than 7 days automatically (`--keep=N` to override)
+- Writes SHA-256 checksum sidecar: `db_<timestamp>.sql.gz.sha256`
+- Uploads backup + checksum to S3 (30-day cloud rotation)
+- Rotates local files older than 7 days (`--keep=N` to override)
 - `--dry-run` flag shows the command without executing
-- Requires `mysqldump` in `$PATH` on the server
+- Failure → `BackupFailedNotification` sent to `SUPER_ADMIN_EMAIL`
+
+`php artisan db:restore` — restores from backup with integrity verification
+- `--list` — show available backups with checksum status
+- `--verify-only` — verify SHA-256 without restoring
+- `--force` — skip confirmation (required in production)
+- Creates pre-restore safety backup before overwriting
+
+## SaaS Metrics Dashboard
+
+`GET /superadmin/metrics` → `SaasMetricsController::index()`
+
+- Revenue by gateway and by month (period: month/quarter/year)
+- Active/grace/locked/total tenant counts
+- Top revenue tenants
+- Reconciliation anomaly summary
+- Per-tenant usage: `GET /superadmin/metrics/tenant/{tenant}`
 
 ## Deployment Checklist
 - [ ] Set `APP_DOMAIN` to your root domain
@@ -298,3 +382,9 @@ Writes to `audit_logs` table on create/update/delete. Skipped in tests (`audit.e
 - [ ] Point Moolre webhook to: `https://yourdomain.com/webhooks/moolre`
 - [ ] Verify `/health` returns `{"status":"ok"}` after deploy
 - [ ] Ensure `mysqldump` is in `$PATH` for daily DB backups
+- [ ] Seed subscription packages via Super Admin → Packages (set slugs containing basic/standard/premium/enterprise)
+- [ ] Configure `SENTRY_LARAVEL_DSN` for error tracking
+- [ ] Set up UptimeRobot monitor on `/health` (1-min interval, keyword `"status":"ok"`)
+- [ ] Apply `feature:biometric` middleware to biometric routes in `routes/admin.php`
+- [ ] Apply `feature:api_access` middleware to API routes in `routes/api.php`
+- [ ] Set `SESSION_ENCRYPT=true` in production `.env`

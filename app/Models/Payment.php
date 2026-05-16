@@ -23,9 +23,12 @@ class Payment extends Model
         'metadata'             => 'array',
     ];
 
-    const STATUS_PENDING = 'pending';
-    const STATUS_SUCCESS = 'success';
-    const STATUS_FAILED  = 'failed';
+    const STATUS_PENDING    = 'pending';
+    const STATUS_SUCCESS    = 'success';
+    const STATUS_FAILED     = 'failed';
+    // Extended states — tracked in payment_ledger; payments table keeps 'success'
+    const STATUS_REVERSED   = 'reversed';
+    const STATUS_DISPUTED   = 'disputed';
 
     const GATEWAY_PAYSTACK = 'paystack';
     const GATEWAY_MOOLRE   = 'moolre';
@@ -50,5 +53,21 @@ class Payment extends Model
     public function isSuccess(): bool
     {
         return $this->status === self::STATUS_SUCCESS;
+    }
+
+    public function isPending(): bool
+    {
+        return $this->status === self::STATUS_PENDING;
+    }
+
+    public function isFailed(): bool
+    {
+        return $this->status === self::STATUS_FAILED;
+    }
+
+    /** @return \Illuminate\Database\Eloquent\Relations\HasMany<PaymentLedger> */
+    public function ledger(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PaymentLedger::class)->orderBy('id');
     }
 }

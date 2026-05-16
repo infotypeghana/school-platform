@@ -51,8 +51,10 @@ class InvoiceService
             $tenant = $sub->tenant;
             $phone  = $tenant?->contact_phone ?? $tenant?->phone;
             if ($phone && $tenant) {
-                $msg = 'SchoolMS: Invoice ' . $invoice->invoice_number
-                    . ' of GHS ' . number_format($invoice->amount, 2)
+                $brand    = config('billing.sms_brand_prefix', config('app.name'));
+                $currency = config('billing.currency', 'GHS');
+                $msg = "{$brand}: Invoice {$invoice->invoice_number}"
+                    . " of {$currency} " . number_format($invoice->amount, 2)
                     . ' generated for ' . $term->term_name
                     . '. Due ' . $invoice->due_date->format('d M Y') . '.';
                 SendSmsJob::dispatch($phone, $msg, $tenant, $invoice)->onQueue('default');

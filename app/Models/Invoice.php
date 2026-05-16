@@ -129,11 +129,17 @@ class Invoice extends Model
         $year   = now()->year;
         $prefix = "INV-{$year}-";
 
-        // Lock the latest matching row so concurrent transactions must wait.
+        // Lock so concurrent transactions must wait; use a driver-aware CAST
+        // because SQLite supports AS INTEGER while MySQL supports AS UNSIGNED.
+        $driver   = DB::getDriverName();
+        $castExpr = $driver === 'sqlite'
+            ? 'CAST(SUBSTR(invoice_number, ' . (strlen($prefix) + 1) . ') AS INTEGER)'
+            : 'CAST(SUBSTR(invoice_number, ' . (strlen($prefix) + 1) . ') AS UNSIGNED)';
+
         $max = (int) DB::table('invoices')
             ->where('invoice_number', 'like', $prefix . '%')
             ->lockForUpdate()
-            ->max(DB::raw('CAST(SUBSTR(invoice_number, ' . (strlen($prefix) + 1) . ') AS UNSIGNED)'));
+            ->max(DB::raw($castExpr));
 
         return $prefix . str_pad($max + 1, 4, '0', STR_PAD_LEFT);
     }

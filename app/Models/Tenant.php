@@ -14,12 +14,17 @@ class Tenant extends Model
 {
     use HasFactory, Notifiable;
     protected $fillable = [
-        'uuid', 'slug', 'name', 'logo', 'address', 'phone', 'email',
-        'domain', 'status', 'trial_ends_at', 'primary_color',
+        'uuid', 'slug', 'name', 'logo', 'favicon', 'address', 'phone', 'email',
+        'domain', 'custom_domain', 'status', 'trial_ends_at', 'primary_color',
+        'secondary_color', 'font_family',
         'contact_phone', 'contact_email', 'contact_name',
         'school_type', 'district', 'estimated_students',
         'grading_settings', 'website_content',
         'current_term_id',
+        'sms_sender_id',
+        'email_from_name', 'email_from_address', 'email_header_color',
+        'report_card_template', 'report_card_footer',
+        'login_welcome_text', 'login_bg_color',
         'registered_at', 'approved_at', 'approved_by', 'registration_token',
     ];
 
@@ -100,7 +105,20 @@ class Tenant extends Model
         return $this->hasMany(Invoice::class);
     }
 
+    /**
+     * Whether the tenant's platform is accessible (trial, active, or grace period).
+     * Grace-period schools are still accessible — they just see a payment banner.
+     * This is intentionally consistent with AdminSubscriptionMiddleware's allow-list.
+     */
     public function isActive(): bool
+    {
+        return in_array($this->status, ['active', 'trial', 'grace']);
+    }
+
+    /**
+     * Whether the tenant is in a full-access state (not grace, not locked).
+     */
+    public function isFullyActive(): bool
     {
         return in_array($this->status, ['active', 'trial']);
     }
@@ -131,6 +149,62 @@ class Tenant extends Model
         }
         $disk = config('filesystems.media_disk', 'public');
         return Storage::disk($disk)->url($this->logo);
+    }
+
+    /**
+     * Public URL for the school favicon.
+     */
+    public function faviconUrl(): ?string
+    {
+        if (! $this->favicon) {
+            return null;
+        }
+        $disk = config('filesystems.media_disk', 'public');
+        return Storage::disk($disk)->url($this->favicon);
+    }
+
+    /**
+     * Effective SMS sender ID — falls back to sanitised APP_NAME.
+     */
+    public function effectiveSmsSenderId(): string
+    {
+        if ($this->sms_sender_id) {
+            return $this->sms_sender_id;
+        }
+        // Sanitise APP_NAME to max 11 alpha chars
+        return substr(preg_replace('/[^A-Za-z]/', '', config('app.name', 'SchoolMS')), 0, 11);
+    }
+
+    /**
+     * Effective "From" email name for outbound mail.
+     */
+    public function effectiveEmailFromName(): string
+    {
+        return $this->email_from_name ?: $this->name;
+    }
+
+    /**
+     * Effective "From" email address for outbound mail.
+     */
+    public function effectiveEmailFromAddress(): string
+    {
+        return $this->email_from_address ?: config('mail.from.address', 'noreply@schoolms.com.gh');
+    }
+
+    /**
+     * Resolved primary color with sensible default.
+     */
+    public function primaryColor(): string
+    {
+        return $this->primary_color ?? '#1a56db';
+    }
+
+    /**
+     * Resolved secondary color with sensible default.
+     */
+    public function secondaryColor(): string
+    {
+        return $this->secondary_color ?? '#f3f4f6';
     }
 
     /**

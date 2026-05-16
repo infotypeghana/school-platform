@@ -26,7 +26,8 @@ class SubscriptionExpiryNotification extends Notification implements ShouldQueue
     {
         $tenant = $this->subscription->tenant;
         $term   = $this->subscription->term;
-        $amount = 'GHS ' . number_format($this->subscription->amount, 2);
+        $currency = config('billing.currency', 'GHS');
+        $amount = "{$currency} " . number_format($this->subscription->amount, 2);
         $termLabel = $term?->term_name . ' ' . $term?->academicYear?->year_label;
         $renewUrl  = url('/pay/' . $tenant->slug);
         $graceDays = $this->subscription->graceDaysRemaining();
@@ -92,7 +93,7 @@ class SubscriptionExpiryNotification extends Notification implements ShouldQueue
                 ->line("Your **{$termLabel}** subscription has been activated successfully.")
                 ->line("Your admin dashboard and public website are now fully accessible.")
                 ->action("Go to Dashboard", url('/'))
-                ->line("Thank you for renewing with SchoolMS Ghana."),
+                ->line('Thank you for renewing with ' . config('app.name') . '.'),
 
             default => (new MailMessage)
                 ->subject("Subscription Update — {$tenant->name}")

@@ -25,6 +25,26 @@ Route::get('/health', HealthCheckController::class)
 
 /*
 |--------------------------------------------------------------------------
+| Signed Private File Serving (local disk only)
+|--------------------------------------------------------------------------
+| Serves files from the private disk via time-limited signed URLs.
+| S3/R2/B2 use native presigned URLs and never hit this route.
+*/
+Route::get('/storage/signed/{path}', function (string $path) {
+    abort_unless(\Illuminate\Support\Facades\URL::hasValidSignature(request()), 403);
+
+    // Prevent path traversal
+    $path = ltrim($path, '/');
+    abort_if(str_contains($path, '..'), 403);
+
+    $disk = config('filesystems.private_disk', 'local');
+    abort_unless(\Illuminate\Support\Facades\Storage::disk($disk)->exists($path), 404);
+
+    return \Illuminate\Support\Facades\Storage::disk($disk)->download($path);
+})->where('path', '.*')->name('storage.signed');
+
+/*
+|--------------------------------------------------------------------------
 | School Self-Registration — accessible on any domain (root or subdomain)
 |--------------------------------------------------------------------------
 */

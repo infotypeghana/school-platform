@@ -55,7 +55,8 @@ class SubscriptionPackage extends Model
     public function priceLabel(): string
     {
         $cycle = $this->billing_cycle === 'annual' ? 'year' : 'term';
-        return 'GHS ' . number_format((float) $this->price_per_student, 2) . ' / student / ' . $cycle;
+        $currency = config('billing.currency', 'GHS');
+        return "{$currency} " . number_format((float) $this->price_per_student, 2) . ' / student / ' . $cycle;
     }
 
     public function billingCycleLabel(): string

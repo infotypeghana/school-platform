@@ -38,7 +38,8 @@ Route::prefix('v1')->group(function () {
 
     // ── Authenticated ─────────────────────────────────────────────────────────
     // 60 requests per minute per token — generous for a mobile app, firm against abuse.
-    Route::middleware(['auth:sanctum', 'api.tenant', 'throttle:60,1'])->group(function () {
+    // feature:api_access — only standard+ plans get REST API access
+    Route::middleware(['auth:sanctum', 'api.tenant', 'throttle:60,1', 'feature:api_access'])->group(function () {
 
         // Auth
         Route::prefix('auth')->group(function () {

@@ -4,7 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Dashboard') — {{ app('currentTenant')?->name ?? 'SchoolMS' }}</title>
+    @php
+        $__tenant      = app('currentTenant');
+        $__primary     = $__tenant?->primaryColor() ?? '#1a56db';
+        $__faviconUrl  = $__tenant?->faviconUrl();
+    @endphp
+    <meta name="theme-color" content="{{ $__primary }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    @if($__faviconUrl)
+        <link rel="icon" type="image/x-icon" href="{{ $__faviconUrl }}">
+    @else
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    @endif
+    <title>@yield('title', 'Dashboard') — {{ $__tenant?->name ?? 'SchoolMS' }}</title>
+    <link rel="manifest" href="/manifest.json">
+    <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); body{font-family:'Inter',sans-serif;}</style>

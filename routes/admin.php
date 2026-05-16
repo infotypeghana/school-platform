@@ -122,16 +122,21 @@ Route::get('/report-cards/scores',        [AssessmentController::class, 'index']
 Route::get('/report-cards/scores/edit',   [AssessmentController::class, 'edit'])   ->name('admin.assessments.edit');
 Route::put('/report-cards/scores/update', [AssessmentController::class, 'update']) ->name('admin.assessments.update');
 
-// ── Report Cards ──────────────────────────────────────────────────────────────
+// ── Report Cards ─────────────────────────────────────────────────────────────
+// Viewing report cards is open to all plans; PDF generation is premium+
 Route::get ('/report-cards',                             [ReportCardController::class, 'index'])        ->name('admin.report-cards');
 Route::get ('/report-cards/class',                       [ReportCardController::class, 'classCards'])   ->name('admin.report-cards.class');
 Route::get ('/report-cards/batch-status',                [ReportCardController::class, 'batchStatus'])  ->name('admin.report-cards.batch-status');
 Route::post('/report-cards/compute',                     [ReportCardController::class, 'computeStats']) ->name('admin.report-cards.compute');
-Route::post('/report-cards/generate-all',                [ReportCardController::class, 'generateAll'])  ->name('admin.report-cards.generate-all');
-Route::post('/report-cards/{reportCard}/generate',       [ReportCardController::class, 'generate'])     ->name('admin.report-cards.generate');
-Route::get ('/report-cards/{reportCard}/download',       [ReportCardController::class, 'download'])     ->name('admin.report-cards.download');
 Route::get ('/report-cards/{reportCard}/remarks',        [ReportCardController::class, 'editRemarks'])  ->name('admin.report-cards.remarks');
 Route::put ('/report-cards/{reportCard}/remarks',        [ReportCardController::class, 'updateRemarks'])->name('admin.report-cards.remarks.update');
+
+// PDF generation + download — feature: report_cards_pdf (standard+)
+Route::middleware('feature:report_cards_pdf')->group(function () {
+    Route::post('/report-cards/generate-all',                [ReportCardController::class, 'generateAll'])  ->name('admin.report-cards.generate-all');
+    Route::post('/report-cards/{reportCard}/generate',       [ReportCardController::class, 'generate'])     ->name('admin.report-cards.generate');
+    Route::get ('/report-cards/{reportCard}/download',       [ReportCardController::class, 'download'])     ->name('admin.report-cards.download');
+});
 
 // ── Admissions ────────────────────────────────────────────────────────────────
 Route::get   ('/admissions',                      [AdmissionController::class, 'index'])      ->name('admin.admissions.index');
@@ -157,18 +162,20 @@ Route::put   ('/fees/{fee}',            [FeeController::class,    'update'])    
 Route::post  ('/fees/{fee}/payment',    [FeeController::class,    'recordPayment']) ->name('admin.fees.payment');
 Route::delete('/fees/{fee}',            [FeeController::class,    'destroy'])       ->name('admin.fees.destroy');
 
-// ── Feeding Fees ──────────────────────────────────────────────────────────────
-Route::get   ('/feeding',                        [FeedingController::class, 'index'])           ->name('admin.feeding.index');
-Route::get   ('/feeding/config',                 [FeedingController::class, 'config'])          ->name('admin.feeding.config');
-Route::put   ('/feeding/config',                 [FeedingController::class, 'updateConfig'])    ->name('admin.feeding.config.update');
-Route::put   ('/feeding/config/class/{classId}', [FeedingController::class, 'updateClassConfig'])->name('admin.feeding.config.class');
-Route::get   ('/feeding/assign',                 [FeedingController::class, 'assignForm'])      ->name('admin.feeding.assign');
-Route::post  ('/feeding/assign',                 [FeedingController::class, 'assign'])          ->name('admin.feeding.assign.store');
-Route::get   ('/feeding/report',                 [FeedingController::class, 'report'])          ->name('admin.feeding.report');
-Route::get   ('/feeding/{id}',                   [FeedingController::class, 'show'])            ->name('admin.feeding.show');
-Route::post  ('/feeding/{id}/pay',               [FeedingController::class, 'pay'])             ->name('admin.feeding.pay');
-Route::post  ('/feeding/{id}/exempt',            [FeedingController::class, 'exempt'])          ->name('admin.feeding.exempt');
-Route::get   ('/feeding/receipt/{paymentId}',    [FeedingController::class, 'receipt'])         ->name('admin.feeding.receipt');
+// ── Feeding Fees (feature: feeding_fees — standard+) ─────────────────────────
+Route::middleware('feature:feeding_fees')->group(function () {
+    Route::get   ('/feeding',                        [FeedingController::class, 'index'])           ->name('admin.feeding.index');
+    Route::get   ('/feeding/config',                 [FeedingController::class, 'config'])          ->name('admin.feeding.config');
+    Route::put   ('/feeding/config',                 [FeedingController::class, 'updateConfig'])    ->name('admin.feeding.config.update');
+    Route::put   ('/feeding/config/class/{classId}', [FeedingController::class, 'updateClassConfig'])->name('admin.feeding.config.class');
+    Route::get   ('/feeding/assign',                 [FeedingController::class, 'assignForm'])      ->name('admin.feeding.assign');
+    Route::post  ('/feeding/assign',                 [FeedingController::class, 'assign'])          ->name('admin.feeding.assign.store');
+    Route::get   ('/feeding/report',                 [FeedingController::class, 'report'])          ->name('admin.feeding.report');
+    Route::get   ('/feeding/{id}',                   [FeedingController::class, 'show'])            ->name('admin.feeding.show');
+    Route::post  ('/feeding/{id}/pay',               [FeedingController::class, 'pay'])             ->name('admin.feeding.pay');
+    Route::post  ('/feeding/{id}/exempt',            [FeedingController::class, 'exempt'])          ->name('admin.feeding.exempt');
+    Route::get   ('/feeding/receipt/{paymentId}',    [FeedingController::class, 'receipt'])         ->name('admin.feeding.receipt');
+});
 
 // ── Attendance export ─────────────────────────────────────────────────────────
 Route::get('/attendance/export', [ExportController::class, 'attendance'])->name('admin.attendance.export');
@@ -185,11 +192,13 @@ Route::put   ('/timetables/{timetable}',                 [TimetableController::c
 Route::delete('/timetables/{timetable}',                 [TimetableController::class, 'destroy'])        ->name('admin.timetables.destroy');
 Route::get   ('/timetables/subjects/{schoolClass}',      [TimetableController::class, 'subjectsForClass'])->name('admin.timetables.subjects');
 
-// ── SMS / WhatsApp ─────────────────────────────────────────────────────────────
-Route::get ('/sms',               [SmsController::class, 'index'])    ->name('admin.sms.index');
-Route::post('/sms/send',          [SmsController::class, 'send'])     ->name('admin.sms.send');
-Route::post('/sms/broadcast',     [SmsController::class, 'broadcast'])->name('admin.sms.broadcast')
-    ->middleware('throttle:5,1');
+// ── SMS / WhatsApp (feature: sms_notifications — standard+) ──────────────────
+Route::middleware('feature:sms_notifications')->group(function () {
+    Route::get ('/sms',           [SmsController::class, 'index'])    ->name('admin.sms.index');
+    Route::post('/sms/send',      [SmsController::class, 'send'])     ->name('admin.sms.send');
+    Route::post('/sms/broadcast', [SmsController::class, 'broadcast'])->name('admin.sms.broadcast')
+        ->middleware('throttle:5,1');
+});
 
 // ── Announcements ─────────────────────────────────────────────────────────────
 Route::get   ('/announcements',                      [AnnouncementController::class, 'index'])  ->name('admin.announcements.index');
@@ -219,32 +228,38 @@ Route::get   ('/finance/expenses/{expense}/edit',[FinanceController::class, 'edi
 Route::put   ('/finance/expenses/{expense}',     [FinanceController::class, 'updateExpense']) ->name('admin.finance.expenses.update');
 Route::delete('/finance/expenses/{expense}',     [FinanceController::class, 'destroyExpense'])->name('admin.finance.expenses.destroy');
 
-// ── Biometric Attendance ───────────────────────────────────────────────────────
-Route::get   ('/biometric',                                   [BiometricController::class, 'index'])          ->name('admin.biometric.index');
-Route::get   ('/biometric/recent',                            [BiometricController::class, 'recentLogs'])     ->name('admin.biometric.recent');
-Route::get   ('/biometric/create',                            [BiometricController::class, 'create'])         ->name('admin.biometric.create');
-Route::post  ('/biometric',                                   [BiometricController::class, 'store'])          ->name('admin.biometric.store');
-Route::get   ('/biometric/{device}/edit',                     [BiometricController::class, 'edit'])           ->name('admin.biometric.edit');
-Route::put   ('/biometric/{device}',                          [BiometricController::class, 'update'])         ->name('admin.biometric.update');
-Route::delete('/biometric/{device}',                          [BiometricController::class, 'destroy'])        ->name('admin.biometric.destroy');
-Route::post  ('/biometric/{device}/sync',                     [BiometricController::class, 'sync'])           ->name('admin.biometric.sync');
-Route::get   ('/biometric/{device}/enroll',                   [BiometricController::class, 'enroll'])         ->name('admin.biometric.enroll');
-Route::post  ('/biometric/{device}/enroll',                   [BiometricController::class, 'storeEnrollment'])->name('admin.biometric.enroll.store');
-Route::delete('/biometric/enrollments/{enrollment}',          [BiometricController::class, 'destroyEnrollment'])->name('admin.biometric.enroll.destroy');
+// ── Biometric Attendance (feature: biometric — premium+) ─────────────────────
+Route::middleware('feature:biometric')->group(function () {
+    Route::get   ('/biometric',                                   [BiometricController::class, 'index'])          ->name('admin.biometric.index');
+    Route::get   ('/biometric/recent',                            [BiometricController::class, 'recentLogs'])     ->name('admin.biometric.recent');
+    Route::get   ('/biometric/create',                            [BiometricController::class, 'create'])         ->name('admin.biometric.create');
+    Route::post  ('/biometric',                                   [BiometricController::class, 'store'])          ->name('admin.biometric.store');
+    Route::get   ('/biometric/{device}/edit',                     [BiometricController::class, 'edit'])           ->name('admin.biometric.edit');
+    Route::put   ('/biometric/{device}',                          [BiometricController::class, 'update'])         ->name('admin.biometric.update');
+    Route::delete('/biometric/{device}',                          [BiometricController::class, 'destroy'])        ->name('admin.biometric.destroy');
+    Route::post  ('/biometric/{device}/sync',                     [BiometricController::class, 'sync'])           ->name('admin.biometric.sync');
+    Route::get   ('/biometric/{device}/enroll',                   [BiometricController::class, 'enroll'])         ->name('admin.biometric.enroll');
+    Route::post  ('/biometric/{device}/enroll',                   [BiometricController::class, 'storeEnrollment'])->name('admin.biometric.enroll.store');
+    Route::delete('/biometric/enrollments/{enrollment}',          [BiometricController::class, 'destroyEnrollment'])->name('admin.biometric.enroll.destroy');
+});
 
-// ── Lesson Notes (admin review) ───────────────────────────────────────────────
-Route::get  ('/lesson-notes',                      [LessonNoteController::class, 'index'])          ->name('admin.lesson-notes.index');
-Route::get  ('/lesson-notes/schemes',              [LessonNoteController::class, 'schemes'])         ->name('admin.lesson-notes.schemes');
-Route::get  ('/lesson-notes/schemes/{id}',         [LessonNoteController::class, 'schemeShow'])      ->name('admin.lesson-notes.scheme-show');
-Route::get  ('/lesson-notes/{id}',                 [LessonNoteController::class, 'show'])            ->name('admin.lesson-notes.show');
-Route::post ('/lesson-notes/{id}/approve',         [LessonNoteController::class, 'approve'])         ->name('admin.lesson-notes.approve');
-Route::post ('/lesson-notes/{id}/revision',        [LessonNoteController::class, 'requestRevision']) ->name('admin.lesson-notes.revision');
+// ── Lesson Notes (feature: lesson_notes — standard+) ─────────────────────────
+Route::middleware('feature:lesson_notes')->group(function () {
+    Route::get  ('/lesson-notes',                      [LessonNoteController::class, 'index'])          ->name('admin.lesson-notes.index');
+    Route::get  ('/lesson-notes/schemes',              [LessonNoteController::class, 'schemes'])         ->name('admin.lesson-notes.schemes');
+    Route::get  ('/lesson-notes/schemes/{id}',         [LessonNoteController::class, 'schemeShow'])      ->name('admin.lesson-notes.scheme-show');
+    Route::get  ('/lesson-notes/{id}',                 [LessonNoteController::class, 'show'])            ->name('admin.lesson-notes.show');
+    Route::post ('/lesson-notes/{id}/approve',         [LessonNoteController::class, 'approve'])         ->name('admin.lesson-notes.approve');
+    Route::post ('/lesson-notes/{id}/revision',        [LessonNoteController::class, 'requestRevision']) ->name('admin.lesson-notes.revision');
+});
 
-// ── Curriculum Management ─────────────────────────────────────────────────────
-Route::get   ('/curriculum',                                [CurriculumController::class, 'index'])            ->name('admin.curriculum.index');
-Route::post  ('/curriculum/strands',                        [CurriculumController::class, 'storeStrand'])      ->name('admin.curriculum.strands.store');
-Route::put   ('/curriculum/strands/{id}',                   [CurriculumController::class, 'updateStrand'])     ->name('admin.curriculum.strands.update');
-Route::delete('/curriculum/strands/{id}',                   [CurriculumController::class, 'destroyStrand'])    ->name('admin.curriculum.strands.destroy');
-Route::post  ('/curriculum/sub-strands',                    [CurriculumController::class, 'storeSubStrand'])   ->name('admin.curriculum.sub-strands.store');
-Route::put   ('/curriculum/sub-strands/{id}',               [CurriculumController::class, 'updateSubStrand'])  ->name('admin.curriculum.sub-strands.update');
-Route::delete('/curriculum/sub-strands/{id}',               [CurriculumController::class, 'destroySubStrand']) ->name('admin.curriculum.sub-strands.destroy');
+// ── Curriculum Management (feature: curriculum_management — standard+) ───────
+Route::middleware('feature:curriculum_management')->group(function () {
+    Route::get   ('/curriculum',                                [CurriculumController::class, 'index'])            ->name('admin.curriculum.index');
+    Route::post  ('/curriculum/strands',                        [CurriculumController::class, 'storeStrand'])      ->name('admin.curriculum.strands.store');
+    Route::put   ('/curriculum/strands/{id}',                   [CurriculumController::class, 'updateStrand'])     ->name('admin.curriculum.strands.update');
+    Route::delete('/curriculum/strands/{id}',                   [CurriculumController::class, 'destroyStrand'])    ->name('admin.curriculum.strands.destroy');
+    Route::post  ('/curriculum/sub-strands',                    [CurriculumController::class, 'storeSubStrand'])   ->name('admin.curriculum.sub-strands.store');
+    Route::put   ('/curriculum/sub-strands/{id}',               [CurriculumController::class, 'updateSubStrand'])  ->name('admin.curriculum.sub-strands.update');
+    Route::delete('/curriculum/sub-strands/{id}',               [CurriculumController::class, 'destroySubStrand']) ->name('admin.curriculum.sub-strands.destroy');
+});

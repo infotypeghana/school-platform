@@ -183,21 +183,36 @@ return [
     |
     */
 
-    'memory_limit' => 64,
+    'memory_limit' => 128,  // MB — raised from 64; master process with 4 supervisors needs headroom
 
     /*
     |--------------------------------------------------------------------------
     | Queue Worker Configuration
     |--------------------------------------------------------------------------
-    |
-    | Here you may define the queue worker settings used by your application
-    | in all environments. These supervisors and settings handle all your
-    | queued jobs and will be provisioned by Horizon during deployment.
-    |
+    | Four queues in priority order:
+    |   notifications — subscription alerts, email dispatch (fast, low RAM)
+    |   sms           — Hubtel SMS dispatch (fast, external HTTP)
+    |   default       — general jobs
+    |   pdf           — DomPDF report cards (CPU-bound, slow)
+    |   exports       — ZIP data exports (memory-heavy, slow)
     */
 
     'defaults' => [
-        // General-purpose: notifications, exports, SMS, fee emails
+        // Notifications + SMS — high-priority, small, fast
+        'supervisor-notifications' => [
+            'connection'          => 'redis',
+            'queue'               => ['notifications', 'sms'],
+            'balance'             => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses'        => 4,
+            'maxTime'             => 0,
+            'maxJobs'             => 1000,
+            'memory'              => 64,
+            'tries'               => 3,
+            'timeout'             => 30,
+            'nice'                => 0,
+        ],
+        // General-purpose background jobs
         'supervisor-default' => [
             'connection'          => 'redis',
             'queue'               => ['default'],
@@ -221,8 +236,8 @@ return [
             'maxJobs'             => 0,
             'memory'              => 256,
             'tries'               => 2,
-            'timeout'             => 180, // PDF generation can be slow for large classes
-            'nice'                => 5,   // Lower priority than default jobs
+            'timeout'             => 180,
+            'nice'                => 5,
         ],
         // Exports: one at a time (ZIP builds can be memory-intensive)
         'supervisor-exports' => [
@@ -241,6 +256,11 @@ return [
 
     'environments' => [
         'production' => [
+            'supervisor-notifications' => [
+                'maxProcesses'    => 6,
+                'balanceMaxShift' => 2,
+                'balanceCooldown' => 3,
+            ],
             'supervisor-default' => [
                 'maxProcesses'      => 8,
                 'balanceMaxShift'   => 2,
@@ -255,6 +275,9 @@ return [
         ],
 
         'local' => [
+            'supervisor-notifications' => [
+                'maxProcesses' => 1,
+            ],
             'supervisor-default' => [
                 'maxProcesses' => 2,
             ],

@@ -51,6 +51,8 @@ return [
         'client_id'     => env('HUBTEL_CLIENT_ID'),
         'client_secret' => env('HUBTEL_CLIENT_SECRET'),
         'sender_id'     => env('HUBTEL_SENDER_ID', 'SchoolMS'),
+        'sms_url'       => env('HUBTEL_SMS_URL', 'https://smsc.hubtel.com/v1/messages/send'),
+        'wa_url'        => env('HUBTEL_WA_URL',  'https://api.hubtel.com/v1/whatsapp/messages'),
     ],
 
 ];

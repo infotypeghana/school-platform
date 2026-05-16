@@ -25,21 +25,29 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Subscription Plans
+    | Currency
     |--------------------------------------------------------------------------
+    | ISO 4217 currency code used in payment initialisations and display labels.
+    | Change to 'NGN', 'KES', etc. when deploying to other markets.
     */
-    'plans' => [
-        'basic' => [
-            'name'   => 'Basic',
-            'amount' => env('PLAN_BASIC_AMOUNT', 500.00),  // GHS
-        ],
-        'standard' => [
-            'name'   => 'Standard',
-            'amount' => env('PLAN_STANDARD_AMOUNT', 850.00),
-        ],
-        'premium' => [
-            'name'   => 'Premium',
-            'amount' => env('PLAN_PREMIUM_AMOUNT', 1200.00),
-        ],
-    ],
+    'currency' => env('BILLING_CURRENCY', 'GHS'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | SMS Brand Prefix
+    |--------------------------------------------------------------------------
+    | Short prefix prepended to outbound subscription SMS notifications,
+    | e.g. "SchoolMS: Your subscription expires in 7 days."
+    | Reads APP_NAME by default so white-label deployments need no extra config.
+    */
+    'sms_brand_prefix' => env('BILLING_SMS_PREFIX', env('APP_NAME', 'SchoolMS')),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Subscription Packages
+    |--------------------------------------------------------------------------
+    | Per-student pricing is stored in the subscription_packages table and
+    | managed via the Super Admin → Packages UI.  There are no hardcoded plan
+    | amounts here; the table is the single source of truth.
+    */
 ];

@@ -21,10 +21,19 @@ return Application::configure(basePath: dirname(__DIR__))
             'teacher.portal'       => \App\Http\Middleware\EnsureTeacherPortalAuth::class,
             '2fa'                  => \App\Http\Middleware\EnsureTwoFactorVerified::class,
             'api.tenant'           => \App\Http\Middleware\SetTenantFromToken::class,
+            'feature'              => \App\Http\Middleware\EnsureFeatureEnabled::class,
         ]);
 
         // Ensure HTTPS cookies work correctly in production
         $middleware->trustProxies(at: '*');
+
+        // Append security response headers on every request
+        $middleware->append(\App\Http\Middleware\SecureHeadersMiddleware::class);
+
+        // Global request telemetry — terminate() fires AFTER response dispatch,
+        // so it adds zero latency. Writes to request_logs for analytics + tracing.
+        // Also injects X-Request-ID response header for distributed tracing.
+        $middleware->append(\App\Http\Middleware\LogRequestMiddleware::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

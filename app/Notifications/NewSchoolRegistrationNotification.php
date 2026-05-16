@@ -26,7 +26,7 @@ class NewSchoolRegistrationNotification extends Notification implements ShouldQu
         return (new MailMessage)
             ->subject('New School Registration: ' . $this->tenant->name)
             ->greeting('New School Registration')
-            ->line($this->tenant->contact_name . ' from **' . $this->tenant->name . '** has requested access to SchoolMS Ghana.')
+            ->line($this->tenant->contact_name . ' from **' . $this->tenant->name . '** has requested access to ' . config('app.name') . '.')
             ->line('**District:** ' . ($this->tenant->district ?? '—'))
             ->line('**School type:** ' . ucfirst($this->tenant->school_type ?? '—'))
             ->line('**Estimated students:** ' . number_format($this->tenant->estimated_students ?? 0))

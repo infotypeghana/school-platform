@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Services\StructuredLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,14 +34,31 @@ class LoginController extends Controller
 
         $isSuperAdmin = $this->isSuperAdminDomain($request);
 
+        // ── Account lockout pre-check ─────────────────────────────────────────
+        $candidate = User::where('email', $credentials['email'])->first();
+        if ($candidate && $candidate->isLockedOut()) {
+            $minutes = (int) now()->diffInMinutes($candidate->locked_until, false);
+            app(StructuredLogger::class)->security('login.locked_out', ['email' => $credentials['email']]);
+            return back()
+                ->withInput(['email' => $request->email])
+                ->withErrors(['email' => "Account locked due to too many failed attempts. Try again in {$minutes} minute(s)."]);
+        }
+
         // Attempt authentication
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+            // Track failure on the candidate user if found
+            if ($candidate) {
+                $candidate->recordFailedLogin();
+            }
+            app(StructuredLogger::class)->security('login.failed', ['email' => $credentials['email']]);
             return back()
                 ->withInput(['email' => $request->email])
                 ->withErrors(['email' => 'These credentials do not match our records.']);
         }
 
         $user = Auth::user();
+        // Clear lockout counter on successful auth
+        $user->clearLoginAttempts();
 
         // ── Super admin domain guard ──────────────────────────────────────
         if ($isSuperAdmin) {

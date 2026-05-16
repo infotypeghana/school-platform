@@ -5,6 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', app('currentTenant')?->name ?? 'School')</title>
     <meta name="description" content="@yield('meta-description', app('currentTenant')?->name . ' — Official School Website')">
+
+    {{-- White-label branding --}}
+    @php
+        $tenant       = app('currentTenant');
+        $primaryColor = $tenant?->primaryColor() ?? '#1a56db';
+        $faviconUrl   = $tenant?->faviconUrl();
+    @endphp
+    @if($faviconUrl)
+        <link rel="icon" type="image/x-icon" href="{{ $faviconUrl }}">
+        <link rel="apple-touch-icon" href="{{ $faviconUrl }}">
+    @else
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    @endif
+    <meta name="theme-color" content="{{ $primaryColor }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="{{ app('currentTenant')?->name ?? config('app.name') }}">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>

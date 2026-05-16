@@ -20,7 +20,7 @@ class UpdateSchoolProfileRequest extends FormRequest
             'contact_phone' => ['nullable', 'string', 'max:30'],
             'contact_email' => ['nullable', 'email', 'max:150'],
             'primary_color' => ['nullable', 'string', 'max:7', 'regex:/^#[0-9A-Fa-f]{6}$/'],
-            'logo'          => ['nullable', 'image', 'max:2048'],
+            'logo'          => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
             'remove_logo'   => ['nullable', 'boolean'],
         ];
     }

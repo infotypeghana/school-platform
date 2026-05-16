@@ -27,10 +27,12 @@ class SchoolApprovedNotification extends Notification implements ShouldQueue
         $domain    = config('app.domain');
         $loginUrl  = 'https://' . $this->tenant->slug . '.admin.' . $domain . '/login';
 
+        $appName = config('app.name');
+
         return (new MailMessage)
-            ->subject('Welcome to SchoolMS Ghana — Your School is Approved!')
+            ->subject("Welcome to {$appName} — Your School is Approved!")
             ->greeting('Welcome, ' . ($this->tenant->contact_name ?? $this->tenant->name) . '!')
-            ->line('Your school **' . $this->tenant->name . '** has been approved and is ready to use SchoolMS Ghana.')
+            ->line("Your school **{$this->tenant->name}** has been approved and is ready to use {$appName}.")
             ->line('**Your login credentials:**')
             ->line('Email: ' . $notifiable->email)
             ->line('Password: ' . $this->password)
@@ -38,6 +40,6 @@ class SchoolApprovedNotification extends Notification implements ShouldQueue
             ->action('Login to Your School Portal', $loginUrl)
             ->line('Please change your password immediately after your first login.')
             ->line('Your account starts with a **free trial** subscription. You can explore all features before your subscription begins.')
-            ->salutation('The SchoolMS Ghana Team');
+            ->salutation("The {$appName} Team");
     }
 }

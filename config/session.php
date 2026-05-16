@@ -101,7 +101,10 @@ return [
     |
     */
 
-    'store' => env('SESSION_STORE'),
+    // When SESSION_DRIVER=redis, point to the isolated 'session' Redis connection
+    // (DB 2) so a cache flush never wipes active user sessions.
+    'store' => env('SESSION_STORE', 'redis'),
+    'connection' => env('SESSION_CONNECTION', 'session'),
 
     /*
     |--------------------------------------------------------------------------

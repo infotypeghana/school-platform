@@ -42,16 +42,28 @@ class Student extends Model
 
     private static function generateAdmissionNumber(int $tenantId): string
     {
-        $year = now()->year;
+        $year   = now()->year;
+        $prefix = sprintf('ADM-%d-', $year);
 
-        // Count existing students for this tenant in the current year
-        // (withoutTenantScope so it works during tests without a bound tenant)
-        $sequence = static::withoutGlobalScopes()
-            ->where('tenant_id', $tenantId)
-            ->whereYear('created_at', $year)
-            ->count() + 1;
+        // Use the same lockForUpdate pattern as Invoice::nextNumber() to prevent
+        // two concurrent student creations from receiving the same sequence number.
+        // SQLite (used in tests) does not support FOR UPDATE — lockForUpdate() falls
+        // back gracefully to a plain SELECT there, which is acceptable for single-
+        // process test runs.
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($tenantId, $prefix): string {
+            $driver = \Illuminate\Support\Facades\DB::getDriverName();
+            $castExpr = $driver === 'sqlite'
+                ? 'CAST(SUBSTR(admission_number, ' . (strlen($prefix) + 1) . ') AS INTEGER)'
+                : 'CAST(SUBSTR(admission_number, ' . (strlen($prefix) + 1) . ') AS UNSIGNED)';
 
-        return sprintf('ADM-%d-%04d', $year, $sequence);
+            $max = (int) \Illuminate\Support\Facades\DB::table('students')
+                ->where('tenant_id', $tenantId)
+                ->where('admission_number', 'like', $prefix . '%')
+                ->lockForUpdate()
+                ->max(\Illuminate\Support\Facades\DB::raw($castExpr));
+
+            return $prefix . str_pad($max + 1, 4, '0', STR_PAD_LEFT);
+        });
     }
 
     public function tenant(): BelongsTo

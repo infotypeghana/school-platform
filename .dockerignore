@@ -1,0 +1,38 @@
+# Version control
+.git
+.gitignore
+
+# Dev tooling
+node_modules
+.env
+.env.*
+!.env.example
+
+# Tests & CI
+tests
+.github
+phpunit.xml
+phpstan.neon
+*.test.js
+
+# IDE & OS
+.idea
+.vscode
+*.DS_Store
+Thumbs.db
+
+# Docker source (not needed inside image)
+docker
+docker-compose*.yml
+Dockerfile
+
+# Compiled output that will be re-built inside image
+public/build
+public/hot
+
+# Logs & temp
+storage/logs/*.log
+storage/framework/cache
+storage/framework/sessions
+storage/framework/views
+bootstrap/cache/*.php

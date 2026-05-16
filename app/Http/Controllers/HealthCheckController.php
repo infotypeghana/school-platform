@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Subscription;
+use App\Models\Tenant;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -12,21 +14,8 @@ use Throwable;
  * GET /health
  *
  * Used by load balancers, uptime monitors, and container liveness probes.
- *
  * Returns 200 when all critical services are reachable, or 503 with a
  * JSON body listing what failed so ops can diagnose quickly.
- *
- * Response shape:
- *   {
- *     "status": "ok" | "degraded",
- *     "checks": {
- *       "database": { "status": "ok" | "fail", "latency_ms": 4 },
- *       "cache":    { "status": "ok" | "fail" },
- *       "queue":    { "status": "ok" | "fail" }
- *     },
- *     "app_env":  "production",
- *     "timestamp": "2026-05-14T06:00:00Z"
- *   }
  */
 class HealthCheckController extends Controller
 {
@@ -35,45 +24,34 @@ class HealthCheckController extends Controller
         $checks = [];
         $allOk  = true;
 
-        // ── Database ──────────────────────────────────────────────────────────
         $checks['database'] = $this->checkDatabase();
-        if ($checks['database']['status'] !== 'ok') {
-            $allOk = false;
-        }
+        $checks['cache']    = $this->checkCache();
+        $checks['queue']    = $this->checkQueue();
+        $checks['storage']  = $this->checkStorage();
+        $checks['horizon']  = $this->checkHorizon();
+        $checks['saas']     = $this->checkSaasMetrics();  // non-critical; informational
 
-        // ── Cache ─────────────────────────────────────────────────────────────
-        $checks['cache'] = $this->checkCache();
-        if ($checks['cache']['status'] !== 'ok') {
-            $allOk = false;
+        foreach (['database', 'cache', 'queue', 'storage'] as $critical) {
+            if (($checks[$critical]['status'] ?? 'fail') !== 'ok') {
+                $allOk = false;
+            }
         }
-
-        // ── Queue ─────────────────────────────────────────────────────────────
-        $checks['queue'] = $this->checkQueue();
-        if ($checks['queue']['status'] !== 'ok') {
-            $allOk = false;
-        }
-
-        $status  = $allOk ? 'ok' : 'degraded';
-        $httpCode = $allOk ? 200 : 503;
 
         return response()->json([
-            'status'    => $status,
+            'status'    => $allOk ? 'ok' : 'degraded',
             'checks'    => $checks,
             'app_env'   => app()->environment(),
             'timestamp' => now()->toIso8601ZuluString(),
-        ], $httpCode);
+        ], $allOk ? 200 : 503);
     }
-
-    // ── Individual checks ─────────────────────────────────────────────────────
 
     private function checkDatabase(): array
     {
         try {
             $start = hrtime(true);
             DB::select('SELECT 1');
-            $latency = (int) round((hrtime(true) - $start) / 1_000_000); // ms
-
-            return ['status' => 'ok', 'latency_ms' => $latency];
+            $ms = (int) round((hrtime(true) - $start) / 1_000_000);
+            return ['status' => 'ok', 'latency_ms' => $ms, 'driver' => config('database.default')];
         } catch (Throwable $e) {
             return ['status' => 'fail', 'error' => $e->getMessage()];
         }
@@ -82,14 +60,13 @@ class HealthCheckController extends Controller
     private function checkCache(): array
     {
         try {
-            $key = '_health_check_' . str_pad((string) rand(0, 9999), 4, '0', STR_PAD_LEFT);
+            $key = '_health_' . uniqid();
             Cache::put($key, 'ping', 5);
             $ok = Cache::get($key) === 'ping';
             Cache::forget($key);
-
             return $ok
-                ? ['status' => 'ok']
-                : ['status' => 'fail', 'error' => 'Cache round-trip failed'];
+                ? ['status' => 'ok', 'driver' => config('cache.default')]
+                : ['status' => 'fail', 'error' => 'Cache round-trip mismatch'];
         } catch (Throwable $e) {
             return ['status' => 'fail', 'error' => $e->getMessage()];
         }
@@ -98,13 +75,61 @@ class HealthCheckController extends Controller
     private function checkQueue(): array
     {
         try {
-            // Just verify the queue connection is reachable — don't dispatch a real job.
-            // For Redis: pings the connection; for database: runs a tiny query.
-            $size = Queue::size('default');
-
-            return ['status' => 'ok', 'default_queue_size' => $size];
+            return [
+                'status'      => 'ok',
+                'connection'  => config('queue.default'),
+                'queue_sizes' => [
+                    'notifications' => Queue::size('notifications'),
+                    'sms'           => Queue::size('sms'),
+                    'default'       => Queue::size('default'),
+                    'pdf'           => Queue::size('pdf'),
+                    'exports'       => Queue::size('exports'),
+                ],
+            ];
         } catch (Throwable $e) {
             return ['status' => 'fail', 'error' => $e->getMessage()];
+        }
+    }
+
+    private function checkStorage(): array
+    {
+        try {
+            $path = storage_path('framework/cache/.health_probe');
+            file_put_contents($path, time());
+            $ok = file_exists($path);
+            @unlink($path);
+            return $ok ? ['status' => 'ok'] : ['status' => 'fail', 'error' => 'Storage not writable'];
+        } catch (Throwable $e) {
+            return ['status' => 'fail', 'error' => $e->getMessage()];
+        }
+    }
+
+    private function checkHorizon(): array
+    {
+        try {
+            $prefix = config('horizon.prefix', 'laravel_horizon:');
+            $key    = $prefix . 'master_supervisor';
+            $alive  = Cache::store('redis')->has($key);
+            return $alive
+                ? ['status' => 'ok']
+                : ['status' => 'warn', 'note' => 'Horizon heartbeat absent — worker may be stopped'];
+        } catch (Throwable) {
+            return ['status' => 'warn', 'note' => 'Could not read Horizon heartbeat from Redis'];
+        }
+    }
+
+    private function checkSaasMetrics(): array
+    {
+        try {
+            return [
+                'status'               => 'ok',
+                'active_tenants'       => Tenant::whereIn('status', ['trial', 'active', 'grace'])->count(),
+                'active_subscriptions' => Subscription::whereIn('status', ['trial', 'active'])->count(),
+                'grace_subscriptions'  => Subscription::where('status', 'grace')->count(),
+                'locked_tenants'       => Tenant::where('status', 'locked')->count(),
+            ];
+        } catch (Throwable $e) {
+            return ['status' => 'warn', 'error' => $e->getMessage()];
         }
     }
 }
